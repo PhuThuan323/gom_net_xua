@@ -1,0 +1,383 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ProductGroup {
+  id          Int      @id @default(autoincrement())
+  group_code  String   @unique @db.VarChar(50)
+  group_name  String   @db.VarChar(255)
+  description String?  @db.Text
+  image_url   String?  @db.Text
+  status      String   @default("active")
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  products Product[]
+
+  @@map("product_groups")
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  group_id     Int
+  product_code String   @unique @db.VarChar(100)
+  product_name String   @db.VarChar(255)
+  description  String?  @db.Text
+  image_url    String?  @db.Text
+  status       String   @default("active")
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  group    ProductGroup     @relation(fields: [group_id], references: [id], onDelete: Cascade)
+  variants ProductVariant[]
+
+  @@index([group_id])
+  @@map("products")
+}
+
+model ProductVariant {
+  id                 Int      @id @default(autoincrement())
+  product_id         Int
+  variant_code       String   @unique @db.VarChar(100)
+  size               String?  @db.VarChar(100)
+  barcode            String?  @unique @db.VarChar(100)
+  purchase_price     Decimal  @default(0) @db.Decimal(15, 2)
+  selling_price      Decimal  @default(0) @db.Decimal(15, 2)
+  current_quantity   Int      @default(0)
+  min_stock_quantity Int      @default(0)
+  image_url          String?  @db.Text
+  status             String   @default("active")
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  product                Product                @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  inventory_transactions InventoryTransaction[]
+  import_items           ImportItem[]
+  invoice_items          InvoiceItem[]
+
+  @@index([product_id])
+  @@map("product_variants")
+}
+
+model InventoryTransaction {
+  id              Int      @id @default(autoincrement())
+  variant_id      Int
+  transaction_type String   @db.VarChar(50)
+  quantity        Int
+  quantity_before Int
+  quantity_after  Int
+  unit_price      Decimal? @db.Decimal(15, 2)
+  total_value     Decimal? @db.Decimal(15, 2)
+  note            String?  @db.Text
+  created_at      DateTime @default(now())
+
+  variant ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
+
+  @@index([variant_id])
+  @@index([transaction_type])
+  @@index([created_at])
+  @@map("inventory_transactions")
+}
+
+model Supplier {
+  id            Int      @id @default(autoincrement())
+  supplier_code String   @unique @db.VarChar(100)
+  supplier_name String   @db.VarChar(255)
+  phone         String?  @db.VarChar(50)
+  email         String?  @db.VarChar(255)
+  address       String?  @db.Text
+  tax_code      String?  @db.VarChar(100)
+  note          String?  @db.Text
+  status        String   @default("active")
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  import_receipts ImportReceipt[]
+  debts           SupplierDebt[]
+
+  @@map("suppliers")
+}
+model SupplierDebt {
+  id              Int      @id @default(autoincrement())
+
+  supplier_id     Int
+
+  transaction_type String   @db.VarChar(50)
+  // DEBT = Phát sinh nợ
+  // PAYMENT = Trả nợ
+  // ADJUSTMENT = Điều chỉnh
+
+  amount          Decimal  @db.Decimal(15, 2)
+
+  balance_after   Decimal  @db.Decimal(15, 2)
+
+  reference_type  String?  @db.VarChar(50)
+  // IMPORT_RECEIPT
+  // MANUAL
+  // PAYMENT
+
+  reference_id    Int?
+
+  reference_code  String?  @db.VarChar(100)
+
+  note            String?  @db.Text
+
+  transaction_date DateTime @default(now())
+  created_at       DateTime @default(now())
+
+  supplier Supplier @relation(fields: [supplier_id], references: [id], onDelete: Cascade)
+
+  @@index([supplier_id])
+  @@index([transaction_date])
+  @@index([supplier_id, transaction_date])
+  @@map("supplier_debts")
+}
+model ImportReceipt {
+  id           Int      @id @default(autoincrement())
+  receipt_code String   @unique @db.VarChar(100)
+
+  supplier_id  Int?
+
+  total_amount Decimal  @default(0) @db.Decimal(15, 2)
+  paid_amount  Decimal  @default(0) @db.Decimal(15, 2)
+  debt_amount  Decimal  @default(0) @db.Decimal(15, 2)
+
+  status       String   @default("completed")
+
+  received_by  String?  @db.VarChar(255)
+
+  note         String?  @db.Text
+
+  import_date  DateTime @default(now())
+  created_at   DateTime @default(now())
+
+  supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  items    ImportItem[]
+
+  @@index([supplier_id])
+  @@index([import_date])
+  @@map("import_receipts")
+}
+
+model ImportItem {
+  id                Int      @id @default(autoincrement())
+  import_receipt_id Int
+  variant_id        Int
+  quantity          Int
+  purchase_price    Decimal  @db.Decimal(15, 2)
+  total_price       Decimal  @db.Decimal(15, 2)
+  created_at        DateTime @default(now())
+
+  receipt ImportReceipt @relation(fields: [import_receipt_id], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variant_id], references: [id])
+
+  @@index([import_receipt_id])
+  @@index([variant_id])
+  @@map("import_items")
+}
+
+model Customer {
+  id               Int      @id @default(autoincrement())
+  customer_code    String   @unique @db.VarChar(100)
+  customer_name    String   @db.VarChar(255)
+
+  phone            String?  @db.VarChar(50)
+  email            String?  @db.VarChar(255)
+
+  address          String?  @db.Text
+  shipping_address String?  @db.Text
+
+  tax_code         String?  @db.VarChar(100)
+  note             String?  @db.Text
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  invoices Invoice[]
+
+  @@map("customers")
+}
+
+model Invoice {
+  id               Int      @id @default(autoincrement())
+
+  invoice_code     String   @unique @db.VarChar(100)
+
+  brand_id         Int?
+  customer_id      Int?
+
+  invoice_date     DateTime @default(now())
+
+  channel          String?  @db.VarChar(100)
+  order_code       String?  @db.VarChar(100)
+
+  subtotal         Decimal  @default(0) @db.Decimal(15, 2)
+  shipping_fee     Decimal  @default(0) @db.Decimal(15, 2)
+
+  total_amount     Decimal  @default(0) @db.Decimal(15, 2)
+  paid_amount      Decimal  @default(0) @db.Decimal(15, 2)
+
+  deposit_amount   Decimal  @default(0) @db.Decimal(15, 2)
+
+  payment_method   String?  @db.VarChar(100)
+
+  shipping_address String?  @db.Text
+
+  warehouse_status String   @default("not_processed")
+
+  status           String   @default("completed")
+
+  note             String?  @db.Text
+
+  created_at       DateTime @default(now())
+
+  brand    InvoiceBrand? @relation(fields: [brand_id], references: [id])
+
+  customer Customer? @relation(fields: [customer_id], references: [id])
+
+  items InvoiceItem[]
+
+  @@index([brand_id])
+  @@index([customer_id])
+  @@index([invoice_date])
+  @@index([created_at])
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          Int      @id @default(autoincrement())
+  invoice_id  Int
+  variant_id  Int
+  quantity    Int
+  unit_price  Decimal  @db.Decimal(15, 2)
+  total_price Decimal  @db.Decimal(15, 2)
+  created_at  DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variant_id], references: [id])
+
+  @@index([invoice_id])
+  @@index([variant_id])
+  @@map("invoice_items")
+}
+
+model Receipt {
+  id               Int      @id @default(autoincrement())
+  receipt_code     String   @unique @db.VarChar(100)
+
+  // Số tiền thực nhận
+  amount           Decimal  @db.Decimal(15, 2)
+
+  // Nguồn: TikTok Shop, Shopee, Vietnam Post...
+  category         String   @db.VarChar(100)
+
+  // Tổng sao kê trước phí
+  statement_amount Decimal  @default(0) @db.Decimal(15, 2)
+
+  // Phí sàn / vận chuyển / đối soát
+  fee_amount       Decimal  @default(0) @db.Decimal(15, 2)
+
+  // Mã kỳ đối soát
+  period_code      String?  @db.VarChar(100)
+
+  description      String?  @db.Text
+
+  created_at       DateTime @default(now())
+
+  @@index([category])
+  @@index([created_at])
+  @@map("receipts")
+}
+
+model Expense {
+  id           Int      @id @default(autoincrement())
+  expense_code String   @unique @db.VarChar(100)
+
+  amount       Decimal  @db.Decimal(15, 2)
+
+  category     String   @db.VarChar(100)
+
+  recipient    String?  @db.VarChar(255)
+
+  description  String?  @db.Text
+
+  created_at   DateTime @default(now())
+
+  @@index([category])
+  @@index([created_at])
+  @@map("expenses")
+}
+
+model InvoiceBrand {
+  id            Int      @id @default(autoincrement())
+
+  brand_code    String   @unique @db.VarChar(50)
+  brand_name    String   @db.VarChar(255)
+
+  tax_code      String?  @db.VarChar(100)
+  phone         String?  @db.VarChar(50)
+  address       String?  @db.Text
+  email         String?  @db.VarChar(255)
+
+  bank_name     String?  @db.VarChar(255)
+  bank_account  String?  @db.VarChar(100)
+  bank_holder   String?  @db.VarChar(255)
+
+  logo_text     String?  @db.VarChar(20)
+
+  status        String   @default("active")
+  is_default    Boolean  @default(false)
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  invoices Invoice[]
+
+  @@map("invoice_brands")
+}
+
+enum UserRole {
+  ADMIN
+  EMPLOYEE
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+
+  email         String   @unique @db.VarChar(255)
+
+  password_hash String?  @db.VarChar(255)
+
+  full_name     String   @db.VarChar(255)
+
+  phone         String?  @db.VarChar(50)
+
+  position      String?  @db.VarChar(150)
+
+  avatar_url    String?  @db.Text
+
+  role          UserRole @default(EMPLOYEE)
+
+  google_sub    String?  @unique @db.VarChar(255)
+
+  status        String   @default("active")
+  // active
+  // inactive
+
+  last_login_at DateTime?
+
+  created_at    DateTime @default(now())
+
+  updated_at    DateTime @updatedAt
+
+  @@index([role])
+  @@index([status])
+
+  @@map("users")
+}

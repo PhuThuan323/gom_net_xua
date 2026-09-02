@@ -1,0 +1,531 @@
+/* =========================================================
+   PAGE
+========================================================= */
+
+.cashflow-page {
+  min-height: 100vh;
+
+  padding: 18px;
+
+  background: #eef1f3;
+
+  color: #1f160f;
+
+  font-family:
+    "Segoe UI",
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  overflow-x: hidden;
+}
+
+.cashflow-page * {
+  box-sizing: border-box;
+
+  font-family:
+    "Segoe UI",
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.cashflow-title-card {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 20px 22px;
+
+  margin-bottom: 22px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.cashflow-title-card h1 {
+  margin: 0;
+
+  font-size: 28px;
+
+  color: #321c0d;
+}
+
+.cashflow-title-card p {
+  margin: 4px 0 0;
+
+  color: #80634e;
+
+  font-size: 16px;
+}
+
+.cashflow-title-actions {
+  display: flex;
+
+  gap: 8px;
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.cashflow-btn {
+  min-height: 48px;
+
+  padding: 0 17px;
+
+  border: 0;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.cashflow-btn.primary {
+  background: #873e17;
+
+  color: #fff;
+}
+
+.cashflow-btn.primary:hover {
+  background: #6f2f0f;
+}
+
+.cashflow-btn.secondary {
+  background: #edd9c6;
+
+  color: #612900;
+}
+
+.cashflow-btn.secondary:hover {
+  background: #e2c6ad;
+}
+
+.cashflow-btn:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.cashflow-filter-card {
+  display: grid;
+
+  gap: 12px;
+
+  padding: 20px;
+
+  margin-bottom: 18px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.cashflow-filter-card select,
+.cashflow-filter-card input {
+  width: 100%;
+
+  min-height: 50px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dfc4ac;
+
+  border-radius: 9px;
+
+  background: #fff;
+
+  font-size: 17px;
+
+  outline: none;
+}
+
+.cashflow-custom-range {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 12px;
+}
+
+.cashflow-custom-range label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #795c46;
+
+  font-weight: 700;
+}
+
+.cashflow-view-btn {
+  width: max-content;
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.cashflow-dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.cashflow-stat-card {
+  min-height: 100px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.cashflow-stat-card span {
+  color: #80634e;
+
+  font-size: 13px;
+}
+
+.cashflow-stat-card strong {
+  margin-top: 7px;
+
+  color: #632500;
+
+  font-size: 28px;
+}
+
+.cashflow-stat-card.profit-card {
+  grid-column:
+    span 1;
+}
+
+.cashflow-stat-card .positive {
+  color: #267042;
+}
+
+.cashflow-stat-card .negative {
+  color: #bd3730;
+}
+
+/* =========================================================
+   FORM GRID
+========================================================= */
+
+.cashflow-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 20px;
+
+  margin-top: 28px;
+
+  margin-bottom: 30px;
+}
+
+.cashflow-form-card {
+  padding: 22px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.cashflow-form-card h2 {
+  margin:
+    0
+    0
+    20px;
+
+  color: #321b0d;
+}
+
+.cashflow-form-card label {
+  display: block;
+
+  margin:
+    10px
+    0
+    6px;
+
+  color: #795c46;
+
+  font-weight: 700;
+}
+
+.cashflow-form-card input,
+.cashflow-form-card select {
+  width: 100%;
+
+  min-height: 47px;
+
+  padding: 0 12px;
+
+  border: 1px solid #dfc4ac;
+
+  border-radius: 9px;
+
+  background: #fff;
+
+  font-size: 15px;
+
+  outline: none;
+}
+
+.cashflow-form-card input:focus,
+.cashflow-form-card select:focus {
+  border-color: #95502a;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      135,
+      62,
+      23,
+      0.08
+    );
+}
+
+.cashflow-two-column {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr;
+
+  gap: 12px;
+}
+
+.cashflow-save-btn {
+  width: 100%;
+
+  margin-top: 16px;
+}
+
+/* =========================================================
+   TABLE GRID
+========================================================= */
+
+.cashflow-tables-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  gap: 20px;
+
+  width: 100%;
+
+  min-width: 0;
+}
+
+.cashflow-list-section {
+  min-width: 0;
+}
+
+.cashflow-list-section h2 {
+  margin:
+    0
+    0
+    14px;
+
+  color: #28170d;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.cashflow-table-wrap {
+  width: 100%;
+
+  max-width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #e5ccb7;
+
+  border-radius: 13px;
+
+  background: #fff;
+
+  scrollbar-color:
+    #ad7954
+    #f2e4d9;
+}
+
+.cashflow-table-wrap::-webkit-scrollbar {
+  height: 11px;
+}
+
+.cashflow-table-wrap::-webkit-scrollbar-track {
+  background: #f2e4d9;
+}
+
+.cashflow-table-wrap::-webkit-scrollbar-thumb {
+  background: #ad7954;
+
+  border-radius: 10px;
+}
+
+.cashflow-table {
+  width: max-content;
+
+  min-width: 100%;
+
+  border-collapse: collapse;
+}
+
+.cashflow-table th {
+  padding: 13px;
+
+  background: #f3e4d6;
+
+  color: #572400;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.cashflow-table td {
+  padding: 13px;
+
+  border-top: 1px solid #ead7c6;
+
+  white-space: nowrap;
+}
+
+.cashflow-table tbody tr:hover {
+  background: #fffaf6;
+}
+
+.cashflow-delete-btn {
+  border: 0;
+
+  padding:
+    9px
+    13px;
+
+  border-radius: 9px;
+
+  background: #bd3830;
+
+  color: #fff;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1150px) {
+  .cashflow-dashboard-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .cashflow-form-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cashflow-tables-grid {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .cashflow-page {
+    padding: 8px;
+  }
+
+  .cashflow-title-card {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .cashflow-title-actions {
+    width: 100%;
+
+    flex-direction: column;
+  }
+
+  .cashflow-title-actions .cashflow-btn {
+    width: 100%;
+  }
+
+  .cashflow-dashboard-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cashflow-custom-range,
+  .cashflow-two-column {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cashflow-form-card {
+    padding: 15px;
+  }
+}

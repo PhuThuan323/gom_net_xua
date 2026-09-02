@@ -1,0 +1,593 @@
+:root {
+  --topbar-height: 76px;
+  --sidebar-width: 292px;
+
+  --brand-brown: #7d3513;
+  --brand-brown-dark: #54250e;
+
+  --page-bg: #eef1f3;
+}
+
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+html,
+body,
+#root {
+  margin: 0;
+
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  overflow-x: hidden;
+
+  background: var(--page-bg);
+
+  font-family:
+    "Segoe UI",
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.app-shell {
+  min-height: 100vh;
+
+  background: var(--page-bg);
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.topbar {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 5000;
+
+  height: var(--topbar-height);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding:
+    0
+    24px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #57260f,
+      #7d3513
+    );
+
+  color: white;
+
+  box-shadow:
+    0 3px 16px
+    rgba(
+      44,
+      20,
+      8,
+      0.28
+    );
+}
+
+/* =========================================================
+   TOPBAR COMPANY
+========================================================= */
+
+.topbar-company {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.topbar-company-logo {
+  width: 46px;
+  height: 46px;
+
+  flex: 0 0 46px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border:
+    2px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.82
+    );
+
+  border-radius: 50%;
+
+  font-size: 18px;
+  font-weight: 900;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+}
+
+.topbar-company-text {
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.topbar-company-text strong {
+  font-size: 17px;
+
+  letter-spacing: 0.3px;
+}
+
+.topbar-company-text span {
+  margin-top: 2px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.76
+    );
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   TOPBAR USER
+========================================================= */
+
+.topbar-user {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex: 0 0 auto;
+}
+
+.topbar-user-info {
+  min-width: 130px;
+
+  text-align: right;
+}
+
+.topbar-user-info strong {
+  display: block;
+
+  font-size: 14px;
+}
+
+.topbar-user-info span {
+  display: block;
+
+  margin-top: 2px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  font-size: 12px;
+}
+
+.topbar-logout {
+  min-height: 40px;
+
+  padding:
+    0
+    15px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.35
+    );
+
+  border-radius: 10px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.13
+    );
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.topbar-logout:hover {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.22
+    );
+}
+
+/* =========================================================
+   AVATAR
+========================================================= */
+
+.topbar-avatar {
+  width: 46px;
+  height: 46px;
+
+  flex: 0 0 46px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border:
+    2px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.8
+    );
+
+  border-radius: 50%;
+
+  background: #f2dfcf;
+
+  color: #71300f;
+
+  font-size: 16px;
+
+  font-weight: 900;
+}
+
+.topbar-avatar img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar {
+  position: fixed;
+
+  top: var(--topbar-height);
+  left: 0;
+
+  bottom: 0;
+
+  z-index: 4000;
+
+  width: var(--sidebar-width);
+
+  padding:
+    18px
+    16px
+    26px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background: #fffdf9;
+
+  border-right:
+    1px solid
+    #e5d4c5;
+
+  box-shadow:
+    4px 0 16px
+    rgba(
+      62,
+      34,
+      16,
+      0.05
+    );
+
+  scrollbar-width: thin;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 7px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #c8a68d;
+
+  border-radius: 10px;
+}
+
+/* =========================================================
+   SIDEBAR BRAND
+========================================================= */
+
+.sidebar-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding:
+    4px
+    8px
+    20px;
+
+  margin-bottom: 8px;
+
+  border-bottom:
+    1px solid
+    #eee1d5;
+}
+
+.sidebar-logo {
+  width: 44px;
+  height: 44px;
+
+  flex: 0 0 44px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: #7d3513;
+
+  color: white;
+
+  font-weight: 900;
+}
+
+.sidebar-brand-text {
+  display: flex;
+
+  flex-direction: column;
+
+  line-height: 1.15;
+}
+
+.sidebar-brand-text strong,
+.sidebar-brand-text span {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   SIDEBAR MENU
+========================================================= */
+
+.menu {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.menu-item {
+  width: 100%;
+
+  min-height: 48px;
+
+  display: flex;
+
+  align-items: center;
+
+  padding:
+    0
+    14px;
+
+  border: 0;
+
+  border-left:
+    4px solid
+    transparent;
+
+  border-radius: 11px;
+
+  background: transparent;
+
+  color: #20160f;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border 0.16s ease;
+}
+
+.menu-item:hover {
+  background: #f5ece4;
+}
+
+.menu-item.active {
+  border-left-color:
+    #7d3513;
+
+  background: #eadccd;
+
+  color: #5a250b;
+}
+
+/* =========================================================
+   MAIN CONTENT
+========================================================= */
+
+.app-main {
+  min-height: 100vh;
+
+  margin-left:
+    var(--sidebar-width);
+
+  padding-top:
+    var(--topbar-height);
+
+  background:
+    var(--page-bg);
+
+  overflow-x: hidden;
+}
+
+/*
+ * Quan trọng:
+ * Nếu các page riêng đã có padding thì
+ * KHÔNG thêm padding ở app-main.
+ *
+ * Ví dụ TongQuan.jsx có .report-page padding riêng.
+ */
+
+/* =========================================================
+   FIX CÁC PAGE KHÔNG ĐÈ SIDEBAR
+========================================================= */
+
+.app-main > * {
+  min-width: 0;
+
+  max-width: 100%;
+}
+
+/* =========================================================
+   TABLE / WIDE CONTENT
+========================================================= */
+
+.app-main table {
+  max-width: 100%;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 1000px
+) {
+  :root {
+    --sidebar-width:
+      230px;
+  }
+
+  .topbar-company-text span {
+    display: none;
+  }
+
+  .topbar-user-info {
+    min-width: 100px;
+  }
+}
+
+@media (
+  max-width: 760px
+) {
+  :root {
+    --topbar-height:
+      64px;
+
+    --sidebar-width:
+      0px;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .app-main {
+    margin-left: 0;
+
+    padding-top:
+      var(--topbar-height);
+  }
+
+  .topbar {
+    padding:
+      0
+      10px;
+  }
+
+  .topbar-company-logo {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+  }
+
+  .topbar-company-text strong {
+    font-size: 13px;
+  }
+
+  .topbar-company-text span,
+  .topbar-user-info {
+    display: none;
+  }
+
+  .topbar-logout {
+    padding:
+      0
+      10px;
+
+    font-size: 12px;
+  }
+
+  .topbar-avatar {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+  }
+}

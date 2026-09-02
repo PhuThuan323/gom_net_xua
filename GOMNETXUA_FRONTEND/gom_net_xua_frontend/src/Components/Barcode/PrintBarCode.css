@@ -1,0 +1,441 @@
+.barcode-print-page {
+  padding: 30px;
+}
+
+
+/* ================================= */
+/* TITLE */
+/* ================================= */
+
+.page-title {
+  margin-bottom: 25px;
+}
+
+.page-title h1 {
+  margin: 0;
+}
+
+.page-title p {
+  margin-top: 8px;
+  color: #666;
+}
+
+
+/* ================================= */
+/* FORM */
+/* ================================= */
+
+.barcode-form-card {
+
+  background: #fff;
+
+  padding: 25px;
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 5px 20px
+    rgba(0, 0, 0, 0.08);
+
+}
+
+
+.form-group {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+
+}
+
+
+.form-group label {
+
+  font-weight: 600;
+
+}
+
+
+.form-group select,
+.form-group input {
+
+  padding: 12px;
+
+  border-radius: 8px;
+
+  border:
+    1px solid #ccc;
+
+  font-size: 15px;
+
+}
+
+
+/* ================================= */
+/* FORM ROW */
+/* ================================= */
+
+.form-row {
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 20px;
+
+  margin-top: 20px;
+
+}
+
+
+/* ================================= */
+/* OPTIONS */
+/* ================================= */
+
+.print-options {
+
+  display: flex;
+
+  gap: 40px;
+
+  margin-top: 20px;
+
+}
+
+
+.print-options label {
+
+  display: flex;
+
+  gap: 8px;
+
+  align-items: center;
+
+}
+
+
+/* ================================= */
+/* BUTTON */
+/* ================================= */
+
+.barcode-actions {
+
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 20px;
+
+}
+
+
+.preview-btn,
+.print-btn {
+
+  border: none;
+
+  padding:
+    12px 22px;
+
+  border-radius: 8px;
+
+  font-size: 16px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+}
+
+
+.preview-btn {
+
+  background:
+    #eee;
+
+}
+
+
+.print-btn {
+
+  background:
+    #7a3f1d;
+
+  color:
+    white;
+
+}
+
+
+/* ================================= */
+/* PREVIEW */
+/* ================================= */
+
+.label-preview-area {
+
+  margin-top: 25px;
+
+  padding: 25px;
+
+  border:
+    1px dashed #bbb;
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  align-items: flex-start;
+
+}
+
+
+.empty-preview {
+
+  width: 100%;
+
+  text-align: center;
+
+  padding: 50px;
+
+  color: #777;
+
+}
+
+
+/* ================================= */
+/* LABEL */
+/* ================================= */
+
+.barcode-label {
+
+  background:
+    white;
+
+  border:
+    1px solid #aaa;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  padding: 2mm;
+
+}
+
+
+.label-product-name {
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+  text-align: center;
+
+  max-width: 100%;
+
+}
+
+
+.label-sku {
+
+  font-size: 10px;
+
+}
+
+
+.label-barcode {
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+}
+
+
+.label-barcode svg {
+
+  max-width: 100%;
+
+  height: auto;
+
+}
+
+
+.label-price {
+
+  font-size: 11px;
+
+  font-weight: bold;
+
+}
+
+
+.label-image {
+
+  max-height: 10mm;
+
+  max-width: 15mm;
+
+  object-fit: contain;
+
+}
+
+
+/* ================================= */
+/* PRINT */
+/* ================================= */
+
+@media print {
+
+  body * {
+
+    visibility: hidden;
+
+  }
+
+
+  .label-preview-area,
+  .label-preview-area * {
+
+    visibility: visible;
+
+  }
+
+
+  .label-preview-area {
+
+    position: absolute;
+
+    left: 0;
+
+    top: 0;
+
+    width: 100%;
+
+    border: none;
+
+    padding: 0;
+
+    gap: 0;
+
+  }
+
+
+  .barcode-label {
+
+    border: none;
+
+    page-break-inside: avoid;
+
+  }
+
+}
+@media print {
+
+  /* Ẩn tất cả giao diện không cần in */
+
+  .sidebar,
+  .barcode-form-card,
+  .page-title,
+  .barcode-list-card {
+    display: none !important;
+  }
+
+
+  /* Bỏ khoảng cách thừa */
+
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+
+  .app,
+  .main-content,
+  .tem-page,
+  .barcode-print-page {
+    display: block !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    min-height: auto !important;
+
+    height: auto !important;
+
+    overflow: visible !important;
+  }
+
+
+  .label-preview-area {
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    min-height: auto !important;
+
+    height: auto !important;
+
+    overflow: visible !important;
+
+  }
+
+
+  .print-label-container {
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    display: flex !important;
+
+    flex-wrap: wrap !important;
+
+    align-content: flex-start !important;
+
+    gap: 0 !important;
+
+  }
+
+
+  .barcode-label {
+
+    margin: 0 !important;
+
+    padding: 1mm !important;
+
+    box-sizing: border-box !important;
+
+    break-inside: avoid !important;
+
+    page-break-inside: avoid !important;
+
+  }
+
+}
+
+
+/* QUAN TRỌNG: đặt trang in */
+
+@page {
+
+  margin: 0;
+
+}

@@ -1,0 +1,1073 @@
+/* =========================================================
+   NHAP KHO PAGE - NHẬP KHO BẰNG TAY
+========================================================= */
+
+.nhap-kho-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 16px 20px 40px;
+  box-sizing: border-box;
+  background: #eef1f5;
+  color: #2f343b;
+}
+
+/* HEADER */
+
+.nhap-kho-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.nhap-kho-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2f343b;
+}
+
+.nhap-kho-description {
+  margin: 5px 0 0;
+  color: #666;
+  font-size: 16px;
+}
+
+/* =========================================================
+   FORM THÔNG TIN PHIẾU
+========================================================= */
+
+.import-info-card {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1.4fr 2fr;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid #e3d7c9;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.form-group label {
+  margin-bottom: 7px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #5a5a5a;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 13px;
+  border: 1px solid #d9c7b5;
+  border-radius: 12px;
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+  font-size: 16px;
+  color: #333;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #8b4c23;
+  box-shadow: 0 0 0 3px rgba(139, 76, 35, 0.08);
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+.product-search-card {
+  background: #fff;
+  border: 1px solid #e3d7c9;
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.product-search-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+.product-search-title h2 {
+  margin: 0;
+  font-size: 21px;
+  color: #3f2a1e;
+}
+
+.product-search-title p {
+  margin: 5px 0 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.product-count {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: #f2e8dd;
+  color: #70411f;
+  font-weight: 700;
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-box input {
+  width: 100%;
+  height: 54px;
+  padding: 0 48px 0 48px;
+  border: 2px solid #a96132;
+  border-radius: 14px;
+  outline: none;
+  box-sizing: border-box;
+  font-size: 17px;
+  color: #333;
+  background: #fff;
+}
+
+.search-box input:focus {
+  border-color: #82451f;
+  box-shadow: 0 0 0 4px rgba(130, 69, 31, 0.08);
+}
+
+.search-icon {
+  position: absolute;
+  left: 17px;
+  z-index: 1;
+  font-size: 28px;
+  line-height: 1;
+  color: #82451f;
+  pointer-events: none;
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #eee4d8;
+  color: #70411f;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* =========================================================
+   PRODUCT LIST
+========================================================= */
+
+.product-list-card {
+  background: #fff;
+  border: 1px solid #e3d7c9;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.product-group {
+  border-bottom: 1px solid #e5d9cc;
+}
+
+.product-group:last-child {
+  border-bottom: none;
+}
+
+.product-group-header {
+  padding: 14px 20px;
+  background: #f2e6da;
+  border-bottom: 1px solid #dfcfbf;
+}
+
+.product-group-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #603616;
+}
+
+.product-table-wrapper,
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.import-product-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+}
+
+.import-product-table th {
+  padding: 12px 14px;
+  text-align: left;
+  background: #faf7f3;
+  color: #6a452d;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.import-product-table td {
+  padding: 12px 14px;
+  border-top: 1px solid #eee4da;
+  color: #343434;
+  vertical-align: middle;
+}
+
+.import-product-table tbody tr:hover {
+  background: #fcfaf8;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 280px;
+}
+
+.product-image {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 58px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.product-image-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: #f4f4f4;
+  color: #888;
+  font-size: 11px;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.product-info strong {
+  font-size: 16px;
+  color: #333;
+}
+
+.product-info span,
+.sku-cell span {
+  color: #777;
+  font-size: 13px;
+}
+
+.sku-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.number-cell {
+  text-align: right !important;
+  white-space: nowrap;
+}
+
+.quantity-input,
+.price-input {
+  height: 43px;
+  box-sizing: border-box;
+  border: 1px solid #d8c5b3;
+  border-radius: 10px;
+  outline: none;
+  padding: 8px 10px;
+  font-size: 15px;
+  background: #fff;
+}
+
+.quantity-input {
+  width: 110px;
+}
+
+.price-input {
+  width: 145px;
+}
+
+.quantity-input:focus,
+.price-input:focus {
+  border-color: #82451f;
+  box-shadow: 0 0 0 3px rgba(130, 69, 31, 0.08);
+}
+
+.money-text {
+  font-weight: 700;
+  color: #653617 !important;
+  white-space: nowrap;
+}
+
+.empty-product-box {
+  padding: 50px 20px;
+  text-align: center;
+  color: #777;
+}
+
+.loading-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  font-size: 17px;
+  color: #666;
+}
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.import-summary-card {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid #e3d7c9;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-item span {
+  font-size: 14px;
+  color: #777;
+}
+
+.summary-item strong {
+  font-size: 20px;
+  color: #333;
+}
+
+.summary-total {
+  margin-left: auto;
+  align-items: flex-end;
+}
+
+.summary-total strong {
+  font-size: 25px;
+  color: #82451f;
+}
+
+.confirm-import-btn,
+.print-history-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-import-btn {
+  background: #82451f;
+  color: white;
+}
+
+.confirm-import-btn:hover:not(:disabled) {
+  background: #663516;
+  transform: translateY(-1px);
+}
+
+.confirm-import-btn:disabled {
+  background: #c9bdb4;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   HISTORY
+========================================================= */
+
+.history-section {
+  margin-top: 30px;
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.history-header h2 {
+  margin: 0;
+  font-size: 25px;
+  color: #2f343b;
+}
+
+.history-description {
+  margin: 5px 0 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.history-card {
+  background: #fff;
+  border: 1px solid #e3d7c9;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.history-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+.history-table th {
+  padding: 14px 15px;
+  text-align: left;
+  background: #eee5da;
+  color: #5b351c;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.history-table td {
+  padding: 14px 15px;
+  border-bottom: 1px solid #eadfd4;
+  color: #343434;
+}
+
+.history-table tbody tr:hover {
+  background: #faf7f4;
+}
+
+.center-cell {
+  text-align: center;
+}
+
+.print-history-btn {
+  background: #eadfce;
+  color: #70411f;
+  padding: 9px 16px;
+}
+
+.print-history-btn:hover {
+  background: #dfcfba;
+}
+
+.empty-row {
+  text-align: center;
+  padding: 35px !important;
+  color: #777 !important;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.error-message {
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  background: #ffe5e5;
+  color: #b3261e;
+  font-size: 15px;
+}
+
+/* =========================================================
+   PRINT MODAL / PHIẾU
+   Giữ các class cũ để ImportReceiptPrint không bị ảnh hưởng
+========================================================= */
+
+.print-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 25px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.print-modal {
+  width: 100%;
+  max-width: 1320px;
+  margin: auto;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.print-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid #ddd;
+}
+
+.print-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #444;
+}
+
+.print-modal-subtitle {
+  margin-top: 3px;
+  color: #666;
+  font-size: 15px;
+}
+
+.print-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.print-modal-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.print-confirm-btn {
+  background: #82451f;
+  color: white;
+}
+
+.close-modal-btn {
+  background: #eee4d8;
+  color: #613816;
+}
+
+.receipt-print-area {
+  background: white;
+  padding: 0 0 20px;
+}
+
+.receipt-company {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 18px;
+  border-bottom: 3px solid #87502c;
+}
+
+.company-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.company-info h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: 1px;
+  color: #3f2a1e;
+}
+
+.company-info h1 span {
+  color: #7a421f;
+  font-size: 32px;
+  letter-spacing: 3px;
+}
+
+.company-info p {
+  margin: 3px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.company-logo {
+  width: 72px;
+  height: 72px;
+  border: 2px solid #7a4523;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: #7a4523;
+}
+
+.company-name {
+  font-size: 23px;
+  font-weight: 800;
+  color: #59351d;
+}
+
+.company-address,
+.company-hotline {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #555;
+}
+
+.receipt-meta {
+  text-align: right;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+}
+
+.receipt-title {
+  text-align: center;
+  padding: 16px 10px;
+  border-bottom: 1px solid #d8d8d8;
+}
+
+.receipt-title h1 {
+  margin: 0;
+  font-size: 27px;
+  letter-spacing: 1px;
+}
+
+.receipt-title p {
+  margin: 5px 0 0;
+  color: #666;
+}
+
+.receipt-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 40px;
+  padding: 12px 18px;
+  border-bottom: 1px solid #ddd;
+}
+
+.receipt-info-item {
+  font-size: 15px;
+}
+
+.receipt-info-label {
+  font-weight: 700;
+}
+
+.receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.receipt-table th,
+.receipt-table td {
+  padding: 9px 10px;
+  border: 1px solid #777;
+  font-size: 14px;
+}
+
+.receipt-table th {
+  background: #f0ebe5;
+  text-align: center;
+  font-weight: 700;
+}
+
+.receipt-table td {
+  vertical-align: middle;
+}
+
+.receipt-total {
+  padding: 14px 20px;
+  text-align: right;
+  border-bottom: 1px solid #ddd;
+  font-weight: 700;
+}
+
+.receipt-total p {
+  margin: 5px 0;
+}
+
+.receipt-signature {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  min-height: 140px;
+  padding: 20px;
+  text-align: center;
+}
+
+.signature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signature-item h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.signature-item p {
+  margin-top: 65px;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.receipt-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 20px;
+  border-top: 1px solid #ddd;
+  font-size: 12px;
+  color: #777;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+  .import-info-card {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .import-summary-card {
+    flex-wrap: wrap;
+  }
+
+  .summary-total {
+    margin-left: 0;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 900px) {
+  .import-info-card {
+    grid-template-columns: 1fr;
+  }
+
+  .product-search-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .import-summary-card {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .summary-total {
+    align-items: flex-start;
+  }
+
+  .confirm-import-btn {
+    width: 100%;
+  }
+
+  .receipt-info {
+    grid-template-columns: 1fr;
+  }
+
+  .print-modal {
+    border-radius: 10px;
+  }
+
+  .receipt-company {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .receipt-meta {
+    text-align: left;
+  }
+}
+
+@media (max-width: 600px) {
+  .nhap-kho-page {
+    padding: 12px;
+  }
+
+  .nhap-kho-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .product-search-card,
+  .import-info-card {
+    padding: 15px;
+  }
+
+  .product-cell {
+    min-width: 240px;
+  }
+
+  .print-modal-overlay {
+    padding: 8px;
+  }
+
+  .print-modal-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .print-modal-actions {
+    width: 100%;
+  }
+
+  .print-modal-btn {
+    flex: 1;
+  }
+
+  .receipt-signature {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+}
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .print-modal-overlay,
+  .print-modal-overlay * {
+    visibility: visible !important;
+  }
+
+  .print-modal-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
+  }
+
+  .print-modal {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .print-modal-header {
+    display: none !important;
+  }
+
+  .receipt-print-area {
+    width: 100% !important;
+  }
+
+  .receipt-table {
+    page-break-inside: auto;
+  }
+
+  .receipt-table tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  .receipt-signature {
+    page-break-inside: avoid;
+  }
+
+  @page {
+    size: A4 landscape;
+    margin: 8mm;
+  }
+}
+/* =========================
+   PRINT MODAL
+========================= */
+
+.print-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 30px;
+
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.print-modal {
+  width: min(1100px, 100%);
+  max-height: 95vh;
+
+  overflow-y: auto;
+
+  background: #fff;
+  border-radius: 12px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.print-modal-actions {
+  position: sticky;
+  top: 0;
+
+  z-index: 2;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding: 15px 20px;
+
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.print-close-btn,
+.print-confirm-btn {
+  border: none;
+  border-radius: 8px;
+
+  padding: 10px 18px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.print-close-btn {
+  background: #eee;
+  color: #333;
+}
+
+.print-confirm-btn {
+  background: #2563eb;
+  color: #fff;
+}
+
+.print-receipt {
+  padding: 40px;
+  color: #111;
+  background: #fff;
+}
+
+.print-receipt-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.print-receipt-header h1 {
+  margin: 0 0 15px;
+
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.print-receipt-header p {
+  margin: 5px 0;
+}
+
+.print-receipt-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+
+  margin-bottom: 25px;
+}
+
+.print-items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.print-items-table th,
+.print-items-table td {
+  padding: 10px;
+
+  border: 1px solid #222;
+
+  font-size: 13px;
+}
+
+.print-items-table th {
+  text-align: center;
+  font-weight: 700;
+}
+
+.print-items-table td:nth-child(1),
+.print-items-table td:nth-child(5) {
+  text-align: center;
+}
+
+.print-items-table td:nth-child(6),
+.print-items-table td:nth-child(7) {
+  text-align: right;
+}
+
+.print-receipt-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  gap: 20px;
+
+  margin-top: 20px;
+
+  font-size: 17px;
+}
+
+.print-receipt-total strong {
+  font-size: 20px;
+}
+
+.print-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  margin-top: 70px;
+
+  text-align: center;
+}
+
+.print-signatures div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.print-signatures span {
+  font-size: 13px;
+  font-style: italic;
+}

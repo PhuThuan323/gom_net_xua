@@ -1,0 +1,681 @@
+.loss-page {
+  min-height: 100vh;
+  padding: 18px;
+
+  background: #eef1f3;
+
+  color: #20150e;
+
+  font-family:
+    "Segoe UI",
+    Arial,
+    sans-serif;
+
+  overflow-x: hidden;
+}
+
+.loss-page * {
+  box-sizing: border-box;
+}
+
+.loss-card {
+  width: 100%;
+
+  margin-bottom: 20px;
+
+  padding: 20px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.loss-card h2 {
+  margin: 0 0 5px;
+
+  color: #542400;
+}
+
+.loss-card p {
+  margin: 0;
+
+  color: #80634e;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.loss-title-row {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 15px;
+
+  margin-bottom: 18px;
+}
+
+.loss-type-switch {
+  display: flex;
+
+  gap: 7px;
+}
+
+.loss-type-switch button {
+  border: 0;
+
+  padding: 11px 15px;
+
+  border-radius: 9px;
+
+  background: #eee3da;
+
+  color: #69452f;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.loss-type-switch button.active.loss {
+  background: #bd3c34;
+  color: #fff;
+}
+
+.loss-type-switch button.active.return {
+  background: #327749;
+  color: #fff;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.loss-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    220px
+    1fr
+    1fr;
+
+  gap: 12px;
+}
+
+.loss-form-grid label,
+.loss-bottom-form label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #785b45;
+
+  font-weight: 700;
+}
+
+.loss-form-grid input,
+.loss-form-grid select,
+.loss-bottom-form input {
+  width: 100%;
+
+  min-height: 45px;
+
+  padding: 0 12px;
+
+  border: 1px solid #dfc4ac;
+
+  border-radius: 9px;
+
+  background: white;
+
+  font-size: 15px;
+}
+
+/* =========================================================
+   SELECTED
+========================================================= */
+
+.loss-selected-product {
+  display: grid;
+
+  grid-template-columns:
+    2fr
+    1fr
+    1fr
+    1fr;
+
+  gap: 12px;
+
+  margin-top: 17px;
+
+  padding: 13px;
+
+  background: #fff0e3;
+
+  border-left: 5px solid #873e17;
+
+  border-radius: 9px;
+}
+
+.loss-selected-product > div {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.loss-selected-product span {
+  font-size: 12px;
+
+  color: #80634e;
+}
+
+.loss-selected-product strong {
+  color: #592300;
+}
+
+.loss-no-product {
+  margin-top: 17px;
+
+  padding: 14px;
+
+  background: #f4f4f4;
+
+  border-radius: 9px;
+
+  color: #777;
+}
+
+/* =========================================================
+   BOTTOM FORM
+========================================================= */
+
+.loss-bottom-form {
+  display: grid;
+
+  grid-template-columns:
+    140px
+    1fr
+    170px
+    auto;
+
+  align-items: end;
+
+  gap: 12px;
+
+  margin-top: 15px;
+}
+
+.loss-value-box {
+  min-height: 45px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 5px 12px;
+
+  background: #f7e8dc;
+
+  border-radius: 9px;
+}
+
+.loss-value-box span {
+  color: #80634e;
+
+  font-size: 12px;
+}
+
+.loss-value-box strong {
+  color: #762f0f;
+
+  font-size: 17px;
+}
+
+.loss-save-btn {
+  min-height: 45px;
+
+  padding: 0 18px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  color: #fff;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.loss-save-btn.danger {
+  background: #bb3932;
+}
+
+.loss-save-btn.return {
+  background: #327749;
+}
+
+.loss-save-btn:disabled {
+  opacity: 0.5;
+}
+
+/* =========================================================
+   SEARCH + PRODUCTS
+========================================================= */
+
+.loss-search {
+  width: 100%;
+
+  min-height: 48px;
+
+  margin: 12px 0;
+
+  padding: 0 13px;
+
+  border: 1px solid #dfc4ac;
+
+  border-radius: 9px;
+
+  font-size: 16px;
+}
+
+.loss-product-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+}
+
+.loss-product-item {
+  min-width: 0;
+
+  display: grid;
+
+  grid-template-columns:
+    60px
+    1fr;
+
+  gap: 12px;
+
+  align-items: center;
+
+  padding: 12px;
+
+  border: 1px solid #e4cbb5;
+
+  border-radius: 12px;
+
+  background: #fff;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.loss-product-item.selected {
+  border: 2px solid #873e17;
+
+  background: #fff6ee;
+}
+
+.loss-product-image {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  background: #f5f5f5;
+
+  color: #888;
+
+  font-size: 11px;
+
+  text-align: center;
+}
+
+.loss-product-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+.loss-product-info {
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.loss-product-info strong {
+  color: #592600;
+
+  font-size: 16px;
+}
+
+.loss-product-info span {
+  font-size: 13px;
+
+  color: #725a48;
+}
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.loss-history {
+  width: 100%;
+
+  min-width: 0;
+}
+
+.loss-dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 15px;
+
+  margin-bottom: 20px;
+}
+
+.loss-stat-card {
+  min-height: 100px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.loss-stat-card span {
+  color: #84654d;
+
+  font-size: 13px;
+}
+
+.loss-stat-card strong {
+  margin-top: 7px;
+
+  color: #632500;
+
+  font-size: 28px;
+}
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.loss-filter-card {
+  display: grid;
+
+  gap: 12px;
+
+  padding: 20px;
+
+  margin-bottom: 18px;
+
+  background: #fffdfa;
+
+  border: 1px solid #e4cbb4;
+
+  border-radius: 17px;
+}
+
+.loss-date-fields {
+  display: flex;
+
+  gap: 12px;
+}
+
+.loss-date-fields > div {
+  width: 280px;
+}
+
+.loss-date-fields label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  color: #765a45;
+
+  font-weight: 700;
+}
+
+.loss-date-fields input,
+.loss-filter-card select {
+  width: 100%;
+
+  min-height: 48px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dec4ad;
+
+  border-radius: 9px;
+
+  background: white;
+
+  font-size: 16px;
+}
+
+.loss-filter-btn {
+  width: max-content;
+
+  padding: 11px 17px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  background: #ecd8c6;
+
+  color: #672c0d;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   HISTORY TABLE
+========================================================= */
+
+.loss-history-table-wrap {
+  width: 100%;
+
+  max-width: 100%;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  border: 1px solid #e3ccb7;
+
+  border-radius: 13px;
+
+  background: #fff;
+
+  scrollbar-color:
+    #ad7954
+    #f1e3d8;
+}
+
+.loss-history-table-wrap::-webkit-scrollbar {
+  height: 12px;
+}
+
+.loss-history-table-wrap::-webkit-scrollbar-track {
+  background: #f1e3d8;
+}
+
+.loss-history-table-wrap::-webkit-scrollbar-thumb {
+  background: #ad7954;
+
+  border-radius: 10px;
+}
+
+.loss-history-table {
+  width: max-content;
+
+  min-width: 1600px;
+
+  border-collapse: collapse;
+}
+
+.loss-history-table th {
+  padding: 12px;
+
+  background: #f3e4d6;
+
+  color: #542300;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.loss-history-table td {
+  padding: 11px;
+
+  border-top: 1px solid #ead7c7;
+
+  vertical-align: middle;
+
+  white-space: nowrap;
+}
+
+.loss-history-table td:nth-child(4),
+.loss-history-table td:nth-child(13),
+.loss-history-table td:nth-child(14) {
+  min-width: 180px;
+
+  white-space: normal;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.loss-badge {
+  display: inline-flex;
+
+  padding: 5px 8px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.loss-badge.loss {
+  background: #ffe1de;
+
+  color: #a52f29;
+}
+
+.loss-badge.return {
+  background: #e0f2e5;
+
+  color: #28663b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1050px) {
+  .loss-form-grid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .loss-bottom-form {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .loss-dashboard-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 750px) {
+  .loss-page {
+    padding: 8px;
+  }
+
+  .loss-title-row {
+    flex-direction: column;
+  }
+
+  .loss-type-switch {
+    width: 100%;
+
+    flex-direction: column;
+  }
+
+  .loss-form-grid,
+  .loss-bottom-form,
+  .loss-selected-product,
+  .loss-product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .loss-dashboard-grid {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .loss-date-fields {
+    flex-direction: column;
+  }
+
+  .loss-date-fields > div {
+    width: 100%;
+  }
+}

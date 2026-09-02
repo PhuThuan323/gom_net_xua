@@ -1,0 +1,142 @@
+POST http://localhost:3000/product-groups
+Content-Type: application/json
+
+{
+  "group_code": "ND",
+  "group_name": "Nồi đất",
+  "description": "Các sản phẩm nồi đất",
+  "status": "active"
+}
+###
+GET http://localhost:3000/debt/suppliers
+###
+GET http://localhost:3000/product-groups/2
+###
+PUT http://localhost:3000/product-groups/1
+Content-Type: application/json
+
+{
+  "group_code": "ND",
+  "group_name": "Nồi đất",
+  "description": "Các sản phẩm nồi đất truyền thống",
+  "status": "active"
+}
+###
+PUT http://localhost:3000/products/4
+Content-Type: application/json
+
+{
+  "group_id": 2,
+  "product_code": "NDSONQUAIBO",
+  "product_name": "Nồi đất son quai bb",
+  "description": "Nồi đất truyền thống",
+  "status": "active"
+}
+
+###
+DELETE http://localhost:3000/products/5
+###
+GET http://localhost:3000/product-groups
+###
+GET http://localhost:3000/products
+###
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "group_id": 2,
+  "product_code": "NDSONQUAIBO",
+  "product_name": "Nồi đất son quai bo",
+  "description": "Nồi đất truyền thống",
+  "status": "active"
+}
+
+###
+POST http://localhost:3000/variants
+Content-Type: application/json
+
+{
+  "product_id": 6,
+  "variant_code": "NDSONQUAI-15",
+  "size": "15",
+  "barcode": "NDSONQUAI15",
+  "purchase_price": 16000,
+  "selling_price": 25000,
+  "current_quantity": 232,
+  "min_stock_quantity": 100,
+  "status": "active"
+}
+###
+PUT http://localhost:3000/variants/2
+Content-Type: application/json
+
+{
+  "product_id": 6,
+  "variant_code": "NDSONQUAI-15",
+  "size": "15",
+  "barcode": "NDSONQUAI15",
+  "purchase_price": 16500,
+  "selling_price": 25000,
+  "current_quantity": 232,
+  "min_stock_quantity": 100,
+  "status": "active"
+}
+###
+DELETE http://localhost:3000/variants/2
+###
+POST http://localhost:3000/users/bootstrap-admin
+Content-Type: application/json
+
+{
+  "email": "khuyenboy@gmail.com.vn",
+  "password": "lethanhkhuyen292001",
+  "full_name": "Lê Thanh Khuyên"
+}
+
+###
+POST /services/shipment/order/?ver=1.5 HTTP/1.1
+Token: APITokenSample-ca441e70288cB0515F310742
+X-Client-Source: S308157
+Content-Type: application/json
+
+{
+  "products": [{
+    "name": "bút",
+    "weight": 0.1,
+    "quantity": 1,
+    "product_code": 1241
+  }, {
+    "name": "tẩy",
+    "weight": 0.2,
+    "quantity": 1,
+    "product_code": 1254
+  }],
+  "order": {
+    "id": "a4",
+    "pick_name": "HCM-nội thành",
+    "pick_address": "590 CMT8 P.11",
+    "pick_province": "TP. Hồ Chí Minh",
+    "pick_district": "Quận 3",
+    "pick_ward": "Phường 1",
+    "pick_tel": "0911222333",
+    "tel": "0911222333",
+    "name": "GHTK - HCM - Noi Thanh",
+    "address": "123 nguyễn chí thanh",
+    "province": "TP. Hồ Chí Minh",
+    "district": "Quận 1",
+    "ward": "Phường Bến Nghé",
+    "hamlet": "Khác",
+    "is_freeship": "1",
+    "pick_date": "2016-09-30",
+    "pick_money": 47000,
+    "note": "Khối lượng tính cước tối đa: 1.00 kg",
+    "value": 3000000,
+    "transport": "fly",
+    "pick_option": "cod", // Đơn hàng xfast yêu cầu bắt buộc pick_option là COD
+    "gam_solutions": [
+      { "solution_id": 12365478 },
+      { "solution_id": 12365479 },
+      { "solution_id": 12365470 }
+    ]
+  }
+}

@@ -1,0 +1,749 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-width: 0;
+  min-height: 100vh;
+  width: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f5f7;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+.group-list {
+  max-height: 500px; 
+  overflow-y: auto;
+  padding-right: 5px; 
+}
+/* ========================================= */
+/* CSS CHO FORM THÊM SẢN PHẨM MỚI            */
+/* ========================================= */
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  width: 650px; 
+  max-width: 95%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 { margin-top: 0; margin-bottom: 25px; }
+
+/* CHIA 2 CỘT */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 cột bằng nhau */
+  gap: 25px 20px; /* Khoảng cách: trên-dưới 15px, trái-phải 20px */
+}
+
+/* ÉP DÀN ĐỀU 2 CỘT CHO Ô NÀO CẦN CHIỀU RỘNG TỐI ĐA */
+.full-width {
+  grid-column: span 2;
+}
+
+/* ĐỊNH DẠNG TỪNG NHÓM (LABEL + INPUT) */
+.form-group {
+  display: flex;
+  margin-bottom: 10px;
+  flex-direction: column; /* Ép label nằm trên, input nằm dưới */
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.form-group input, 
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box; /* Rất quan trọng để input không bị tràn viền */
+  font-family: inherit;
+}
+
+/* NÚT BẤM BO TRÒN */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.modal-actions button, 
+.primary-button {
+  border-radius: 20px;
+  padding: 9px 20px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+}
+
+.modal-actions button[type="button"] {
+  background-color: #f1f1f1;
+  color: #333;
+  border: 1px solid #ddd;
+}
+/* ========================================= */
+/* CSS CHO NÚT HÀNH ĐỘNG TRONG BẢNG          */
+/* ========================================= */
+.action-buttons {
+  display: flex;
+  gap: 8px; /* Tách khoảng cách giữa 2 nút */
+  justify-content: center;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: white; /* Chữ màu trắng */
+  transition: opacity 0.2s;
+}
+
+.action-btn:hover {
+  opacity: 0.8;
+}
+
+.edit-btn {
+  background-color: #8c562e; /* Nền nâu (Sửa) */
+}
+
+.delete-btn {
+  background-color: #dc3545; /* Nền đỏ (Xóa) */
+}
+
+.main-product-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.product-group-card {
+  min-height: 600px;
+}
+
+.variants-card {
+  min-width: 0;
+}
+
+.filter-section {
+  margin-bottom: 12px;
+}
+
+.filter-section input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filter-row select {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.group-item {
+  cursor: pointer;
+}
+
+.group-item.selected {
+  background: #e8ded1;
+  border-left: 4px solid #7b4524;
+}
+.group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  cursor: pointer;
+}
+
+.group-info {
+  flex: 1;
+}
+
+.edit-group-button {
+  padding: 6px 12px;
+  border: 1px solid #8b5a2b;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.edit-group-button:hover {
+  background: #f5eee7;
+}
+
+
+/* ============================= */
+/* MODAL */
+/* ============================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 9999;
+}
+
+.group-edit-modal {
+  width: 450px;
+  max-width: 90%;
+
+  background: white;
+
+  padding: 25px;
+
+  border-radius: 12px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+
+  margin-bottom: 15px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  margin-top: 6px;
+  padding: 10px;
+
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  margin-top: 20px;
+}
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.edit-btn,
+.delete-btn {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.edit-btn {
+  background: #f3e8dc;
+  color: #7a421f;
+}
+
+.edit-btn:hover {
+  background: #ead8c7;
+}
+
+.delete-btn {
+  background: #fce4e4;
+  color: #b42318;
+}
+
+.delete-btn:hover {
+  background: #f8cccc;
+}
+
+.product-action-small {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.product-action-small button {
+  font-size: 11px;
+  padding: 4px 7px;
+}
+/* ===================================================== */
+/* HEADER */
+/* ===================================================== */
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.header-actions button {
+  cursor: pointer;
+}
+
+
+/* ===================================================== */
+/* GROUP */
+/* ===================================================== */
+
+.group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  cursor: pointer;
+}
+
+.group-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  flex: 1;
+}
+
+.group-info span {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.group-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.edit-group-button,
+.delete-group-button {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 9px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.edit-group-button {
+  background: #f3e8dc;
+  color: #7a421f;
+}
+
+.delete-group-button {
+  background: #fde7e7;
+  color: #b42318;
+}
+
+.empty-group {
+  padding: 15px;
+  text-align: center;
+  color: #888;
+}
+
+
+/* ===================================================== */
+/* FILTER */
+/* ===================================================== */
+
+.filter-section {
+  margin-bottom: 15px;
+}
+
+.filter-section input {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+
+  margin-bottom: 15px;
+}
+
+.filter-row select {
+  padding: 10px 12px;
+
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  background: white;
+}
+
+
+/* ===================================================== */
+/* SELECTED INFO */
+/* ===================================================== */
+
+.selected-info {
+  padding: 10px 12px;
+
+  margin-bottom: 15px;
+
+  border-radius: 8px;
+
+  background: #f7f3ef;
+
+  color: #5c351d;
+}
+
+
+/* ===================================================== */
+/* TABLE */
+/* ===================================================== */
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+
+  min-width: 1200px;
+}
+
+.table-container th,
+.table-container td {
+  padding: 10px;
+
+  border-bottom: 1px solid #eee;
+
+  text-align: left;
+
+  vertical-align: middle;
+}
+
+.table-container th {
+  white-space: nowrap;
+}
+
+.table-container td small {
+  color: #777;
+}
+
+.empty-table {
+  text-align: center !important;
+  padding: 40px !important;
+  color: #888;
+}
+
+
+/* ===================================================== */
+/* ACTION */
+/* ===================================================== */
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.edit-btn,
+.delete-btn {
+  border: none;
+
+  padding: 6px 10px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.edit-btn {
+  background: #f3e8dc;
+  color: #7a421f;
+}
+
+.edit-btn:hover {
+  background: #ead7c4;
+}
+
+.delete-btn {
+  background: #fde5e5;
+  color: #b42318;
+}
+
+.delete-btn:hover {
+  background: #facccc;
+}
+
+.product-action-small {
+  display: flex;
+  gap: 5px;
+
+  margin-top: 7px;
+}
+
+
+/* ===================================================== */
+/* MODAL */
+/* ===================================================== */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+}
+
+.group-modal {
+  width: 520px;
+
+  max-width: 100%;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  background: white;
+
+  border-radius: 14px;
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+
+/* ===================================================== */
+/* MODAL HEADER */
+/* ===================================================== */
+
+.modal-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-close {
+  width: 35px;
+  height: 35px;
+
+  border: none;
+
+  background: transparent;
+
+  border-radius: 7px;
+
+  cursor: pointer;
+
+  font-size: 28px;
+}
+
+.modal-close:hover {
+  background: #f2f2f2;
+}
+
+
+/* ===================================================== */
+/* FORM */
+/* ===================================================== */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 10px 12px;
+
+  border: 1px solid #ddd;
+
+  border-radius: 8px;
+
+  font-size: 14px;
+
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: #8b4f25;
+}
+
+
+/* ===================================================== */
+/* FORM 2 COLUMNS */
+/* ===================================================== */
+
+.form-row-2 {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 12px;
+}
+
+
+/* ===================================================== */
+/* MODAL ACTIONS */
+/* ===================================================== */
+
+.modal-actions {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 22px;
+}
+
+.cancel-button {
+  padding: 10px 18px;
+
+  border: 1px solid #ddd;
+
+  background: white;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background: #f5f5f5;
+}
+
+.primary-button {
+  padding: 10px 18px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+}
+
+.low-stock {
+  color: #dc2626;
+  font-weight: 700;
+  background: #fef2f2;
+}
+.low-stock {
+  color: #dc2626 !important;
+  background: #fef2f2 !important;
+  font-weight: 700;
+}
+.barcode-modal {
+  width: 500px;
+  max-width: 90%;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.barcode-content {
+  text-align: center;
+}
+
+.barcode-content h3 {
+  margin-bottom: 10px;
+}
+
+.barcode-content svg {
+  max-width: 100%;
+  height: auto;
+  margin-top: 20px;
+}
+
+.barcode-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

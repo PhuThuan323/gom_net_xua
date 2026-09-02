@@ -1,0 +1,594 @@
+.invoice-page {
+  padding: 18px;
+  background: #eef1f3;
+  min-height: 100vh;
+  color: #1f160f;
+}
+
+.invoice-card {
+  background: #fffdf9;
+  border: 1px solid #e7d2be;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.invoice-card h2,
+.invoice-card h3 {
+  margin-top: 0;
+}
+
+.invoice-card p {
+  margin: 4px 0;
+}
+
+.invoice-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.invoice-section-heading.compact {
+  align-items: center;
+}
+
+.invoice-subcard {
+  background: #fffdfa;
+  border: 1px solid #e7d2be;
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.invoice-form-grid,
+.brand-setting-grid,
+.payment-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.two-column {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.invoice-card label,
+.invoice-subcard label {
+  display: block;
+  font-weight: 700;
+  color: #795a43;
+  margin-top: 10px;
+  margin-bottom: 6px;
+}
+
+.invoice-card input,
+.invoice-card select,
+.invoice-card textarea,
+.invoice-subcard input,
+.invoice-subcard select,
+.invoice-subcard textarea {
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
+  border: 1px solid #dfc4ac;
+  border-radius: 10px;
+  background: white;
+  padding: 10px 13px;
+  font-size: 16px;
+  outline: none;
+}
+
+.invoice-card input:focus,
+.invoice-card select:focus,
+.invoice-card textarea:focus,
+.invoice-subcard input:focus,
+.invoice-subcard select:focus,
+.invoice-subcard textarea:focus {
+  border-color: #a65a2e;
+  box-shadow: 0 0 0 3px rgba(135, 62, 23, 0.08);
+}
+
+.invoice-search {
+  margin-bottom: 12px;
+  font-size: 18px !important;
+}
+
+.brand-selector {
+  max-width: 455px;
+  margin-bottom: 15px;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.invoice-btn {
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 17px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.18s ease;
+}
+
+.invoice-btn:hover {
+  transform: translateY(-1px);
+}
+
+.invoice-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.invoice-btn.primary {
+  background: #873e17;
+  color: #fff;
+}
+
+.invoice-btn.primary:hover {
+  background: #71310f;
+}
+
+.invoice-btn.secondary {
+  background: #edd9c6;
+  color: #602800;
+}
+
+.invoice-btn.secondary:hover {
+  background: #e5cbb2;
+}
+
+.invoice-btn.danger {
+  background: #bd3830;
+  color: white;
+}
+
+.invoice-btn.danger:hover {
+  background: #a82e27;
+}
+
+.invoice-btn.small {
+  padding: 7px 13px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.invoice-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #e7d2be;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.invoice-table th {
+  background: #f3e6d9;
+  color: #582300;
+  text-align: left;
+  padding: 14px;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.invoice-table td {
+  padding: 14px;
+  border-top: 1px solid #ead8c8;
+  vertical-align: middle;
+}
+
+.invoice-table tbody tr:hover {
+  background: #fffaf5;
+}
+
+.product-table th {
+  background: #813c1c;
+  color: #fff;
+}
+
+.product-table td select {
+  min-width: 300px;
+}
+
+.product-table td input {
+  min-width: 90px;
+}
+
+.product-area {
+  margin-bottom: 18px;
+}
+
+/* =========================================================
+   BRAND PREVIEW
+========================================================= */
+
+.selected-brand-preview {
+  margin-top: 10px;
+  padding: 12px;
+  border-left: 4px solid #853f19;
+  background: #fbf0e6;
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+}
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.total-card > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px dashed #ddd;
+}
+
+.total-card .grand-total {
+  margin-top: 6px;
+  border: 1px solid #954c25;
+  background: #f7e6d5;
+  border-radius: 10px;
+  padding: 17px 13px;
+  font-size: 20px;
+}
+
+.invoice-note {
+  min-height: 85px !important;
+  font-weight: 700;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.invoice-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.invoice-modal {
+  width: min(620px, 94vw);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+}
+
+.invoice-modal label {
+  display: block;
+  font-weight: 700;
+  margin: 10px 0 5px;
+  color: #795a43;
+}
+
+.invoice-modal input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px;
+  min-height: 44px;
+  border: 1px solid #dfc4ac;
+  border-radius: 10px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.invoice-loading {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 12px 18px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.17);
+  z-index: 10000;
+}
+
+/* =========================================================
+   NÚT XEM LẠI + XUẤT PDF TRONG DANH SÁCH HÓA ĐƠN
+========================================================= */
+
+.invoice-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 255px;
+}
+
+.invoice-row-actions .invoice-btn {
+  padding: 9px 12px;
+  font-size: 14px;
+  border-radius: 9px;
+}
+
+.invoice-view-btn {
+  background: #f0ddca;
+  color: #6f310f;
+  border: 1px solid #ddbea3;
+}
+
+.invoice-view-btn:hover {
+  background: #e8ceb6;
+}
+
+.invoice-pdf-btn {
+  background: #873e17;
+  color: #fff;
+}
+
+.invoice-pdf-btn:hover {
+  background: #6e3010;
+}
+
+/* =========================================================
+   MODAL XEM LẠI ĐƠN HÀNG
+========================================================= */
+
+.invoice-detail-modal {
+  width: min(1050px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.invoice-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+
+  padding-bottom: 14px;
+  margin-bottom: 15px;
+
+  border-bottom: 1px solid #ead6c3;
+}
+
+.invoice-detail-header h2 {
+  margin: 0;
+  color: #632807;
+}
+
+.invoice-detail-code {
+  margin-top: 5px;
+  color: #896347;
+  font-weight: 700;
+}
+
+.invoice-detail-brand {
+  background: #fbefe3;
+  border-left: 5px solid #873e17;
+  border-radius: 8px;
+  padding: 13px 15px;
+  margin-bottom: 15px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-detail-brand strong {
+  color: #6d2c0c;
+  font-size: 18px;
+}
+
+.invoice-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.detail-line {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed #ead9ca;
+}
+
+.detail-line span {
+  color: #80634e;
+}
+
+.detail-line strong {
+  color: #24170f;
+  word-break: break-word;
+}
+
+.invoice-detail-products {
+  margin-top: 15px;
+}
+
+.invoice-detail-products h3 {
+  color: #632807;
+}
+
+/* =========================================================
+   TỔNG TIỀN TRONG XEM LẠI HÓA ĐƠN
+========================================================= */
+
+.invoice-detail-total {
+  width: min(480px, 100%);
+  margin-top: 18px;
+  margin-left: auto;
+
+  border: 1px solid #e4ccb7;
+  border-radius: 12px;
+  padding: 13px;
+
+  background: #fffaf5;
+}
+
+.invoice-detail-total > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 8px 3px;
+}
+
+.invoice-detail-total span {
+  color: #725540;
+}
+
+.invoice-detail-total strong {
+  color: #3b1d0d;
+}
+
+.invoice-detail-grand-total {
+  margin-top: 5px;
+  border-top: 2px solid #8a421c;
+  color: #6c2808;
+  font-size: 18px;
+  padding-top: 12px !important;
+}
+
+.invoice-detail-grand-total span,
+.invoice-detail-grand-total strong {
+  color: #6c2808;
+}
+
+/* =========================================================
+   GHI CHÚ XEM LẠI HÓA ĐƠN
+========================================================= */
+
+.invoice-detail-note {
+  margin-top: 15px;
+  background: #fff8f1;
+  border: 1px solid #ead5c3;
+  border-radius: 10px;
+  padding: 13px;
+  line-height: 1.5;
+}
+
+.invoice-detail-note strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #6c2b0d;
+}
+
+/* =========================================================
+   SCROLLBAR MODAL
+========================================================= */
+
+.invoice-detail-modal::-webkit-scrollbar,
+.invoice-modal::-webkit-scrollbar {
+  width: 9px;
+}
+
+.invoice-detail-modal::-webkit-scrollbar-thumb,
+.invoice-modal::-webkit-scrollbar-thumb {
+  background: #d9bda4;
+  border-radius: 20px;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .invoice-form-grid,
+  .brand-setting-grid,
+  .payment-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 850px) {
+  .invoice-row-actions {
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 170px;
+  }
+
+  .invoice-row-actions .invoice-btn {
+    width: 100%;
+  }
+
+  .invoice-detail-header {
+    flex-direction: column;
+  }
+
+  .invoice-detail-total {
+    width: 100%;
+  }
+}
+
+@media (max-width: 650px) {
+  .invoice-page {
+    padding: 8px;
+  }
+
+  .two-column {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-section-heading {
+    flex-direction: column;
+  }
+
+  .invoice-card {
+    padding: 13px;
+    border-radius: 13px;
+  }
+
+  .invoice-subcard {
+    padding: 13px;
+  }
+
+  .invoice-modal-backdrop {
+    padding: 8px;
+  }
+
+  .invoice-modal {
+    width: 100%;
+    padding: 15px;
+    border-radius: 13px;
+  }
+
+  .detail-line {
+    grid-template-columns: 1fr;
+    gap: 3px;
+  }
+
+  .invoice-row-actions {
+    min-width: 150px;
+  }
+}
+

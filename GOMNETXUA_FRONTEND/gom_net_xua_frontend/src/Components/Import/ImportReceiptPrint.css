@@ -1,0 +1,502 @@
+/* =====================================================
+   MODAL
+===================================================== */
+
+.receipt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow-y: auto;
+
+  padding: 24px;
+}
+
+
+/* =====================================================
+   TOOLBAR
+===================================================== */
+
+.receipt-toolbar {
+  width: 1320px;
+
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+
+  margin-bottom: 12px;
+}
+
+.print-button,
+.close-button {
+  border: none;
+  border-radius: 10px;
+
+  padding: 12px 22px;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.print-button {
+  background: #7b3f1d;
+  color: white;
+}
+
+.close-button {
+  background: #ead9c8;
+  color: #5b2d16;
+}
+
+
+/* =====================================================
+   KHỔ GIẤY A4
+===================================================== */
+
+.print-receipt {
+  width: 210mm;
+  min-height: 297mm;
+
+  box-sizing: border-box;
+
+  background: white;
+  color: #222;
+
+  padding: 12mm 10mm;
+
+  /*
+    Quan trọng:
+    font phải hỗ trợ tiếng Việt.
+  */
+  font-family:
+    Arial,
+    "Helvetica Neue",
+    "Segoe UI",
+    sans-serif;
+
+  font-size: 12px;
+
+  line-height: 1.35;
+}
+
+
+/* =====================================================
+   COMPANY HEADER
+===================================================== */
+
+.receipt-company-header {
+  display: flex;
+  align-items: center;
+
+  min-height: 28mm;
+}
+
+.company-logo {
+  width: 25mm;
+  height: 25mm;
+
+  border: 2px solid #7b3f1d;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  font-size: 23px;
+  font-weight: 800;
+
+  color: #7b3f1d;
+}
+
+.company-info {
+  flex: 1;
+
+  margin-left: 5mm;
+}
+
+.company-info h1 {
+  margin: 0 0 3px;
+
+  font-size: 20px;
+  font-weight: 800;
+
+  color: #7b3f1d;
+
+  /*
+    Không dùng font lạ ở đây.
+  */
+  font-family:
+    Arial,
+    "Segoe UI",
+    sans-serif;
+}
+
+.company-info p {
+  margin: 2px 0;
+
+  font-size: 12px;
+}
+
+.receipt-meta {
+  width: 42mm;
+
+  text-align: right;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.receipt-line {
+  height: 2px;
+
+  background: #7b3f1d;
+
+  margin-bottom: 5mm;
+}
+
+
+/* =====================================================
+   TITLE
+===================================================== */
+
+.receipt-title {
+  text-align: center;
+
+  margin-bottom: 5mm;
+}
+
+.receipt-title h2 {
+  margin: 0;
+
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.receipt-title p {
+  margin: 2px 0 0;
+
+  color: #666;
+}
+
+
+/* =====================================================
+   INFORMATION
+===================================================== */
+
+.receipt-information {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  border: 1px solid #aaa;
+
+  padding: 3mm 4mm;
+
+  margin-bottom: 4mm;
+}
+
+.receipt-information p {
+  margin: 2px 0;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.receipt-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+  font-size: 10px;
+}
+
+.receipt-table th,
+.receipt-table td {
+  border: 1px solid #999;
+
+  padding: 5px 4px;
+
+  vertical-align: middle;
+
+  word-wrap: break-word;
+}
+
+.receipt-table th {
+  background: #eee;
+
+  text-align: center;
+
+  font-weight: 700;
+}
+
+.receipt-table .stt {
+  width: 10mm;
+}
+
+.receipt-table .sl {
+  width: 13mm;
+}
+
+.receipt-table .price {
+  width: 28mm;
+}
+
+.center {
+  text-align: center;
+}
+
+.money {
+  text-align: right;
+  white-space: nowrap;
+}
+
+
+/* =====================================================
+   TOTAL
+===================================================== */
+
+.receipt-total {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10mm;
+
+  border: 1px solid #999;
+  border-top: none;
+
+  padding: 4mm;
+
+  font-size: 12px;
+}
+
+.receipt-total strong {
+  font-weight: 800;
+}
+
+
+/* =====================================================
+   NOTE
+===================================================== */
+
+.receipt-note {
+  margin-top: 4mm;
+
+  padding: 3mm;
+
+  border: 1px solid #ddd;
+
+  font-size: 11px;
+}
+
+
+/* =====================================================
+   SIGNATURE
+===================================================== */
+
+.signature-section {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10mm;
+
+  margin-top: 10mm;
+
+  text-align: center;
+}
+
+.signature-box {
+  min-height: 35mm;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signature-box strong {
+  font-size: 12px;
+}
+
+.signature-space {
+  height: 22mm;
+}
+
+.signature-box span {
+  font-size: 10px;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.receipt-footer {
+  display: flex;
+
+  justify-content: space-between;
+
+  border-top: 1px solid #aaa;
+
+  margin-top: 5mm;
+
+  padding-top: 2mm;
+
+  font-size: 9px;
+
+  color: #555;
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print {
+
+  /*
+    CỰC KỲ QUAN TRỌNG
+  */
+
+  @page {
+    size: A4 portrait;
+
+    margin: 0;
+  }
+
+
+  /*
+    Xóa nền/modal của website
+  */
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    width: 210mm;
+    min-height: 297mm;
+
+    background: white !important;
+
+    overflow: visible !important;
+  }
+
+
+  /*
+    Ẩn toàn bộ phần không cần in
+  */
+
+  body * {
+    visibility: hidden !important;
+  }
+
+
+  /*
+    Chỉ cho phiếu xuất hiện
+  */
+
+  .print-receipt,
+  .print-receipt * {
+    visibility: visible !important;
+  }
+
+
+  /*
+    Đưa phiếu về góc trái trên cùng
+  */
+
+  .print-receipt {
+    position: absolute !important;
+
+    left: 0 !important;
+    top: 0 !important;
+
+    width: 210mm !important;
+    min-height: 297mm !important;
+
+    margin: 0 !important;
+
+    padding: 12mm 10mm !important;
+
+    box-sizing: border-box !important;
+
+    background: white !important;
+
+    /*
+      Không dùng transform scale
+      vì dễ tạo thêm trang.
+    */
+
+    font-family:
+      Arial,
+      "Helvetica Neue",
+      "Segoe UI",
+      sans-serif !important;
+
+    color: #222 !important;
+  }
+
+
+  /*
+    Không in toolbar
+  */
+
+  .no-print {
+    display: none !important;
+  }
+
+
+  /*
+    Tránh table bị tách lung tung
+  */
+
+  .receipt-table {
+    page-break-inside: auto;
+  }
+
+  .receipt-table tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+
+  /*
+    Không cho các section tạo page riêng
+  */
+
+  .receipt-company-header,
+  .receipt-title,
+  .receipt-information,
+  .receipt-total,
+  .signature-section,
+  .receipt-footer {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+
+  /*
+    Đảm bảo màu và đường viền được in
+  */
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
