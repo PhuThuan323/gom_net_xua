@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -65,16 +65,16 @@ model ProductVariant {
 }
 
 model InventoryTransaction {
-  id              Int      @id @default(autoincrement())
-  variant_id      Int
+  id               Int      @id @default(autoincrement())
+  variant_id       Int
   transaction_type String   @db.VarChar(50)
-  quantity        Int
-  quantity_before Int
-  quantity_after  Int
-  unit_price      Decimal? @db.Decimal(15, 2)
-  total_value     Decimal? @db.Decimal(15, 2)
-  note            String?  @db.Text
-  created_at      DateTime @default(now())
+  quantity         Int
+  quantity_before  Int
+  quantity_after   Int
+  unit_price       Decimal? @db.Decimal(15, 2)
+  total_value      Decimal? @db.Decimal(15, 2)
+  note             String?  @db.Text
+  created_at       DateTime @default(now())
 
   variant ProductVariant @relation(fields: [variant_id], references: [id], onDelete: Cascade)
 
@@ -102,30 +102,31 @@ model Supplier {
 
   @@map("suppliers")
 }
+
 model SupplierDebt {
-  id              Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  supplier_id     Int
+  supplier_id Int
 
-  transaction_type String   @db.VarChar(50)
+  transaction_type String @db.VarChar(50)
   // DEBT = Phát sinh nợ
   // PAYMENT = Trả nợ
   // ADJUSTMENT = Điều chỉnh
 
-  amount          Decimal  @db.Decimal(15, 2)
+  amount Decimal @db.Decimal(15, 2)
 
-  balance_after   Decimal  @db.Decimal(15, 2)
+  balance_after Decimal @db.Decimal(15, 2)
 
-  reference_type  String?  @db.VarChar(50)
+  reference_type String? @db.VarChar(50)
   // IMPORT_RECEIPT
   // MANUAL
   // PAYMENT
 
-  reference_id    Int?
+  reference_id Int?
 
-  reference_code  String?  @db.VarChar(100)
+  reference_code String? @db.VarChar(100)
 
-  note            String?  @db.Text
+  note String? @db.Text
 
   transaction_date DateTime @default(now())
   created_at       DateTime @default(now())
@@ -137,26 +138,27 @@ model SupplierDebt {
   @@index([supplier_id, transaction_date])
   @@map("supplier_debts")
 }
+
 model ImportReceipt {
-  id           Int      @id @default(autoincrement())
-  receipt_code String   @unique @db.VarChar(100)
+  id           Int    @id @default(autoincrement())
+  receipt_code String @unique @db.VarChar(100)
 
-  supplier_id  Int?
+  supplier_id Int?
 
-  total_amount Decimal  @default(0) @db.Decimal(15, 2)
-  paid_amount  Decimal  @default(0) @db.Decimal(15, 2)
-  debt_amount  Decimal  @default(0) @db.Decimal(15, 2)
+  total_amount Decimal @default(0) @db.Decimal(15, 2)
+  paid_amount  Decimal @default(0) @db.Decimal(15, 2)
+  debt_amount  Decimal @default(0) @db.Decimal(15, 2)
 
-  status       String   @default("completed")
+  status String @default("completed")
 
-  received_by  String?  @db.VarChar(255)
+  received_by String? @db.VarChar(255)
 
-  note         String?  @db.Text
+  note String? @db.Text
 
-  import_date  DateTime @default(now())
-  created_at   DateTime @default(now())
+  import_date DateTime @default(now())
+  created_at  DateTime @default(now())
 
-  supplier Supplier? @relation(fields: [supplier_id], references: [id])
+  supplier Supplier?    @relation(fields: [supplier_id], references: [id])
   items    ImportItem[]
 
   @@index([supplier_id])
@@ -173,7 +175,7 @@ model ImportItem {
   total_price       Decimal  @db.Decimal(15, 2)
   created_at        DateTime @default(now())
 
-  receipt ImportReceipt @relation(fields: [import_receipt_id], references: [id], onDelete: Cascade)
+  receipt ImportReceipt  @relation(fields: [import_receipt_id], references: [id], onDelete: Cascade)
   variant ProductVariant @relation(fields: [variant_id], references: [id])
 
   @@index([import_receipt_id])
@@ -182,21 +184,21 @@ model ImportItem {
 }
 
 model Customer {
-  id               Int      @id @default(autoincrement())
-  customer_code    String   @unique @db.VarChar(100)
-  customer_name    String   @db.VarChar(255)
+  id            Int    @id @default(autoincrement())
+  customer_code String @unique @db.VarChar(100)
+  customer_name String @db.VarChar(255)
 
-  phone            String?  @db.VarChar(50)
-  email            String?  @db.VarChar(255)
+  phone String? @db.VarChar(50)
+  email String? @db.VarChar(255)
 
-  address          String?  @db.Text
-  shipping_address String?  @db.Text
+  address          String? @db.Text
+  shipping_address String? @db.Text
 
-  tax_code         String?  @db.VarChar(100)
-  note             String?  @db.Text
+  tax_code String? @db.VarChar(100)
+  note     String? @db.Text
 
-  created_at       DateTime @default(now())
-  updated_at       DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   invoices Invoice[]
 
@@ -204,39 +206,39 @@ model Customer {
 }
 
 model Invoice {
-  id               Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  invoice_code     String   @unique @db.VarChar(100)
+  invoice_code String @unique @db.VarChar(100)
 
-  brand_id         Int?
-  customer_id      Int?
+  brand_id    Int?
+  customer_id Int?
 
-  invoice_date     DateTime @default(now())
+  invoice_date DateTime @default(now())
 
-  channel          String?  @db.VarChar(100)
-  order_code       String?  @db.VarChar(100)
+  channel    String? @db.VarChar(100)
+  order_code String? @db.VarChar(100)
 
-  subtotal         Decimal  @default(0) @db.Decimal(15, 2)
-  shipping_fee     Decimal  @default(0) @db.Decimal(15, 2)
+  subtotal     Decimal @default(0) @db.Decimal(15, 2)
+  shipping_fee Decimal @default(0) @db.Decimal(15, 2)
 
-  total_amount     Decimal  @default(0) @db.Decimal(15, 2)
-  paid_amount      Decimal  @default(0) @db.Decimal(15, 2)
+  total_amount Decimal @default(0) @db.Decimal(15, 2)
+  paid_amount  Decimal @default(0) @db.Decimal(15, 2)
 
-  deposit_amount   Decimal  @default(0) @db.Decimal(15, 2)
+  deposit_amount Decimal @default(0) @db.Decimal(15, 2)
 
-  payment_method   String?  @db.VarChar(100)
+  payment_method String? @db.VarChar(100)
 
-  shipping_address String?  @db.Text
+  shipping_address String? @db.Text
 
-  warehouse_status String   @default("not_processed")
+  warehouse_status String @default("not_processed")
 
-  status           String   @default("completed")
+  status String @default("completed")
 
-  note             String?  @db.Text
+  note String? @db.Text
 
-  created_at       DateTime @default(now())
+  created_at DateTime @default(now())
 
-  brand    InvoiceBrand? @relation(fields: [brand_id], references: [id])
+  brand InvoiceBrand? @relation(fields: [brand_id], references: [id])
 
   customer Customer? @relation(fields: [customer_id], references: [id])
 
@@ -246,7 +248,6 @@ model Invoice {
   @@index([customer_id])
   @@index([invoice_date])
   @@index([created_at])
-
   @@map("invoices")
 }
 
@@ -259,7 +260,7 @@ model InvoiceItem {
   total_price Decimal  @db.Decimal(15, 2)
   created_at  DateTime @default(now())
 
-  invoice Invoice @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  invoice Invoice        @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
   variant ProductVariant @relation(fields: [variant_id], references: [id])
 
   @@index([invoice_id])
@@ -268,27 +269,27 @@ model InvoiceItem {
 }
 
 model Receipt {
-  id               Int      @id @default(autoincrement())
-  receipt_code     String   @unique @db.VarChar(100)
+  id           Int    @id @default(autoincrement())
+  receipt_code String @unique @db.VarChar(100)
 
   // Số tiền thực nhận
-  amount           Decimal  @db.Decimal(15, 2)
+  amount Decimal @db.Decimal(15, 2)
 
   // Nguồn: TikTok Shop, Shopee, Vietnam Post...
-  category         String   @db.VarChar(100)
+  category String @db.VarChar(100)
 
   // Tổng sao kê trước phí
-  statement_amount Decimal  @default(0) @db.Decimal(15, 2)
+  statement_amount Decimal @default(0) @db.Decimal(15, 2)
 
   // Phí sàn / vận chuyển / đối soát
-  fee_amount       Decimal  @default(0) @db.Decimal(15, 2)
+  fee_amount Decimal @default(0) @db.Decimal(15, 2)
 
   // Mã kỳ đối soát
-  period_code      String?  @db.VarChar(100)
+  period_code String? @db.VarChar(100)
 
-  description      String?  @db.Text
+  description String? @db.Text
 
-  created_at       DateTime @default(now())
+  created_at DateTime @default(now())
 
   @@index([category])
   @@index([created_at])
@@ -296,18 +297,18 @@ model Receipt {
 }
 
 model Expense {
-  id           Int      @id @default(autoincrement())
-  expense_code String   @unique @db.VarChar(100)
+  id           Int    @id @default(autoincrement())
+  expense_code String @unique @db.VarChar(100)
 
-  amount       Decimal  @db.Decimal(15, 2)
+  amount Decimal @db.Decimal(15, 2)
 
-  category     String   @db.VarChar(100)
+  category String @db.VarChar(100)
 
-  recipient    String?  @db.VarChar(255)
+  recipient String? @db.VarChar(255)
 
-  description  String?  @db.Text
+  description String? @db.Text
 
-  created_at   DateTime @default(now())
+  created_at DateTime @default(now())
 
   @@index([category])
   @@index([created_at])
@@ -315,27 +316,27 @@ model Expense {
 }
 
 model InvoiceBrand {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  brand_code    String   @unique @db.VarChar(50)
-  brand_name    String   @db.VarChar(255)
+  brand_code String @unique @db.VarChar(50)
+  brand_name String @db.VarChar(255)
 
-  tax_code      String?  @db.VarChar(100)
-  phone         String?  @db.VarChar(50)
-  address       String?  @db.Text
-  email         String?  @db.VarChar(255)
+  tax_code String? @db.VarChar(100)
+  phone    String? @db.VarChar(50)
+  address  String? @db.Text
+  email    String? @db.VarChar(255)
 
-  bank_name     String?  @db.VarChar(255)
-  bank_account  String?  @db.VarChar(100)
-  bank_holder   String?  @db.VarChar(255)
+  bank_name    String? @db.VarChar(255)
+  bank_account String? @db.VarChar(100)
+  bank_holder  String? @db.VarChar(255)
 
-  logo_text     String?  @db.VarChar(20)
+  logo_text String? @db.VarChar(20)
 
-  status        String   @default("active")
-  is_default    Boolean  @default(false)
+  status     String  @default("active")
+  is_default Boolean @default(false)
 
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   invoices Invoice[]
 
@@ -348,36 +349,35 @@ enum UserRole {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  email         String   @unique @db.VarChar(255)
+  email String @unique @db.VarChar(255)
 
-  password_hash String?  @db.VarChar(255)
+  password_hash String? @db.VarChar(255)
 
-  full_name     String   @db.VarChar(255)
+  full_name String @db.VarChar(255)
 
-  phone         String?  @db.VarChar(50)
+  phone String? @db.VarChar(50)
 
-  position      String?  @db.VarChar(150)
+  position String? @db.VarChar(150)
 
-  avatar_url    String?  @db.Text
+  avatar_url String? @db.Text
 
-  role          UserRole @default(EMPLOYEE)
+  role UserRole @default(EMPLOYEE)
 
-  google_sub    String?  @unique @db.VarChar(255)
+  google_sub String? @unique @db.VarChar(255)
 
-  status        String   @default("active")
+  status String @default("active")
   // active
   // inactive
 
   last_login_at DateTime?
 
-  created_at    DateTime @default(now())
+  created_at DateTime @default(now())
 
-  updated_at    DateTime @updatedAt
+  updated_at DateTime @updatedAt
 
   @@index([role])
   @@index([status])
-
   @@map("users")
 }

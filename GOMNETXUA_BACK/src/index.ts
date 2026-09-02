@@ -15,6 +15,7 @@ import exportStockRoute from "./routes/exportStockRoute";
 import lossStockRoute from "./routes/lossStockRoute";
 import cashFlowRoute from "./routes/cashFlowRoute";
 import reportRoute from "./routes/reportRoute";
+import affiliateCommissionRoute from "./routes/affiliateCommissionRoute";
 const app = express();
 
 
@@ -34,4 +35,29 @@ app.use("/export-stock",exportStockRoute);
 app.use("/loss-stock",lossStockRoute);
 app.use("/cash-flow",cashFlowRoute);
 app.use("/reports",reportRoute);
-app.listen(3000, () => {console.log("Server chạy tại http://localhost:3000");});
+app.use("/affiliate-commissions",affiliateCommissionRoute);
+const PORT =
+  Number(
+    process.env.PORT
+  ) || 3000;
+
+app.get(
+  "/health",
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      message:
+        "Gốm Nét Xưa API đang hoạt động",
+    });
+  }
+);
+
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log(
+      `Server running on port ${PORT}`
+    );
+  }
+);

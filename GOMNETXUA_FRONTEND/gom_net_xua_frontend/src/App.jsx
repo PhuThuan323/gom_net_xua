@@ -5,7 +5,7 @@ import {
 
 import Sidebar from "./Components/SideBar";
 import TopBar from "./Components/TopBar";
-
+import AffiliateCommission from "./Pages/AffiliateCommission";
 import Auth from "./Pages/Auth";
 import UserManagement from "./Pages/userMana";
 import ProductManagement from "./Pages/TongQuan";
@@ -380,6 +380,12 @@ localStorage.setItem(
             "ADMIN" && (
             <Report />
           )}
+        
+        {activePage === "affiliate" && (
+          <AffiliateCommission
+          currentUser={currentUser}
+          />
+        )}
 
         {activePage ===
           "users" &&

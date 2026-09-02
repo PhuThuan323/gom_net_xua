@@ -81,6 +81,11 @@ function Sidebar({
       label: "Báo cáo",
       adminOnly: true,
     },
+    {
+      key: "affiliate",
+      label: "Hoa hồng đơn hàng",
+      adminOnly: false,
+    },
 
     {
       key: "users",
