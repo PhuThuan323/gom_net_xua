@@ -1,356 +1,1163 @@
-/* =====================================================
-   SIDEBAR RESPONSIVE
+/* =========================================================
    GỐM SỨ ĐẶC SẢN NÉT XƯA
-===================================================== */
+   SIDEBAR DESKTOP + MOBILE
+========================================================= */
 
 
-/* =========================
-   SIDEBAR CHUNG
-========================= */
+/* =========================================================
+   RESET RIÊNG CHO SIDEBAR
+========================================================= */
 
-.sidebar {
-  transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease;
-
-  z-index: 1000;
+.nx-sidebar,
+.nx-sidebar *,
+.nx-sidebar *::before,
+.nx-sidebar *::after {
+  box-sizing: border-box;
 }
 
 
-/* =========================
+/* =========================================================
+   SIDEBAR CHUNG
+========================================================= */
+
+.nx-sidebar {
+  background: #fffdf9 !important;
+
+  color: #281208 !important;
+
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+
+  transition:
+    transform 0.28s ease !important;
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+.nx-sidebar-menu {
+  display: flex !important;
+
+  flex-direction: column !important;
+
+  width: 100% !important;
+
+  gap: 5px !important;
+
+  margin: 0 !important;
+
+  padding: 18px 16px 45px !important;
+}
+
+
+.nx-sidebar-menu-item {
+  display: flex !important;
+
+  align-items: center !important;
+
+  flex-shrink: 0 !important;
+
+  width: 100% !important;
+
+  min-height: 56px !important;
+
+  margin: 0 !important;
+
+  padding: 12px 17px !important;
+
+  border: 0 !important;
+
+  border-left:
+    4px solid transparent !important;
+
+  border-radius: 12px !important;
+
+  outline: none !important;
+
+  background: transparent !important;
+
+  color: #2d150a !important;
+
+  font-size: 16px !important;
+
+  font-family: inherit !important;
+
+  font-weight: 700 !important;
+
+  text-align: left !important;
+
+  cursor: pointer !important;
+
+  visibility: visible !important;
+
+  opacity: 1 !important;
+
+  -webkit-tap-highlight-color:
+    transparent;
+}
+
+
+.nx-sidebar-menu-item:hover {
+  background:
+    #f2e8df !important;
+}
+
+
+.nx-sidebar-menu-item.active {
+  background:
+    #eadfd4 !important;
+
+  color:
+    #74310f !important;
+
+  border-left-color:
+    #8d421a !important;
+}
+
+
+/* =========================================================
    DESKTOP
-========================= */
+========================================================= */
 
-.sidebar-desktop {
-  position: fixed;
+.nx-sidebar-desktop {
+  display: block !important;
 
-  left: 0;
-  top: 84px;
+  position: fixed !important;
 
-  width: 330px;
+  top: 84px !important;
+  bottom: 0 !important;
+  left: 0 !important;
 
-  height: calc(
-    100vh - 84px
-  );
+  width: 330px !important;
 
-  background: #fffdf9;
+  min-width: 330px !important;
+
+  max-width: 330px !important;
+
+  height:
+    calc(100vh - 84px) !important;
+
+  margin: 0 !important;
+
+  padding: 0 !important;
+
+  z-index: 5000 !important;
 
   border-right:
-    1px solid #e7ded7;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-
-/* sidebar đang mở */
-
-.sidebar-desktop.sidebar-open {
-  transform:
-    translateX(0);
-}
-
-
-/* sidebar đóng */
-
-.sidebar-desktop.sidebar-closed {
-  transform:
-    translateX(-105%);
-}
-
-
-/* =========================
-   NÚT THU GỌN DESKTOP
-========================= */
-
-.sidebar-toggle-button {
-  position: absolute;
-
-  top: 12px;
-  right: 8px;
-
-  width: 34px;
-  height: 34px;
-
-  border: none;
-
-  border-radius: 9px;
-
-  background:
-    #7a3413;
-
-  color: #ffffff;
-
-  font-size: 24px;
-
-  line-height: 1;
-
-  display: flex;
-
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-
-  z-index: 20;
+    1px solid #e4ddd6 !important;
 
   box-shadow:
-    0 3px 10px
-    rgba(0, 0, 0, 0.12);
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease;
+    2px 0 10px
+    rgba(0, 0, 0, 0.04);
 }
 
 
-.sidebar-toggle-button:hover {
-  background:
-    #59230c;
-
+.nx-sidebar-desktop.nx-sidebar-open {
   transform:
-    scale(1.05);
+    translateX(0) !important;
+
+  visibility:
+    visible !important;
+
+  opacity:
+    1 !important;
 }
 
 
-/* =========================
-   NÚT MỞ LẠI DESKTOP
-========================= */
+.nx-sidebar-desktop.nx-sidebar-closed {
+  transform:
+    translateX(-102%) !important;
+}
 
-.desktop-sidebar-open {
-  position: fixed;
 
-  left: 0;
-  top: 115px;
+/* =========================================================
+   NÚT ĐÓNG SIDEBAR
+========================================================= */
 
-  width: 38px;
-  height: 58px;
+.nx-sidebar-toggle {
+  display: flex !important;
 
-  border: none;
+  align-items: center !important;
+
+  justify-content: center !important;
+
+  position: sticky !important;
+
+  top: 10px !important;
+
+  float: right !important;
+
+  width: 36px !important;
+
+  height: 36px !important;
+
+  margin:
+    10px 8px 0 0 !important;
+
+  padding: 0 !important;
+
+  border: 0 !important;
 
   border-radius:
-    0 12px 12px 0;
+    9px !important;
 
   background:
-    #7a3413;
+    #773211 !important;
 
-  color: white;
+  color:
+    #ffffff !important;
 
-  font-size: 30px;
+  font-size:
+    25px !important;
 
-  font-weight: 700;
+  line-height:
+    1 !important;
 
-  cursor: pointer;
+  cursor:
+    pointer !important;
 
-  z-index: 1001;
+  z-index:
+    30 !important;
+}
+
+
+/* =========================================================
+   NÚT MỞ LẠI DESKTOP
+========================================================= */
+
+.nx-sidebar-desktop-open {
+  position:
+    fixed !important;
+
+  display:
+    flex !important;
+
+  align-items:
+    center !important;
+
+  justify-content:
+    center !important;
+
+  left:
+    0 !important;
+
+  top:
+    115px !important;
+
+  width:
+    42px !important;
+
+  height:
+    60px !important;
+
+  margin:
+    0 !important;
+
+  padding:
+    0 !important;
+
+  border:
+    0 !important;
+
+  border-radius:
+    0 12px 12px 0 !important;
+
+  background:
+    #773211 !important;
+
+  color:
+    #ffffff !important;
+
+  font-size:
+    30px !important;
+
+  font-weight:
+    700 !important;
+
+  cursor:
+    pointer !important;
+
+  z-index:
+    6000 !important;
 
   box-shadow:
-    3px 4px 14px
+    4px 4px 14px
     rgba(0, 0, 0, 0.18);
-
-  transition:
-    width 0.2s ease,
-    background 0.2s ease;
 }
 
 
-.desktop-sidebar-open:hover {
-  width: 44px;
+/* =========================================================
+   MOBILE MẶC ĐỊNH
+========================================================= */
 
-  background:
-    #57230d;
+.nx-mobile-menu-button,
+.nx-sidebar-overlay,
+.nx-mobile-sidebar-header {
+  display: none;
 }
 
 
-/* =====================================================
+/* =========================================================
    MOBILE
-===================================================== */
+========================================================= */
 
-.mobile-menu-button {
-  display: none;
-}
+@media screen and (max-width: 768px) {
 
+  /* =======================================================
+     NÚT ☰
+  ======================================================= */
 
-.sidebar-overlay {
-  display: none;
-}
+  .nx-mobile-menu-button {
+    display:
+      flex !important;
 
+    position:
+      fixed !important;
 
-@media (
-  max-width: 768px
-) {
+    align-items:
+      center !important;
 
-  /* =====================
-     SIDEBAR MOBILE
-  ===================== */
+    justify-content:
+      center !important;
 
-  .sidebar-mobile {
-    position: fixed;
+    top:
+      86px !important;
 
-    left: 0;
-    top: 0;
+    left:
+      12px !important;
 
-    width: min(
-      86vw,
-      320px
-    );
+    width:
+      48px !important;
 
-    height: 100vh;
+    height:
+      48px !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    border:
+      0 !important;
+
+    border-radius:
+      12px !important;
 
     background:
-      #fffdf9;
+      #773211 !important;
 
-    z-index: 3000;
+    color:
+      #ffffff !important;
 
-    overflow-y: auto;
-    overflow-x: hidden;
+    font-size:
+      26px !important;
+
+    line-height:
+      1 !important;
+
+    cursor:
+      pointer !important;
+
+    z-index:
+      2147483640 !important;
 
     box-shadow:
-      8px 0 30px
+      0 5px 18px
+      rgba(0, 0, 0, 0.22);
+
+    -webkit-tap-highlight-color:
+      transparent;
+  }
+
+
+  /* =======================================================
+     OVERLAY
+
+     QUAN TRỌNG:
+     overlay = 2147483641
+     sidebar = 2147483642
+
+     => sidebar LUÔN nằm TRÊN nền đen
+  ======================================================= */
+
+  .nx-sidebar-overlay {
+    display:
+      block !important;
+
+    position:
+      fixed !important;
+
+    inset:
+      0 !important;
+
+    width:
+      100vw !important;
+
+    height:
+      100dvh !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    background:
       rgba(
         0,
         0,
         0,
-        0.18
+        0.5
+      ) !important;
+
+    z-index:
+      2147483641 !important;
+
+    visibility:
+      visible !important;
+
+    opacity:
+      1 !important;
+  }
+
+
+  /* =======================================================
+     SIDEBAR MOBILE
+  ======================================================= */
+
+  .nx-sidebar-mobile {
+    display:
+      block !important;
+
+    position:
+      fixed !important;
+
+    top:
+      0 !important;
+
+    right:
+      auto !important;
+
+    bottom:
+      auto !important;
+
+    left:
+      0 !important;
+
+    width:
+      86vw !important;
+
+    min-width:
+      260px !important;
+
+    max-width:
+      330px !important;
+
+    height:
+      100vh !important;
+
+    height:
+      100dvh !important;
+
+    min-height:
+      100vh !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    background:
+      #fffdf9 !important;
+
+    border:
+      none !important;
+
+    border-radius:
+      0 !important;
+
+    z-index:
+      2147483642 !important;
+
+    overflow-y:
+      auto !important;
+
+    overflow-x:
+      hidden !important;
+
+    visibility:
+      visible !important;
+
+    opacity:
+      1 !important;
+
+    box-shadow:
+      10px 0 35px
+      rgba(
+        0,
+        0,
+        0,
+        0.3
       );
 
     transition:
       transform
-      0.28s ease;
+      0.28s ease !important;
+
+    -webkit-overflow-scrolling:
+      touch;
   }
 
 
-  .sidebar-mobile.sidebar-open {
+  /* SIDEBAR MỞ */
+
+  .nx-sidebar-mobile.nx-sidebar-open {
+    display:
+      block !important;
+
     transform:
-      translateX(0);
+      translate3d(
+        0,
+        0,
+        0
+      ) !important;
+
+    visibility:
+      visible !important;
+
+    opacity:
+      1 !important;
+
+    pointer-events:
+      auto !important;
   }
 
 
-  .sidebar-mobile.sidebar-closed {
+  /* SIDEBAR ĐÓNG */
+
+  .nx-sidebar-mobile.nx-sidebar-closed {
+    display:
+      block !important;
+
     transform:
-      translateX(-105%);
+      translate3d(
+        -110%,
+        0,
+        0
+      ) !important;
+
+    pointer-events:
+      none !important;
   }
 
 
-  /* =====================
-     NÚT ☰
-  ===================== */
+  /* =======================================================
+     HEADER MOBILE
+  ======================================================= */
 
-  .mobile-menu-button {
-    position: fixed;
-
-    display: flex;
-
-    left: 12px;
-    top: 92px;
-
-    width: 48px;
-    height: 48px;
-
-    border: none;
-
-    border-radius:
-      12px;
-
-    background:
-      #7a3413;
-
-    color:
-      #ffffff;
-
-    font-size: 25px;
-
-    font-weight: 700;
+  .nx-mobile-sidebar-header {
+    display:
+      flex !important;
 
     align-items:
-      center;
+      center !important;
 
-    justify-content:
-      center;
+    gap:
+      11px !important;
 
-    cursor: pointer;
+    width:
+      100% !important;
 
-    z-index: 2500;
+    min-height:
+      82px !important;
 
-    box-shadow:
-      0 5px 18px
+    padding:
+      13px 60px 13px 16px !important;
+
+    background:
+      #71300f !important;
+
+    color:
+      #ffffff !important;
+
+    border-bottom:
+      1px solid
       rgba(
-        0,
-        0,
-        0,
-        0.2
-      );
+        255,
+        255,
+        255,
+        0.15
+      ) !important;
   }
 
 
-  /* =====================
-     NỀN MỜ
-  ===================== */
+  .nx-mobile-logo {
+    display:
+      flex !important;
 
-  .sidebar-overlay {
-    display: block;
+    align-items:
+      center !important;
 
-    position: fixed;
+    justify-content:
+      center !important;
 
-    inset: 0;
+    flex:
+      0 0 43px !important;
+
+    width:
+      43px !important;
+
+    height:
+      43px !important;
+
+    border:
+      2px solid
+      rgba(
+        255,
+        255,
+        255,
+        0.9
+      ) !important;
+
+    border-radius:
+      50% !important;
+
+    color:
+      #ffffff !important;
+
+    font-size:
+      15px !important;
+
+    font-weight:
+      900 !important;
+  }
+
+
+  .nx-mobile-brand {
+    display:
+      flex !important;
+
+    flex-direction:
+      column !important;
+
+    min-width:
+      0 !important;
+  }
+
+
+  .nx-mobile-brand strong {
+    display:
+      block !important;
+
+    color:
+      #ffffff !important;
+
+    font-size:
+      13px !important;
+
+    line-height:
+      1.3 !important;
+  }
+
+
+  .nx-mobile-brand span {
+    display:
+      block !important;
+
+    margin-top:
+      3px !important;
+
+    color:
+      rgba(
+        255,
+        255,
+        255,
+        0.72
+      ) !important;
+
+    font-size:
+      11px !important;
+  }
+
+
+  /* =======================================================
+     NÚT X
+  ======================================================= */
+
+  .nx-sidebar-mobile
+  .nx-sidebar-toggle {
+    display:
+      flex !important;
+
+    position:
+      absolute !important;
+
+    float:
+      none !important;
+
+    top:
+      20px !important;
+
+    right:
+      13px !important;
+
+    width:
+      40px !important;
+
+    height:
+      40px !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    border:
+      1px solid
+      rgba(
+        255,
+        255,
+        255,
+        0.3
+      ) !important;
+
+    border-radius:
+      10px !important;
 
     background:
       rgba(
-        0,
-        0,
-        0,
-        0.42
-      );
+        255,
+        255,
+        255,
+        0.14
+      ) !important;
 
-    z-index: 2900;
+    color:
+      #ffffff !important;
 
-    backdrop-filter:
-      blur(2px);
+    font-size:
+      28px !important;
+
+    z-index:
+      2147483643 !important;
   }
 
 
-  /* =====================
-     NÚT X MOBILE
-  ===================== */
+  /* =======================================================
+     MENU MOBILE
+  ======================================================= */
 
-  .sidebar-mobile
-  .sidebar-toggle-button {
-    position: absolute;
+  .nx-sidebar-mobile
+  .nx-sidebar-menu {
+    display:
+      flex !important;
 
-    top: 14px;
-    right: 14px;
+    flex-direction:
+      column !important;
 
-    width: 40px;
-    height: 40px;
+    width:
+      100% !important;
+
+    min-height:
+      0 !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      14px 12px
+      max(
+        35px,
+        env(
+          safe-area-inset-bottom
+        )
+      ) !important;
+
+    gap:
+      4px !important;
+
+    overflow:
+      visible !important;
+
+    visibility:
+      visible !important;
+
+    opacity:
+      1 !important;
+  }
+
+
+  .nx-sidebar-mobile
+  .nx-sidebar-menu-item {
+    display:
+      flex !important;
+
+    align-items:
+      center !important;
+
+    flex:
+      0 0 auto !important;
+
+    width:
+      100% !important;
+
+    min-height:
+      52px !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      11px 14px !important;
+
+    border:
+      0 !important;
+
+    border-left:
+      4px solid
+      transparent !important;
 
     border-radius:
-      10px;
+      10px !important;
 
-    font-size: 29px;
+    background:
+      transparent !important;
 
-    z-index: 20;
-  }
+    color:
+      #291309 !important;
 
+    font-size:
+      15px !important;
 
-  /* chừa khoảng trên
-     cho nút đóng */
+    font-weight:
+      700 !important;
 
-  .sidebar-mobile
-  .menu {
-    padding-top: 62px;
-  }
+    text-align:
+      left !important;
 
+    visibility:
+      visible !important;
 
-  /* menu mobile lớn hơn
-     để dễ bấm */
-
-  .sidebar-mobile
-  .menu-item {
-    min-height: 52px;
-
-    font-size: 16px;
+    opacity:
+      1 !important;
 
     touch-action:
       manipulation;
   }
+
+
+  .nx-sidebar-mobile
+  .nx-sidebar-menu-item.active {
+    background:
+      #eee2d7 !important;
+
+    color:
+      #71300f !important;
+
+    border-left-color:
+      #8c4119 !important;
+  }
+}
+
+/* =========================================================
+   FIX SIDEBAR LAPTOP / DESKTOP
+========================================================= */
+
+@media screen and (min-width: 769px) {
+
+  /* =========================
+     SIDEBAR
+  ========================= */
+
+  .nx-sidebar-desktop {
+    position: fixed !important;
+
+    left: 0 !important;
+    top: 84px !important;
+    bottom: 0 !important;
+
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+
+    height: calc(100vh - 84px) !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #fffdf9 !important;
+
+    border-right: 1px solid #e2d9d0 !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+
+    z-index: 5000 !important;
+
+    box-shadow:
+      2px 0 10px
+      rgba(0, 0, 0, 0.04);
+  }
+
+
+  /* =========================
+     SIDEBAR MỞ
+  ========================= */
+
+  .nx-sidebar-desktop.nx-sidebar-open {
+    transform: translateX(0) !important;
+
+    visibility: visible !important;
+
+    opacity: 1 !important;
+  }
+
+
+  /* =========================
+     SIDEBAR ĐÓNG
+  ========================= */
+
+  .nx-sidebar-desktop.nx-sidebar-closed {
+    transform: translateX(-100%) !important;
+  }
+
+
+  /* =====================================================
+     MENU
+     ĐƯA TỔNG QUAN LÊN TRÊN
+  ===================================================== */
+
+  .nx-sidebar-desktop
+  .nx-sidebar-menu {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    /*
+      Chỉ chừa khoảng nhỏ phía trên.
+      Không còn khoảng trắng lớn như hình hiện tại.
+    */
+    padding: 10px 10px 45px !important;
+
+    gap: 5px !important;
+
+    box-sizing: border-box !important;
+  }
+
+
+  /* =====================================================
+     MENU ITEM
+  ===================================================== */
+
+  .nx-sidebar-desktop
+  .nx-sidebar-menu-item {
+    display: flex !important;
+
+    align-items: center !important;
+
+    width: 100% !important;
+
+    min-height: 58px !important;
+
+    margin: 0 !important;
+
+    padding: 13px 18px !important;
+
+    box-sizing: border-box !important;
+
+    border: none !important;
+
+    border-left:
+      4px solid transparent !important;
+
+    border-radius: 12px !important;
+
+    background: transparent !important;
+
+    color: #251007 !important;
+
+    /* chữ lớn hơn */
+    font-size: 20px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1.3 !important;
+
+    text-align: left !important;
+
+    cursor: pointer !important;
+
+    flex-shrink: 0 !important;
+
+    opacity: 1 !important;
+
+    visibility: visible !important;
+
+    transition:
+      background 0.18s ease,
+      color 0.18s ease,
+      border-color 0.18s ease;
+  }
+
+
+  /* hover */
+
+  .nx-sidebar-desktop
+  .nx-sidebar-menu-item:hover {
+    background: #f2e8df !important;
+
+    color: #71300f !important;
+  }
+
+
+  /* menu đang chọn */
+
+  .nx-sidebar-desktop
+  .nx-sidebar-menu-item.active {
+    background: #eadfd3 !important;
+
+    color: #71300f !important;
+
+    border-left-color:
+      #914316 !important;
+
+    font-weight: 800 !important;
+  }
+
+
+  /* =====================================================
+     NÚT ‹ THU SIDEBAR
+
+     QUAN TRỌNG:
+     bỏ sticky + float để không đẩy menu xuống
+  ===================================================== */
+
+  .nx-sidebar-desktop
+  .nx-sidebar-toggle {
+    position: fixed !important;
+
+    top: 96px !important;
+
+    left: 284px !important;
+
+    right: auto !important;
+
+    float: none !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    width: 36px !important;
+
+    height: 36px !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border: 0 !important;
+
+    border-radius: 10px !important;
+
+    background: #773211 !important;
+
+    color: #ffffff !important;
+
+    font-size: 25px !important;
+
+    font-weight: 700 !important;
+
+    line-height: 1 !important;
+
+    cursor: pointer !important;
+
+    z-index: 5100 !important;
+
+    box-shadow:
+      0 3px 10px
+      rgba(0, 0, 0, 0.14);
+  }
+
+
+  .nx-sidebar-desktop
+  .nx-sidebar-toggle:hover {
+    background: #58230d !important;
+
+    transform: scale(1.04);
+  }
+
+
+  /* =====================================================
+     CHỪA CHỖ BÊN PHẢI MENU ĐẦU TIÊN
+     để nút ‹ không đè chữ
+  ===================================================== */
+
+  .nx-sidebar-desktop
+  .nx-sidebar-menu-item:first-child {
+    padding-right: 30px !important;
+  }
+
+
+  /* =====================================================
+     NÚT › KHI SIDEBAR ĐÃ ĐÓNG
+  ===================================================== */
+
+  .nx-sidebar-desktop-open {
+    position: fixed !important;
+
+    left: 0 !important;
+
+    top: 96px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    width: 42px !important;
+
+    height: 58px !important;
+
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border: 0 !important;
+
+    border-radius:
+      0 12px 12px 0 !important;
+
+    background:
+      #773211 !important;
+
+    color:
+      #ffffff !important;
+
+    font-size:
+      30px !important;
+
+    cursor:
+      pointer !important;
+
+    z-index:
+      5100 !important;
+
+    box-shadow:
+      4px 4px 14px
+      rgba(0, 0, 0, 0.16);
+  }
+
 }

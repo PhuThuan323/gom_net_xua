@@ -1,56 +1,80 @@
 import { useEffect, useState } from "react";
 import "./Sidebar.css";
+
 function Sidebar({
   activePage,
   setActivePage,
   currentUser,
 }) {
-  // =========================
-  // RESPONSIVE SIDEBAR
-  // =========================
-
-  const getIsMobile = () => {
+  const checkMobile = () => {
     if (typeof window === "undefined") {
       return false;
     }
 
-    return window.innerWidth <= 768;
+    return window.matchMedia("(max-width: 768px)").matches;
   };
 
-  const [isMobile, setIsMobile] = useState(getIsMobile);
+  const [isMobile, setIsMobile] = useState(checkMobile);
 
   const [sidebarOpen, setSidebarOpen] = useState(
-    () => !getIsMobile()
+    () => !checkMobile()
   );
 
+  // =========================
+  // RESPONSIVE
+  // =========================
+
   useEffect(() => {
-    const handleResize = () => {
-      const mobile =
-        window.innerWidth <= 768;
+    const mediaQuery =
+      window.matchMedia("(max-width: 768px)");
 
-      setIsMobile((previousMobile) => {
-        // Chỉ reset sidebar khi chuyển
-        // từ mobile <-> desktop
-        if (previousMobile !== mobile) {
-          setSidebarOpen(!mobile);
-        }
+    const handleScreenChange = (event) => {
+      const mobile = event.matches;
 
-        return mobile;
-      });
+      setIsMobile(mobile);
+
+      // Mobile mặc định đóng
+      // Desktop mặc định mở
+      setSidebarOpen(!mobile);
     };
 
-    window.addEventListener(
-      "resize",
-      handleResize
+    // Đồng bộ ngay lần đầu
+    setIsMobile(mediaQuery.matches);
+
+    if (mediaQuery.matches) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+
+    mediaQuery.addEventListener(
+      "change",
+      handleScreenChange
     );
 
     return () => {
-      window.removeEventListener(
-        "resize",
-        handleResize
+      mediaQuery.removeEventListener(
+        "change",
+        handleScreenChange
       );
     };
   }, []);
+
+  // =========================
+  // KHÓA SCROLL KHI MỞ MOBILE
+  // =========================
+
+  useEffect(() => {
+    if (isMobile && sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobile, sidebarOpen]);
 
   // =========================
   // PHÂN QUYỀN
@@ -154,17 +178,12 @@ function Sidebar({
   // CHUYỂN TRANG
   // =========================
 
-  const handleChangePage = (
-    page
-  ) => {
-    console.log(
-      "Chuyển sang:",
-      page
-    );
+  const handleChangePage = (page) => {
+    console.log("Chuyển sang:", page);
 
     setActivePage(page);
 
-    // Mobile chọn menu xong tự đóng
+    // Mobile chọn xong tự đóng
     if (isMobile) {
       setSidebarOpen(false);
     }
@@ -172,125 +191,130 @@ function Sidebar({
 
   return (
     <>
-      {/* =====================================
-          NÚT MENU MOBILE
-      ====================================== */}
+      {/* =============================
+          NÚT ☰ MOBILE
+      ============================== */}
 
-      {isMobile &&
-        !sidebarOpen && (
-          <button
-            type="button"
-            className="mobile-menu-button"
-            onClick={() =>
-              setSidebarOpen(true)
-            }
-            aria-label="Mở menu"
-            title="Mở menu"
-          >
-            ☰
-          </button>
-        )}
-
-      {/* =====================================
-          OVERLAY MOBILE
-      ====================================== */}
-
-      {isMobile &&
-        sidebarOpen && (
-          <div
-            className="sidebar-overlay"
-            onClick={() =>
-              setSidebarOpen(false)
-            }
-          />
-        )}
-
-      {/* =====================================
-          SIDEBAR
-      ====================================== */}
-
-      <aside
-        className={[
-          "sidebar",
-
-          sidebarOpen
-            ? "sidebar-open"
-            : "sidebar-closed",
-
-          isMobile
-            ? "sidebar-mobile"
-            : "sidebar-desktop",
-        ].join(" ")}
-      >
-        {/* NÚT ĐÓNG / THU GỌN */}
-
+      {isMobile && !sidebarOpen && (
         <button
           type="button"
-          className="sidebar-toggle-button"
+          className="nx-mobile-menu-button"
+          onClick={() =>
+            setSidebarOpen(true)
+          }
+          aria-label="Mở menu"
+        >
+          ☰
+        </button>
+      )}
+
+      {/* =============================
+          OVERLAY MOBILE
+      ============================== */}
+
+      {isMobile && sidebarOpen && (
+        <div
+          className="nx-sidebar-overlay"
           onClick={() =>
             setSidebarOpen(false)
           }
-          aria-label="Đóng menu"
-          title={
+        />
+      )}
+
+      {/* =============================
+          SIDEBAR
+      ============================== */}
+
+      <aside
+        className={[
+          "nx-sidebar",
+
+          isMobile
+            ? "nx-sidebar-mobile"
+            : "nx-sidebar-desktop",
+
+          sidebarOpen
+            ? "nx-sidebar-open"
+            : "nx-sidebar-closed",
+        ].join(" ")}
+      >
+        {/* HEADER RIÊNG MOBILE */}
+
+        {isMobile && (
+          <div className="nx-mobile-sidebar-header">
+            <div className="nx-mobile-logo">
+              NX
+            </div>
+
+            <div className="nx-mobile-brand">
+              <strong>
+                GỐM SỨ ĐẶC SẢN NÉT XƯA
+              </strong>
+
+              <span>
+                Hệ thống quản lý nội bộ
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* NÚT ĐÓNG */}
+
+        <button
+          type="button"
+          className="nx-sidebar-toggle"
+          onClick={() =>
+            setSidebarOpen(false)
+          }
+          aria-label={
             isMobile
               ? "Đóng menu"
               : "Thu gọn menu"
           }
         >
-          {isMobile
-            ? "×"
-            : "‹"}
+          {isMobile ? "×" : "‹"}
         </button>
 
         {/* MENU */}
 
-        <nav className="menu">
-          {visibleMenus.map(
-            (item) => (
-              <button
-                key={
-                  item.key
-                }
-                type="button"
-                className={`menu-item ${
-                  activePage ===
-                  item.key
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  handleChangePage(
-                    item.key
-                  )
-                }
-              >
-                {
-                  item.label
-                }
-              </button>
-            )
-          )}
+        <nav className="nx-sidebar-menu">
+          {visibleMenus.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              className={[
+                "nx-sidebar-menu-item",
+
+                activePage === item.key
+                  ? "active"
+                  : "",
+              ].join(" ")}
+              onClick={() =>
+                handleChangePage(item.key)
+              }
+            >
+              {item.label}
+            </button>
+          ))}
         </nav>
       </aside>
 
-      {/* =====================================
-          NÚT MỞ LẠI SIDEBAR DESKTOP
-      ====================================== */}
+      {/* =============================
+          NÚT MỞ DESKTOP
+      ============================== */}
 
-      {!isMobile &&
-        !sidebarOpen && (
-          <button
-            type="button"
-            className="desktop-sidebar-open"
-            onClick={() =>
-              setSidebarOpen(true)
-            }
-            aria-label="Mở menu"
-            title="Mở menu"
-          >
-            ›
-          </button>
-        )}
+      {!isMobile && !sidebarOpen && (
+        <button
+          type="button"
+          className="nx-sidebar-desktop-open"
+          onClick={() =>
+            setSidebarOpen(true)
+          }
+          aria-label="Mở sidebar"
+        >
+          ›
+        </button>
+      )}
     </>
   );
 }
