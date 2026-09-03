@@ -24,8 +24,8 @@ import {
   AuthRequest,
 } from "../middleware/authMiddleware";
 
-const prisma =
-  new PrismaClient();
+
+import prisma from "../lib/prisma";
 
 const googleClient =
   new OAuth2Client(

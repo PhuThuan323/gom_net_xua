@@ -1,9 +1,11 @@
 // src/controllers/debtProviderController.ts
 
 import { Request, Response } from "express";
-import { Prisma, PrismaClient } from "@prisma/client";
+import {
+  Prisma,
+} from "@prisma/client";
 
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma";
 
 type DebtTransactionType = "DEBT" | "PAYMENT" | "ADJUSTMENT";
 
@@ -72,7 +74,7 @@ function errorResponse(
 
 async function getCurrentBalance(
   supplierId: number,
-  tx: Prisma.TransactionClient | PrismaClient = prisma
+  tx: Prisma.TransactionClient | typeof prisma = prisma
 ): Promise<Prisma.Decimal> {
   const latest = await tx.supplierDebt.findFirst({
     where: {
