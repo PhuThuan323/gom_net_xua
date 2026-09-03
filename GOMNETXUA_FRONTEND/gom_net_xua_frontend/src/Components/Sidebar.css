@@ -1,0 +1,356 @@
+/* =====================================================
+   SIDEBAR RESPONSIVE
+   GỐM SỨ ĐẶC SẢN NÉT XƯA
+===================================================== */
+
+
+/* =========================
+   SIDEBAR CHUNG
+========================= */
+
+.sidebar {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  z-index: 1000;
+}
+
+
+/* =========================
+   DESKTOP
+========================= */
+
+.sidebar-desktop {
+  position: fixed;
+
+  left: 0;
+  top: 84px;
+
+  width: 330px;
+
+  height: calc(
+    100vh - 84px
+  );
+
+  background: #fffdf9;
+
+  border-right:
+    1px solid #e7ded7;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+/* sidebar đang mở */
+
+.sidebar-desktop.sidebar-open {
+  transform:
+    translateX(0);
+}
+
+
+/* sidebar đóng */
+
+.sidebar-desktop.sidebar-closed {
+  transform:
+    translateX(-105%);
+}
+
+
+/* =========================
+   NÚT THU GỌN DESKTOP
+========================= */
+
+.sidebar-toggle-button {
+  position: absolute;
+
+  top: 12px;
+  right: 8px;
+
+  width: 34px;
+  height: 34px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    #7a3413;
+
+  color: #ffffff;
+
+  font-size: 24px;
+
+  line-height: 1;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  z-index: 20;
+
+  box-shadow:
+    0 3px 10px
+    rgba(0, 0, 0, 0.12);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+
+.sidebar-toggle-button:hover {
+  background:
+    #59230c;
+
+  transform:
+    scale(1.05);
+}
+
+
+/* =========================
+   NÚT MỞ LẠI DESKTOP
+========================= */
+
+.desktop-sidebar-open {
+  position: fixed;
+
+  left: 0;
+  top: 115px;
+
+  width: 38px;
+  height: 58px;
+
+  border: none;
+
+  border-radius:
+    0 12px 12px 0;
+
+  background:
+    #7a3413;
+
+  color: white;
+
+  font-size: 30px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  z-index: 1001;
+
+  box-shadow:
+    3px 4px 14px
+    rgba(0, 0, 0, 0.18);
+
+  transition:
+    width 0.2s ease,
+    background 0.2s ease;
+}
+
+
+.desktop-sidebar-open:hover {
+  width: 44px;
+
+  background:
+    #57230d;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+.mobile-menu-button {
+  display: none;
+}
+
+
+.sidebar-overlay {
+  display: none;
+}
+
+
+@media (
+  max-width: 768px
+) {
+
+  /* =====================
+     SIDEBAR MOBILE
+  ===================== */
+
+  .sidebar-mobile {
+    position: fixed;
+
+    left: 0;
+    top: 0;
+
+    width: min(
+      86vw,
+      320px
+    );
+
+    height: 100vh;
+
+    background:
+      #fffdf9;
+
+    z-index: 3000;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    box-shadow:
+      8px 0 30px
+      rgba(
+        0,
+        0,
+        0,
+        0.18
+      );
+
+    transition:
+      transform
+      0.28s ease;
+  }
+
+
+  .sidebar-mobile.sidebar-open {
+    transform:
+      translateX(0);
+  }
+
+
+  .sidebar-mobile.sidebar-closed {
+    transform:
+      translateX(-105%);
+  }
+
+
+  /* =====================
+     NÚT ☰
+  ===================== */
+
+  .mobile-menu-button {
+    position: fixed;
+
+    display: flex;
+
+    left: 12px;
+    top: 92px;
+
+    width: 48px;
+    height: 48px;
+
+    border: none;
+
+    border-radius:
+      12px;
+
+    background:
+      #7a3413;
+
+    color:
+      #ffffff;
+
+    font-size: 25px;
+
+    font-weight: 700;
+
+    align-items:
+      center;
+
+    justify-content:
+      center;
+
+    cursor: pointer;
+
+    z-index: 2500;
+
+    box-shadow:
+      0 5px 18px
+      rgba(
+        0,
+        0,
+        0,
+        0.2
+      );
+  }
+
+
+  /* =====================
+     NỀN MỜ
+  ===================== */
+
+  .sidebar-overlay {
+    display: block;
+
+    position: fixed;
+
+    inset: 0;
+
+    background:
+      rgba(
+        0,
+        0,
+        0,
+        0.42
+      );
+
+    z-index: 2900;
+
+    backdrop-filter:
+      blur(2px);
+  }
+
+
+  /* =====================
+     NÚT X MOBILE
+  ===================== */
+
+  .sidebar-mobile
+  .sidebar-toggle-button {
+    position: absolute;
+
+    top: 14px;
+    right: 14px;
+
+    width: 40px;
+    height: 40px;
+
+    border-radius:
+      10px;
+
+    font-size: 29px;
+
+    z-index: 20;
+  }
+
+
+  /* chừa khoảng trên
+     cho nút đóng */
+
+  .sidebar-mobile
+  .menu {
+    padding-top: 62px;
+  }
+
+
+  /* menu mobile lớn hơn
+     để dễ bấm */
+
+  .sidebar-mobile
+  .menu-item {
+    min-height: 52px;
+
+    font-size: 16px;
+
+    touch-action:
+      manipulation;
+  }
+}
