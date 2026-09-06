@@ -240,49 +240,51 @@ const resolvePeriod = (
 
   /* MONTH */
 
+    /* MONTH */
+
   let year =
     now.getFullYear();
 
   let month =
-    now.getMonth() +
-    1;
+    now.getMonth() + 1;
 
   if (
     /^\d{4}-\d{2}$/.test(
       value
     )
   ) {
+    const [
+      yearText = "",
+      monthText = "",
+    ] =
+      value.split("-");
+
+    const parsedYear =
+      Number(
+        yearText
+      );
+
+    const parsedMonth =
+      Number(
+        monthText
+      );
+
     if (
-  /^\d{4}-\d{2}$/.test(
-    value
-  )
-) {
-  const parts =
-    value
-      .split("-")
-      .map(Number);
+      Number.isFinite(
+        parsedYear
+      ) &&
+      Number.isFinite(
+        parsedMonth
+      ) &&
+      parsedMonth >= 1 &&
+      parsedMonth <= 12
+    ) {
+      year =
+        parsedYear;
 
-  const parsedYear =
-    parts[0];
-
-  const parsedMonth =
-    parts[1];
-
-  if (
-    typeof parsedYear === "number" &&
-    Number.isFinite(parsedYear) &&
-    typeof parsedMonth === "number" &&
-    Number.isFinite(parsedMonth) &&
-    parsedMonth >= 1 &&
-    parsedMonth <= 12
-  ) {
-    year =
-      parsedYear;
-
-    month =
-      parsedMonth;
-  }
-}
+      month =
+        parsedMonth;
+    }
   }
 
   const from =
@@ -320,8 +322,7 @@ const resolvePeriod = (
 
     to:
       new Date(
-        next.getTime() -
-          1
+        next.getTime() - 1
       ),
   };
 };
@@ -1099,9 +1100,92 @@ class ReportController {
         exportCodes.size ||
         exportTransactions.length;
 
+      /* ===================================================
+         STOCK ROWS FOR OVERVIEW PRINT
+      =================================================== */
+
+      const stockRows =
+        variants.map(
+          (variant) => {
+            const stock =
+              Number(
+                variant.current_quantity ||
+                  0
+              );
+
+            const minStock =
+              Number(
+                variant.min_stock_quantity ||
+                  0
+              );
+
+            const purchasePrice =
+              variant.purchase_price;
+
+            const rowInventoryValue =
+              purchasePrice.mul(
+                stock
+              );
+
+            let statusLabel =
+              "An toàn";
+
+            if (stock <= 0) {
+              statusLabel =
+                "Hết hàng";
+            } else if (
+              stock <= minStock
+            ) {
+              statusLabel =
+                "Sắp hết";
+            }
+
+            return {
+              variant_id:
+                variant.id,
+
+              group_name:
+                variant.product
+                  .group
+                  .group_name,
+
+              product_name:
+                variant.product
+                  .product_name,
+
+              size:
+                variant.size ||
+                "",
+
+              sku:
+                variant.variant_code ||
+                "",
+
+              barcode:
+                variant.barcode ||
+                "",
+
+              current_quantity:
+                stock,
+
+              min_stock:
+                minStock,
+
+              purchase_price:
+                purchasePrice.toString(),
+
+              inventory_value:
+                rowInventoryValue.toString(),
+
+              status_label:
+                statusLabel,
+            };
+          }
+        );
       return res.json({
         success: true,
 
+        
         data: {
           period: {
             from,
@@ -1174,6 +1258,9 @@ class ReportController {
 
           recent_transactions:
             recentTransactions,
+
+          stock_rows:
+            stockRows,
         },
       });
     } catch (error) {

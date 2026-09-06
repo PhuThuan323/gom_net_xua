@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /* =========================================================
    HELPERS
 ========================================================= */
@@ -88,27 +91,21 @@ const resolvePeriod = (req) => {
         };
     }
     /* MONTH */
+    /* MONTH */
     let year = now.getFullYear();
-    let month = now.getMonth() +
-        1;
+    let month = now.getMonth() + 1;
     if (/^\d{4}-\d{2}$/.test(value)) {
-        if (/^\d{4}-\d{2}$/.test(value)) {
-            const parts = value
-                .split("-")
-                .map(Number);
-            const parsedYear = parts[0];
-            const parsedMonth = parts[1];
-            if (typeof parsedYear === "number" &&
-                Number.isFinite(parsedYear) &&
-                typeof parsedMonth === "number" &&
-                Number.isFinite(parsedMonth) &&
-                parsedMonth >= 1 &&
-                parsedMonth <= 12) {
-                year =
-                    parsedYear;
-                month =
-                    parsedMonth;
-            }
+        const [yearText = "", monthText = "",] = value.split("-");
+        const parsedYear = Number(yearText);
+        const parsedMonth = Number(monthText);
+        if (Number.isFinite(parsedYear) &&
+            Number.isFinite(parsedMonth) &&
+            parsedMonth >= 1 &&
+            parsedMonth <= 12) {
+            year =
+                parsedYear;
+            month =
+                parsedMonth;
         }
     }
     const from = new Date(`${year}-${String(month).padStart(2, "0")}-01T00:00:00+07:00`);
@@ -121,8 +118,7 @@ const resolvePeriod = (req) => {
     const next = new Date(`${nextYear}-${String(nextMonth).padStart(2, "0")}-01T00:00:00+07:00`);
     return {
         from,
-        to: new Date(next.getTime() -
-            1),
+        to: new Date(next.getTime() - 1),
     };
 };
 /* =========================================================
@@ -148,7 +144,7 @@ class ReportController {
             /* ===================================================
                PRODUCTS
             =================================================== */
-            const variants = await prisma.productVariant.findMany({
+            const variants = await prisma_1.default.productVariant.findMany({
                 where: {
                     status: "active",
                     product: {
@@ -192,7 +188,7 @@ class ReportController {
             /* ===================================================
                SUPPLIER DEBT
             =================================================== */
-            const debtRows = await prisma.supplierDebt.findMany({
+            const debtRows = await prisma_1.default.supplierDebt.findMany({
                 orderBy: [
                     {
                         transaction_date: "desc",
@@ -220,7 +216,7 @@ class ReportController {
                FINANCE
             =================================================== */
             const [receiptSummary, expenseSummary, exportSummary, lossSummary,] = await Promise.all([
-                prisma.receipt.aggregate({
+                prisma_1.default.receipt.aggregate({
                     where: {
                         created_at: {
                             gte: from,
@@ -231,7 +227,7 @@ class ReportController {
                         amount: true,
                     },
                 }),
-                prisma.expense.aggregate({
+                prisma_1.default.expense.aggregate({
                     where: {
                         created_at: {
                             gte: from,
@@ -242,7 +238,7 @@ class ReportController {
                         amount: true,
                     },
                 }),
-                prisma.inventoryTransaction.aggregate({
+                prisma_1.default.inventoryTransaction.aggregate({
                     where: {
                         transaction_type: "EXPORT",
                         created_at: {
@@ -255,7 +251,7 @@ class ReportController {
                         quantity: true,
                     },
                 }),
-                prisma.inventoryTransaction.aggregate({
+                prisma_1.default.inventoryTransaction.aggregate({
                     where: {
                         transaction_type: "LOSS",
                         created_at: {
@@ -311,7 +307,7 @@ class ReportController {
             /* ===================================================
                TOP EXPORT
             =================================================== */
-            const exportedRows = await prisma.inventoryTransaction.groupBy({
+            const exportedRows = await prisma_1.default.inventoryTransaction.groupBy({
                 by: [
                     "variant_id",
                 ],
@@ -335,7 +331,7 @@ class ReportController {
             });
             const topVariantIds = exportedRows.map((row) => row.variant_id);
             const topVariants = topVariantIds.length
-                ? await prisma.productVariant.findMany({
+                ? await prisma_1.default.productVariant.findMany({
                     where: {
                         id: {
                             in: topVariantIds,
@@ -394,7 +390,7 @@ class ReportController {
             /* ===================================================
                RECENT TRANSACTIONS
             =================================================== */
-            const recent = await prisma.inventoryTransaction.findMany({
+            const recent = await prisma_1.default.inventoryTransaction.findMany({
                 include: {
                     variant: {
                         include: {
@@ -436,7 +432,7 @@ class ReportController {
             /* ===================================================
                LONG STOCK
             =================================================== */
-            const exportedLast60Days = await prisma.inventoryTransaction.findMany({
+            const exportedLast60Days = await prisma_1.default.inventoryTransaction.findMany({
                 where: {
                     transaction_type: "EXPORT",
                     created_at: {
@@ -466,7 +462,7 @@ class ReportController {
             /* ===================================================
                NUMBER OF RECEIPTS
             =================================================== */
-            const importReceiptCount = await prisma.importReceipt.count({
+            const importReceiptCount = await prisma_1.default.importReceipt.count({
                 where: {
                     import_date: {
                         gte: from,
@@ -474,7 +470,7 @@ class ReportController {
                     },
                 },
             });
-            const exportTransactions = await prisma.inventoryTransaction.findMany({
+            const exportTransactions = await prisma_1.default.inventoryTransaction.findMany({
                 where: {
                     transaction_type: "EXPORT",
                     created_at: {
@@ -495,6 +491,45 @@ class ReportController {
             }
             const exportReceiptCount = exportCodes.size ||
                 exportTransactions.length;
+            /* ===================================================
+               STOCK ROWS FOR OVERVIEW PRINT
+            =================================================== */
+            const stockRows = variants.map((variant) => {
+                const stock = Number(variant.current_quantity ||
+                    0);
+                const minStock = Number(variant.min_stock_quantity ||
+                    0);
+                const purchasePrice = variant.purchase_price;
+                const rowInventoryValue = purchasePrice.mul(stock);
+                let statusLabel = "An toàn";
+                if (stock <= 0) {
+                    statusLabel =
+                        "Hết hàng";
+                }
+                else if (stock <= minStock) {
+                    statusLabel =
+                        "Sắp hết";
+                }
+                return {
+                    variant_id: variant.id,
+                    group_name: variant.product
+                        .group
+                        .group_name,
+                    product_name: variant.product
+                        .product_name,
+                    size: variant.size ||
+                        "",
+                    sku: variant.variant_code ||
+                        "",
+                    barcode: variant.barcode ||
+                        "",
+                    current_quantity: stock,
+                    min_stock: minStock,
+                    purchase_price: purchasePrice.toString(),
+                    inventory_value: rowInventoryValue.toString(),
+                    status_label: statusLabel,
+                };
+            });
             return res.json({
                 success: true,
                 data: {
@@ -528,6 +563,7 @@ class ReportController {
                     top_exports: topExports,
                     alerts,
                     recent_transactions: recentTransactions,
+                    stock_rows: stockRows,
                 },
             });
         }
@@ -553,7 +589,7 @@ class ReportController {
             }
             const from = vnStart(fromText);
             const to = vnEnd(toText);
-            const variants = await prisma.productVariant.findMany({
+            const variants = await prisma_1.default.productVariant.findMany({
                 where: {
                     status: "active",
                 },
@@ -575,7 +611,7 @@ class ReportController {
                     },
                 ],
             });
-            const transactions = await prisma.inventoryTransaction.findMany({
+            const transactions = await prisma_1.default.inventoryTransaction.findMany({
                 where: {
                     created_at: {
                         gte: from,

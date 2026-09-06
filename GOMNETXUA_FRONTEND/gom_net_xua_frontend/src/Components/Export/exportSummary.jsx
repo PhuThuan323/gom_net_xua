@@ -24,7 +24,11 @@ export default function ExportSummary({
   onReset,
 
   saving,
+
+  currentUser,
 }) {
+  const isAdmin =
+    currentUser?.role === "ADMIN";
   return (
     <section className="export-summary">
 
@@ -57,8 +61,8 @@ export default function ExportSummary({
           </strong>
 
         </div>
-
-        <div className="export-summary-stat cost">
+        {isAdmin && (
+          <div className="export-summary-stat cost">
 
           <span>
             Tổng giá vốn xuất
@@ -71,6 +75,8 @@ export default function ExportSummary({
           </strong>
 
         </div>
+        )}
+        
 
       </div>
 

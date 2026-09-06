@@ -672,26 +672,11 @@
 
 /* PRINT */
 
-@media print {
-  .report-header-actions,
-  .report-stock-filter,
-  .report-btn {
-    display: none !important;
-  }
+/* =========================================================
+   PRINT REPORT
+   GỐM SỨ ĐẶC SẢN NÉT XƯA
+========================================================= */
 
-  .report-page {
-    padding: 0;
-
-    background: white;
-  }
-
-  .report-panel,
-  .report-kpi-card,
-  .report-bottom-card,
-  .report-header-card {
-    break-inside: avoid;
-  }
-}
 
 /* RESPONSIVE */
 
@@ -756,4 +741,867 @@
       minmax(100px, 1fr)
       35px;
   }
+}
+/* =========================================================
+   PRINT TEMPLATE A4 - OVERALL REPORT
+========================================================= */
+
+.report-print-only {
+  display: none;
+}
+
+.overall-print-root {
+  width: 100%;
+}
+
+.overall-print-sheet {
+  width: 190mm;
+  min-height: 277mm;
+  margin: 0 auto 0;
+  padding: 8mm 8mm 6mm;
+  background: #fff;
+  color: #111;
+  box-sizing: border-box;
+  position: relative;
+  page-break-after: always;
+  font-family: Arial, sans-serif;
+}
+
+.overall-print-sheet:last-child {
+  page-break-after: auto;
+}
+
+.overall-print-topline {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: start;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.overall-print-top-title {
+  text-align: center;
+  font-weight: 700;
+}
+
+.overall-print-meta {
+  text-align: right;
+  line-height: 1.4;
+}
+
+.overall-print-brand {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.overall-print-brand-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.overall-print-logo {
+  width: 52px;
+  height: 52px;
+  border: 2px solid #444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.overall-print-brand-info h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.overall-print-brand-info p {
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+.overall-print-divider {
+  border-top: 2px solid #444;
+  margin: 8px 0 10px;
+}
+
+.overall-print-main-title {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.overall-print-main-title h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.overall-print-main-title p {
+  margin: 5px 0 0;
+  font-size: 12px;
+}
+
+.overall-print-summary-row {
+  border: 1px solid #999;
+  padding: 6px 10px;
+  font-size: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.overall-print-summary-row.bold {
+  justify-content: center;
+  font-weight: 700;
+}
+
+.overall-print-section-title {
+  margin: 10px 0 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.overall-print-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.overall-print-table th,
+.overall-print-table td {
+  border: 1px solid #666;
+  padding: 4px 5px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.overall-print-table th {
+  background: #f2f2f2;
+  font-weight: 700;
+}
+
+.overall-print-table td:nth-child(2),
+.overall-print-table td:nth-child(3) {
+  text-align: left;
+}
+
+.overall-print-signature {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  text-align: center;
+}
+
+.overall-print-signature strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 28px;
+}
+
+.overall-print-signature span {
+  font-size: 11px;
+}
+
+.overall-print-footer {
+  position: absolute;
+  left: 8mm;
+  right: 8mm;
+  bottom: 5mm;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+/* =========================================
+   PRINT MODE
+========================================= */
+
+@media print {
+  body.print-report * {
+    visibility: hidden !important;
+  }
+
+  body.print-report .report-print-only,
+  body.print-report .report-print-only * {
+    visibility: visible !important;
+  }
+
+  body.print-report .report-print-only {
+    display: block !important;
+    position: absolute;
+    inset: 0;
+    background: white;
+  }
+
+  body.print-report .report-page,
+  body.print-report .nx-sidebar,
+  body.print-report .sidebar,
+  body.print-report .topbar,
+  body.print-report .nx-topbar,
+  body.print-report .report-header-actions,
+  body.print-report .report-stock-filter,
+  body.print-report .report-btn {
+    display: none !important;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+}
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+/* =========================================================
+   TEMPLATE IN A4
+========================================================= */
+
+.report-print-only {
+  display: none;
+}
+
+
+.overall-print-root {
+  width: 100%;
+}
+
+
+/* =========================================
+   MỖI TRANG A4
+========================================= */
+
+.overall-print-sheet {
+  position: relative;
+
+  width: 210mm;
+  min-height: 297mm;
+
+  margin: 0;
+
+  padding:
+    7mm
+    10mm
+    9mm;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  color: #111111;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  page-break-after: always;
+
+  break-after: page;
+}
+
+
+.overall-print-sheet:last-child {
+  page-break-after: auto;
+
+  break-after: auto;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.overall-print-topline {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1.4fr
+    1fr;
+
+  align-items: start;
+
+  gap: 5mm;
+
+  margin-bottom: 2mm;
+
+  font-size: 7.5pt;
+}
+
+
+.overall-print-top-title {
+  text-align: center;
+
+  font-weight: 700;
+}
+
+
+.overall-print-meta {
+  text-align: right;
+
+  line-height: 1.45;
+}
+
+
+/* =========================================
+   BRAND
+========================================= */
+
+.overall-print-brand {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+
+.overall-print-brand-left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 3mm;
+}
+
+
+.overall-print-logo {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  flex:
+    0 0 14mm;
+
+  width: 14mm;
+
+  height: 14mm;
+
+  border:
+    0.5mm solid #333;
+
+  border-radius: 50%;
+
+  font-size: 13pt;
+
+  font-weight: 800;
+}
+
+
+.overall-print-brand-info h2 {
+  margin:
+    0 0 1mm;
+
+  font-size: 13pt;
+
+  font-weight: 800;
+}
+
+
+.overall-print-brand-info p {
+  margin:
+    0.4mm 0;
+
+  font-size: 7.5pt;
+}
+
+
+.overall-print-divider {
+  margin:
+    2mm 0 3mm;
+
+  border-top:
+    0.6mm solid #333;
+}
+
+
+/* =========================================
+   MAIN TITLE
+========================================= */
+
+.overall-print-main-title {
+  margin-bottom:
+    3mm;
+
+  text-align:
+    center;
+}
+
+
+.overall-print-main-title h1 {
+  margin: 0;
+
+  font-size: 14pt;
+
+  font-weight: 800;
+}
+
+
+.overall-print-main-title p {
+  margin:
+    1mm 0 0;
+
+  font-size: 7.5pt;
+}
+
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.overall-print-summary-row {
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items: center;
+
+  gap: 4mm;
+
+  min-height: 7mm;
+
+  margin-bottom: 2mm;
+
+  padding:
+    1.5mm 2.5mm;
+
+  border:
+    0.25mm solid #999;
+
+  font-size: 7.5pt;
+}
+
+
+.overall-print-summary-row.bold {
+  justify-content:
+    center;
+
+  font-weight:
+    700;
+
+  text-align:
+    center;
+}
+
+
+/* =========================================
+   SECTION
+========================================= */
+
+.overall-print-section-title {
+  margin:
+    3mm 0 1.5mm;
+
+  font-size: 8.5pt;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.overall-print-table {
+  width: 100%;
+
+  table-layout: fixed;
+
+  border-collapse:
+    collapse;
+
+  font-size: 6.8pt;
+}
+
+
+.overall-print-table th,
+.overall-print-table td {
+  padding:
+    1.15mm
+    1mm;
+
+  border:
+    0.25mm solid #555;
+
+  vertical-align:
+    middle;
+
+  text-align:
+    center;
+
+  line-height:
+    1.15;
+
+  word-break:
+    break-word;
+}
+
+
+.overall-print-table th {
+  background:
+    #f1f1f1;
+
+  font-weight:
+    700;
+}
+
+
+/* STT */
+
+.overall-print-table
+th:nth-child(1) {
+  width: 5%;
+}
+
+
+/* Sản phẩm */
+
+.overall-print-table
+th:nth-child(2) {
+  width: 21%;
+}
+
+
+/* biến thể */
+
+.overall-print-table
+th:nth-child(3) {
+  width: 18%;
+}
+
+
+/* SKU */
+
+.overall-print-table
+th:nth-child(4) {
+  width: 10%;
+}
+
+
+/* tồn */
+
+.overall-print-table
+th:nth-child(5) {
+  width: 7%;
+}
+
+
+/* tối thiểu */
+
+.overall-print-table
+th:nth-child(6) {
+  width: 9%;
+}
+
+
+/* giá vốn */
+
+.overall-print-table
+th:nth-child(7) {
+  width: 10%;
+}
+
+
+/* giá trị */
+
+.overall-print-table
+th:nth-child(8) {
+  width: 12%;
+}
+
+
+/* trạng thái */
+
+.overall-print-table
+th:nth-child(9) {
+  width: 8%;
+}
+
+
+.overall-print-table
+td:nth-child(2),
+
+.overall-print-table
+td:nth-child(3) {
+  text-align:
+    left;
+}
+
+
+.overall-print-empty {
+  height: 20mm;
+
+  text-align:
+    center !important;
+
+  color:
+    #777;
+}
+
+
+/* =========================================
+   SIGNATURE
+========================================= */
+
+.overall-print-signature {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      1fr
+    );
+
+  gap: 5mm;
+
+  margin-top:
+    6mm;
+
+  text-align:
+    center;
+}
+
+
+.overall-print-signature strong {
+  display: block;
+
+  margin-bottom:
+    12mm;
+
+  font-size:
+    8pt;
+}
+
+
+.overall-print-signature span {
+  font-size:
+    7pt;
+
+  font-style:
+    italic;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.overall-print-footer {
+  position: absolute;
+
+  right: 10mm;
+
+  bottom: 4mm;
+
+  left: 10mm;
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    center;
+
+  font-size:
+    6.5pt;
+}
+
+
+/* =========================================================
+   PRINT MODE
+========================================================= */
+
+@media print {
+
+  html,
+  body {
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    width:
+      100% !important;
+
+    background:
+      #ffffff !important;
+
+    overflow:
+      visible !important;
+  }
+
+
+  /*
+   * Ẩn dashboard thật
+   */
+
+  body.print-report
+  .report-page {
+    display:
+      none !important;
+  }
+
+
+  /*
+   * Ẩn sidebar / topbar
+   */
+
+  body.print-report
+  .nx-sidebar,
+
+  body.print-report
+  .sidebar,
+
+  body.print-report
+  .nx-sidebar-desktop,
+
+  body.print-report
+  .nx-sidebar-mobile,
+
+  body.print-report
+  .nx-sidebar-desktop-open,
+
+  body.print-report
+  .desktop-sidebar-open,
+
+  body.print-report
+  .mobile-menu-button,
+
+  body.print-report
+  .nx-mobile-menu-button,
+
+  body.print-report
+  .sidebar-overlay,
+
+  body.print-report
+  .nx-sidebar-overlay,
+
+  body.print-report
+  .topbar,
+
+  body.print-report
+  .nx-topbar,
+
+  body.print-report
+  .app-header {
+    display:
+      none !important;
+  }
+
+
+  /*
+   * Reset layout cha.
+   */
+
+  body.print-report
+  #root,
+
+  body.print-report
+  .app,
+
+  body.print-report
+  .main-content {
+    width:
+      100% !important;
+
+    max-width:
+      none !important;
+
+    height:
+      auto !important;
+
+    min-height:
+      0 !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    overflow:
+      visible !important;
+
+    transform:
+      none !important;
+  }
+
+
+  /*
+   * Hiện duy nhất template.
+   */
+
+  body.print-report
+  .report-print-only {
+    display:
+      block !important;
+
+    position:
+      absolute !important;
+
+    top:
+      0 !important;
+
+    left:
+      0 !important;
+
+    width:
+      210mm !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    background:
+      white !important;
+
+    visibility:
+      visible !important;
+  }
+
+
+  body.print-report
+  .report-print-only * {
+    visibility:
+      visible !important;
+  }
+
+
+  .overall-print-sheet {
+    -webkit-print-color-adjust:
+      exact !important;
+
+    print-color-adjust:
+      exact !important;
+  }
+
+}
+
+
+/* =========================================================
+   PAGE A4
+========================================================= */
+
+@page {
+  size:
+    A4 portrait;
+
+  margin:
+    0;
 }

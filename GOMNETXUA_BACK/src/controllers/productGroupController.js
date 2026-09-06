@@ -1,12 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteGroup = exports.updateGroup = exports.createGroup = exports.getGroupById = exports.getAllGroups = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // Lấy tất cả nhóm sản phẩm
 const getAllGroups = async (req, res) => {
     try {
-        const groups = await prisma.productGroup.findMany({
+        const groups = await prisma_1.default.productGroup.findMany({
             include: {
                 products: {
                     include: {
@@ -36,7 +38,7 @@ exports.getAllGroups = getAllGroups;
 const getGroupById = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const group = await prisma.productGroup.findUnique({
+        const group = await prisma_1.default.productGroup.findUnique({
             where: {
                 id,
             },
@@ -78,7 +80,7 @@ const createGroup = async (req, res) => {
                 message: "group_code và group_name là bắt buộc",
             });
         }
-        const existingGroup = await prisma.productGroup.findUnique({
+        const existingGroup = await prisma_1.default.productGroup.findUnique({
             where: {
                 group_code,
             },
@@ -89,7 +91,7 @@ const createGroup = async (req, res) => {
                 message: "Mã nhóm sản phẩm đã tồn tại",
             });
         }
-        const group = await prisma.productGroup.create({
+        const group = await prisma_1.default.productGroup.create({
             data: {
                 group_code,
                 group_name,
@@ -118,7 +120,7 @@ const updateGroup = async (req, res) => {
     try {
         const id = Number(req.params.id);
         const { group_code, group_name, description, image_url, status, } = req.body;
-        const group = await prisma.productGroup.update({
+        const group = await prisma_1.default.productGroup.update({
             where: {
                 id,
             },
@@ -149,7 +151,7 @@ exports.updateGroup = updateGroup;
 const deleteGroup = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        await prisma.productGroup.delete({
+        await prisma_1.default.productGroup.delete({
             where: {
                 id,
             },

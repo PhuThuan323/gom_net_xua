@@ -1,8 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteSupplier = exports.updateSupplier = exports.getSupplierById = exports.getAllSuppliers = exports.createSupplier = void 0;
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // =====================================================
 // TẠO MÃ NHÀ CUNG CẤP
 // =====================================================
@@ -30,7 +33,7 @@ const createSupplier = async (req, res) => {
         }
         const supplierCode = generateSupplierCode(finalName);
         // Kiểm tra mã đã tồn tại
-        const existingSupplier = await prisma.supplier.findUnique({
+        const existingSupplier = await prisma_1.default.supplier.findUnique({
             where: {
                 supplier_code: supplierCode
             }
@@ -42,7 +45,7 @@ const createSupplier = async (req, res) => {
             });
         }
         // Tạo nhà cung cấp
-        const newSupplier = await prisma.supplier.create({
+        const newSupplier = await prisma_1.default.supplier.create({
             data: {
                 supplier_code: supplierCode,
                 supplier_name: finalName.trim(),
@@ -83,7 +86,7 @@ exports.createSupplier = createSupplier;
 // =====================================================
 const getAllSuppliers = async (req, res) => {
     try {
-        const suppliers = await prisma.supplier.findMany({
+        const suppliers = await prisma_1.default.supplier.findMany({
             orderBy: {
                 id: "desc"
             }
@@ -115,7 +118,7 @@ const getSupplierById = async (req, res) => {
                 message: "ID nhà cung cấp không hợp lệ"
             });
         }
-        const supplier = await prisma.supplier.findUnique({
+        const supplier = await prisma_1.default.supplier.findUnique({
             where: {
                 id
             }
@@ -165,7 +168,7 @@ const updateSupplier = async (req, res) => {
             });
         }
         // Kiểm tra nhà cung cấp có tồn tại không
-        const existingSupplier = await prisma.supplier.findUnique({
+        const existingSupplier = await prisma_1.default.supplier.findUnique({
             where: {
                 id
             }
@@ -178,7 +181,7 @@ const updateSupplier = async (req, res) => {
         }
         const supplierCode = generateSupplierCode(finalName);
         // Kiểm tra code mới có bị trùng không
-        const duplicateSupplier = await prisma.supplier.findFirst({
+        const duplicateSupplier = await prisma_1.default.supplier.findFirst({
             where: {
                 supplier_code: supplierCode,
                 NOT: {
@@ -193,7 +196,7 @@ const updateSupplier = async (req, res) => {
             });
         }
         // Cập nhật
-        const updatedSupplier = await prisma.supplier.update({
+        const updatedSupplier = await prisma_1.default.supplier.update({
             where: {
                 id
             },
@@ -237,7 +240,7 @@ const deleteSupplier = async (req, res) => {
             });
         }
         // Kiểm tra tồn tại
-        const supplier = await prisma.supplier.findUnique({
+        const supplier = await prisma_1.default.supplier.findUnique({
             where: {
                 id
             }
@@ -249,7 +252,7 @@ const deleteSupplier = async (req, res) => {
             });
         }
         // Xóa
-        await prisma.supplier.delete({
+        await prisma_1.default.supplier.delete({
             where: {
                 id
             }

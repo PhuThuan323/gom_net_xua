@@ -1,8 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.previewImportExcel = exports.getImportTemplateData = exports.deleteImportReceipt = exports.updateImportPayment = exports.getImportReceiptById = exports.getAllImportReceipts = exports.createImportReceipt = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // =====================================================
 // TẠO PHIẾU NHẬP KHO
 // =====================================================
@@ -28,7 +30,7 @@ const createImportReceipt = async (req, res) => {
         // ================================================
         // KIỂM TRA NHÀ CUNG CẤP
         // ================================================
-        const supplier = await prisma.supplier.findUnique({
+        const supplier = await prisma_1.default.supplier.findUnique({
             where: {
                 id: Number(supplier_id)
             }
@@ -56,7 +58,7 @@ const createImportReceipt = async (req, res) => {
                 });
             }
             // Kiểm tra biến thể
-            const variant = await prisma.productVariant.findUnique({
+            const variant = await prisma_1.default.productVariant.findUnique({
                 where: {
                     id: variantId
                 }
@@ -100,7 +102,7 @@ const createImportReceipt = async (req, res) => {
         // ================================================
         // TRANSACTION
         // ================================================
-        const result = await prisma.$transaction(async (tx) => {
+        const result = await prisma_1.default.$transaction(async (tx) => {
             // ============================================
             // TẠO PHIẾU NHẬP
             // ============================================
@@ -177,7 +179,7 @@ exports.createImportReceipt = createImportReceipt;
 // =====================================================
 const getAllImportReceipts = async (req, res) => {
     try {
-        const receipts = await prisma.importReceipt.findMany({
+        const receipts = await prisma_1.default.importReceipt.findMany({
             orderBy: {
                 import_date: "desc"
             },
@@ -214,7 +216,7 @@ exports.getAllImportReceipts = getAllImportReceipts;
 const getImportReceiptById = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const receipt = await prisma.importReceipt.findUnique({
+        const receipt = await prisma_1.default.importReceipt.findUnique({
             where: {
                 id
             },
@@ -258,7 +260,7 @@ const updateImportPayment = async (req, res) => {
     try {
         const id = Number(req.params.id);
         const { paid_amount } = req.body;
-        const receipt = await prisma.importReceipt.findUnique({
+        const receipt = await prisma_1.default.importReceipt.findUnique({
             where: {
                 id
             }
@@ -280,7 +282,7 @@ const updateImportPayment = async (req, res) => {
         }
         const debtAmount = totalAmount -
             newPaidAmount;
-        const updatedReceipt = await prisma.importReceipt.update({
+        const updatedReceipt = await prisma_1.default.importReceipt.update({
             where: {
                 id
             },
@@ -317,7 +319,7 @@ exports.updateImportPayment = updateImportPayment;
 const deleteImportReceipt = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const receipt = await prisma.importReceipt.findUnique({
+        const receipt = await prisma_1.default.importReceipt.findUnique({
             where: {
                 id
             },
@@ -331,7 +333,7 @@ const deleteImportReceipt = async (req, res) => {
                 message: "Không tìm thấy phiếu nhập"
             });
         }
-        await prisma.$transaction(async (tx) => {
+        await prisma_1.default.$transaction(async (tx) => {
             // ============================================
             // TRỪ LẠI SỐ LƯỢNG KHO
             // ============================================
@@ -372,7 +374,7 @@ const deleteImportReceipt = async (req, res) => {
 exports.deleteImportReceipt = deleteImportReceipt;
 const getImportTemplateData = async (req, res) => {
     try {
-        const variants = await prisma.productVariant.findMany({
+        const variants = await prisma_1.default.productVariant.findMany({
             where: {
                 status: "active"
             },
@@ -425,7 +427,7 @@ const previewImportExcel = async (req, res) => {
                 quantity <= 0) {
                 continue;
             }
-            const variant = await prisma.productVariant.findUnique({
+            const variant = await prisma_1.default.productVariant.findUnique({
                 where: {
                     variant_code: sku
                 },

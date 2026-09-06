@@ -1,12 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteVariant = exports.updateVariant = exports.createVariant = exports.getAllVariants = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // Lấy tất cả biến thể
 const getAllVariants = async (req, res) => {
     try {
-        const variants = await prisma.productVariant.findMany({
+        const variants = await prisma_1.default.productVariant.findMany({
             include: {
                 product: {
                     include: {
@@ -42,7 +44,7 @@ const createVariant = async (req, res) => {
                 message: "product_id và variant_code là bắt buộc",
             });
         }
-        const product = await prisma.product.findUnique({
+        const product = await prisma_1.default.product.findUnique({
             where: {
                 id: Number(product_id),
             },
@@ -53,7 +55,7 @@ const createVariant = async (req, res) => {
                 message: "Không tìm thấy sản phẩm",
             });
         }
-        const variant = await prisma.productVariant.create({
+        const variant = await prisma_1.default.productVariant.create({
             data: {
                 product_id: Number(product_id),
                 variant_code,
@@ -86,7 +88,7 @@ exports.createVariant = createVariant;
 const updateVariant = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const variant = await prisma.productVariant.update({
+        const variant = await prisma_1.default.productVariant.update({
             where: {
                 id,
             },
@@ -125,7 +127,7 @@ exports.updateVariant = updateVariant;
 const deleteVariant = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        await prisma.productVariant.delete({
+        await prisma_1.default.productVariant.delete({
             where: {
                 id,
             },

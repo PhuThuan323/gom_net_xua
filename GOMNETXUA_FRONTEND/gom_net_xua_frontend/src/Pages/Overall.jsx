@@ -4,7 +4,7 @@ import {
   useMemo,
   useState,
 } from "react";
-
+import OverallPrintTemplate from "../Components/Overall/OverallPrintTemplate"
 import "../Components/reports.css";
 
 const API_URL = (
@@ -129,7 +129,7 @@ function InventoryDonut({
 
   let offset =
     0;
-
+    
   return (
     <div className="report-donut-wrap">
 
@@ -392,7 +392,17 @@ export default function TongQuan() {
               )}&value=${encodeURIComponent(
                 value
               )}`
+              
             );
+            console.log(
+  "FULL OVERVIEW API:",
+  result.data
+);
+
+setData(
+  result.data
+);
+            
 
           setData(
             result.data
@@ -458,8 +468,47 @@ export default function TongQuan() {
         ),
       []
     );
+    const periodText = useMemo(() => {
+  if (period === "day") {
+    const d = new Date(`${value}T12:00:00`);
 
+    return `Ngày ${d.toLocaleDateString("vi-VN")}`;
+  }
+
+  if (period === "week") {
+    const d = new Date(`${value}T12:00:00`);
+
+    return `Tuần chứa ngày ${d.toLocaleDateString("vi-VN")}`;
+  }
+
+  if (period === "month") {
+    const [year, month] = String(value).split("-");
+
+    return `Tháng ${month}/${year}`;
+  }
+
+  if (period === "year") {
+    return `Năm ${value}`;
+  }
+
+  return "";
+}, [period, value]);
+const handlePrintReport = () => {
+  document.body.classList.add("print-report");
+
+  const cleanup = () => {
+    document.body.classList.remove("print-report");
+    window.removeEventListener("afterprint", cleanup);
+  };
+
+  window.addEventListener("afterprint", cleanup);
+
+  requestAnimationFrame(() => {
+    window.print();
+  });
+};
   return (
+    <>
     <main className="report-page">
 
       {/* HEADER */}
@@ -544,14 +593,12 @@ export default function TongQuan() {
           </select>
 
           <button
-            type="button"
-            className="report-btn light"
-            onClick={() =>
-              window.print()
-            }
-          >
-            In báo cáo tổng quan
-          </button>
+  type="button"
+  className="report-btn light"
+  onClick={handlePrintReport}
+>
+  In báo cáo tổng quan
+</button>
 
           <button
             type="button"
@@ -946,82 +993,124 @@ export default function TongQuan() {
 
       <section className="report-bottom-grid">
 
-        <article className="report-bottom-card">
+  <article className="report-bottom-card">
+    <span>
+      Tồn kho an toàn
+    </span>
 
-          <span>
-            Tồn kho an toàn
-          </span>
+    <strong>
+      {number(
+        inventory.safe_stock_percent
+      )}
+      %
+    </strong>
 
-          <strong>
-            {number(
-              inventory.safe_stock_percent
-            )}
-            %
-          </strong>
+    <div className="report-progress">
+      <i
+        style={{
+          width:
+            `${inventory.safe_stock_percent || 0}%`,
+        }}
+      />
+    </div>
 
-          <div className="report-progress">
-            <i
-              style={{
-                width:
-                  `${inventory.safe_stock_percent || 0}%`,
-              }}
-            />
-          </div>
+    <small>
+      Tỷ lệ biến thể còn trên mức tối thiểu
+    </small>
+  </article>
 
-          <small>
-            Tỷ lệ biến thể còn trên mức tối thiểu
-          </small>
 
-        </article>
+  <article className="report-bottom-card">
+    <span>
+      Giá trị tồn lâu
+    </span>
 
-        <article className="report-bottom-card">
+    <strong>
+      {money(
+        inventory.long_stock_value
+      )}
+    </strong>
 
-          <span>
-            Giá trị tồn lâu
-          </span>
+    <small>
+      {number(
+        inventory.long_stock_variants
+      )}{" "}
+      biến thể không xuất trong hơn 60 ngày
+    </small>
+  </article>
 
-          <strong>
-            {money(
-              inventory.long_stock_value
-            )}
-          </strong>
 
-          <small>
-            {number(
-              inventory.long_stock_variants
-            )}{" "}
-            biến thể không xuất trong hơn 60 ngày
-          </small>
+  <article className="report-bottom-card">
+    <span>
+      Số phiếu trong kỳ
+    </span>
 
-        </article>
+    <strong>
+      {number(
+        inventory.receipt_count
+      )}
+    </strong>
 
-        <article className="report-bottom-card">
+    <small>
+      {number(
+        inventory.import_receipt_count
+      )}{" "}
+      phiếu nhập ·{" "}
+      {number(
+        inventory.export_receipt_count
+      )}{" "}
+      phiếu xuất
+    </small>
+  </article>
 
-          <span>
-            Số phiếu trong kỳ
-          </span>
+</section>
 
-          <strong>
-            {number(
-              inventory.receipt_count
-            )}
-          </strong>
+</main>
 
-          <small>
-            {number(
-              inventory.import_receipt_count
-            )}{" "}
-            phiếu nhập ·{" "}
-            {number(
-              inventory.export_receipt_count
-            )}{" "}
-            phiếu xuất
-          </small>
 
-        </article>
+<div className="report-print-only">
+  <OverallPrintTemplate
+    companyName="GỐM SỨ ĐẶC SẢN NÉT XƯA"
 
-      </section>
+    address="Xã Mỹ Hiệp, Đồng Tháp"
 
-    </main>
+    hotline="0926 18 5457"
+
+    website="https://blue-pine-cfae.khuyenboy10.workers.dev"
+
+    periodLabel={
+      periodText
+    }
+
+    summary={{
+      totalInventoryValue:
+        inventory.inventory_value || 0,
+
+      totalQuantity:
+        inventory.inventory_quantity || 0,
+
+      supplierDebt:
+        inventory.supplier_debt || 0,
+
+      profit:
+        finance.profit || 0,
+
+      needImportCount:
+        inventory.need_restock || 0,
+    }}
+
+    rows={
+  data?.stockRows ||
+  data?.stock_rows ||
+  data?.inventoryRows ||
+  data?.inventory_rows ||
+  data?.inventory_variants ||
+  data?.variants ||
+  []
+}
+  />
+</div>
+    
+    </>
   );
 }

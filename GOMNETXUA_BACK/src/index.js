@@ -36,5 +36,14 @@ app.use("/loss-stock", lossStockRoute_1.default);
 app.use("/cash-flow", cashFlowRoute_1.default);
 app.use("/reports", reportRoute_1.default);
 app.use("/affiliate-commissions", affiliateCommissionRoute_1.default);
-app.listen(3000, () => { console.log("Server chạy tại http://localhost:3000"); });
+const PORT = Number(process.env.PORT) || 3000;
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: "Gốm Nét Xưa API đang hoạt động",
+    });
+});
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on port ${PORT}`);
+});
 //# sourceMappingURL=index.js.map

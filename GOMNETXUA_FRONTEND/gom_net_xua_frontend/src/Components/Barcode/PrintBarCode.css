@@ -296,74 +296,99 @@
 }
 
 
-/* ================================= */
-/* PRINT */
-/* ================================= */
+/* =========================================================
+   PRINT BARCODE - FIX
+========================================================= */
 
 @media print {
 
-  body * {
+  /* =========================================
+     RESET TRANG IN
+  ========================================= */
 
-    visibility: hidden;
-
-  }
-
-
-  .label-preview-area,
-  .label-preview-area * {
-
-    visibility: visible;
-
-  }
-
-
-  .label-preview-area {
-
-    position: absolute;
-
-    left: 0;
-
-    top: 0;
-
-    width: 100%;
-
-    border: none;
-
-    padding: 0;
-
-    gap: 0;
-
-  }
-
-
-  .barcode-label {
-
-    border: none;
-
-    page-break-inside: avoid;
-
-  }
-
-}
-@media print {
-
-  /* Ẩn tất cả giao diện không cần in */
-
-  .sidebar,
-  .barcode-form-card,
-  .page-title,
-  .barcode-list-card {
-    display: none !important;
-  }
-
-
-  /* Bỏ khoảng cách thừa */
-
+  html,
   body {
     margin: 0 !important;
     padding: 0 !important;
+
+    width: 100% !important;
+
+    background: #ffffff !important;
+
+    overflow: visible !important;
   }
 
+
+  /* =========================================
+     ẨN TOÀN BỘ APP
+  ========================================= */
+
+   body.print-barcode * {
+    visibility: hidden !important;
+  }
+
+  body.print-barcode
+  .label-preview-area,
+
+  body.print-barcode
+  .label-preview-area * {
+    visibility: visible !important;
+  }
+
+
+  /* =========================================
+     ẨN SIDEBAR MỚI HOÀN TOÀN
+
+     rất quan trọng vì sidebar của bạn có
+     visibility: visible !important
+  ========================================= */
+
+  body .nx-sidebar,
+  body .nx-sidebar *,
+  body .nx-sidebar-desktop,
+  body .nx-sidebar-mobile,
+  body .nx-sidebar-menu,
+  body .nx-sidebar-menu-item,
+  body .nx-sidebar-toggle,
+  body .nx-sidebar-desktop-open,
+  body .nx-mobile-menu-button,
+  body .nx-sidebar-overlay,
+
+  body .sidebar,
+  body .sidebar *,
+  body .desktop-sidebar-open,
+  body .mobile-menu-button,
+  body .sidebar-overlay {
+    display: none !important;
+
+    visibility: hidden !important;
+  }
+
+
+  /* =========================================
+     ẨN TOPBAR + FORM
+  ========================================= */
+
+  body .topbar,
+  body .header,
+  body .app-header,
+  body .nx-topbar,
+  body .page-title,
+  body .barcode-form-card,
+  body .barcode-list-card,
+  body .barcode-actions {
+    display: none !important;
+
+    visibility: hidden !important;
+  }
+
+
+  /* =========================================
+     RESET LAYOUT APP
+
+     tránh margin-left của sidebar tác động
+     lên trang in
+  ========================================= */
 
   .app,
   .main-content,
@@ -371,51 +396,112 @@
   .barcode-print-page {
     display: block !important;
 
+    position: static !important;
+
+    transform: none !important;
+
+    width: 100% !important;
+
+    max-width: none !important;
+
+    min-width: 0 !important;
+
+    height: auto !important;
+
+    min-height: 0 !important;
+
     margin: 0 !important;
 
     padding: 0 !important;
 
-    min-height: auto !important;
-
-    height: auto !important;
-
     overflow: visible !important;
+  }
+
+
+  /* =========================================
+     CHỈ HIỆN KHU VỰC TEM
+  ========================================= */
+
+  body .label-preview-area,
+  body .label-preview-area * {
+    visibility: visible !important;
   }
 
 
   .label-preview-area {
+    display: block !important;
 
-    margin: 0 !important;
+    position: static !important;
 
-    padding: 0 !important;
+    width: 100% !important;
 
-    min-height: auto !important;
+    max-width: none !important;
+
+    min-height: 0 !important;
 
     height: auto !important;
 
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    border: none !important;
+
+    background: #ffffff !important;
+
     overflow: visible !important;
 
+    box-shadow: none !important;
   }
 
 
+  /* =========================================
+     CONTAINER CHỨA TEM
+  ========================================= */
+
   .print-label-container {
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    flex-wrap: wrap !important;
+
+    align-items: flex-start !important;
+
+    align-content: flex-start !important;
+
+    justify-content: flex-start !important;
+
+    width: 100% !important;
+
+    max-width: none !important;
 
     margin: 0 !important;
 
     padding: 0 !important;
 
-    display: flex !important;
-
-    flex-wrap: wrap !important;
-
-    align-content: flex-start !important;
-
     gap: 0 !important;
 
+    overflow: visible !important;
+
+    background: #ffffff !important;
   }
 
 
+  /* =========================================
+     TỪNG TEM
+  ========================================= */
+
   .barcode-label {
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    flex: 0 0 auto !important;
 
     margin: 0 !important;
 
@@ -423,19 +509,116 @@
 
     box-sizing: border-box !important;
 
+    border: 0.2mm solid #cccccc !important;
+
+    background: #ffffff !important;
+
+    overflow: hidden !important;
+
     break-inside: avoid !important;
 
     page-break-inside: avoid !important;
 
+    visibility: visible !important;
   }
 
+
+  /* =========================================
+     TEXT TEM
+  ========================================= */
+
+  .label-product-name {
+    visibility: visible !important;
+
+    font-size: 10px !important;
+
+    font-weight: 800 !important;
+
+    line-height: 1.1 !important;
+
+    text-align: center !important;
+
+    color: #000000 !important;
+  }
+
+
+  .label-sku {
+    visibility: visible !important;
+
+    font-size: 8px !important;
+
+    line-height: 1.1 !important;
+
+    color: #000000 !important;
+  }
+
+
+  .label-price {
+    visibility: visible !important;
+
+    font-size: 10px !important;
+
+    font-weight: 800 !important;
+
+    color: #000000 !important;
+  }
+
+
+  /* =========================================
+     BARCODE
+  ========================================= */
+
+  .label-barcode,
+  .label-barcode svg,
+  .label-barcode svg * {
+    visibility: visible !important;
+  }
+
+
+  .label-barcode {
+    display: flex !important;
+
+    align-items: center !important;
+
+    justify-content: center !important;
+
+    width: 100% !important;
+
+    overflow: hidden !important;
+  }
+
+
+  .label-barcode svg {
+    display: block !important;
+
+    max-width: 100% !important;
+
+    height: auto !important;
+  }
+
+
+  /* =========================================
+     ẢNH SẢN PHẨM
+  ========================================= */
+
+  .label-image {
+    visibility: visible !important;
+
+    max-width: 15mm !important;
+
+    max-height: 10mm !important;
+
+    object-fit: contain !important;
+  }
 }
 
 
-/* QUAN TRỌNG: đặt trang in */
+/* =========================================================
+   KHỔ GIẤY
+========================================================= */
 
 @page {
+  size: A4 portrait;
 
   margin: 0;
-
 }

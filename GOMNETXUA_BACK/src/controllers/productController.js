@@ -1,12 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteProduct = exports.updateProduct = exports.createProduct = exports.getAllProducts = void 0;
-const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 // Lấy danh sách sản phẩm
 const getAllProducts = async (req, res) => {
     try {
-        const products = await prisma.product.findMany({
+        const products = await prisma_1.default.product.findMany({
             include: {
                 group: true,
                 variants: true,
@@ -41,7 +43,7 @@ const createProduct = async (req, res) => {
                 message: "group_id, product_code và product_name là bắt buộc",
             });
         }
-        const group = await prisma.productGroup.findUnique({
+        const group = await prisma_1.default.productGroup.findUnique({
             where: {
                 id: Number(group_id),
             },
@@ -52,7 +54,7 @@ const createProduct = async (req, res) => {
                 message: "Không tìm thấy nhóm sản phẩm",
             });
         }
-        const product = await prisma.product.create({
+        const product = await prisma_1.default.product.create({
             data: {
                 group_id: Number(group_id),
                 product_code,
@@ -81,7 +83,7 @@ exports.createProduct = createProduct;
 const updateProduct = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        const product = await prisma.product.update({
+        const product = await prisma_1.default.product.update({
             where: {
                 id,
             },
@@ -106,7 +108,7 @@ exports.updateProduct = updateProduct;
 const deleteProduct = async (req, res) => {
     try {
         const id = Number(req.params.id);
-        await prisma.product.delete({
+        await prisma_1.default.product.delete({
             where: {
                 id,
             },

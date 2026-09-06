@@ -898,7 +898,7 @@ const ok =
 
       <ExportSummary
       isAdmin={
-    isAdmin
+    currentUser
   }
         items={
           selectedItems

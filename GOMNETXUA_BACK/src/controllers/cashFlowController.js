@@ -1,10 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
-/* =========================================================
-   CONSTANTS
-========================================================= */
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const EXPORT_TYPE = "EXPORT";
 const LOSS_TYPE = "LOSS";
 /* =========================================================
@@ -301,7 +301,7 @@ class CashFlowController {
             if (actual.lessThan(0)) {
                 throw new Error("Thực nhận không được âm");
             }
-            const result = await prisma.receipt.create({
+            const result = await prisma_1.default.receipt.create({
                 data: {
                     receipt_code: generateCode("THU"),
                     category: source.trim(),
@@ -357,7 +357,7 @@ class CashFlowController {
                     message: "Số tiền chi phải lớn hơn 0",
                 });
             }
-            const result = await prisma.expense.create({
+            const result = await prisma_1.default.expense.create({
                 data: {
                     expense_code: generateCode("CHI"),
                     amount: finalAmount,
@@ -388,7 +388,7 @@ class CashFlowController {
     async receipts(req, res) {
         try {
             const { from, to, } = resolveRange(req);
-            const data = await prisma.receipt.findMany({
+            const data = await prisma_1.default.receipt.findMany({
                 where: {
                     created_at: {
                         gte: from,
@@ -429,7 +429,7 @@ class CashFlowController {
     async expenses(req, res) {
         try {
             const { from, to, } = resolveRange(req);
-            const data = await prisma.expense.findMany({
+            const data = await prisma_1.default.expense.findMany({
                 where: {
                     created_at: {
                         gte: from,
@@ -477,7 +477,7 @@ class CashFlowController {
                     message: "ID khoản thu không hợp lệ",
                 });
             }
-            await prisma.receipt.delete({
+            await prisma_1.default.receipt.delete({
                 where: {
                     id,
                 },
@@ -506,7 +506,7 @@ class CashFlowController {
                     message: "ID khoản chi không hợp lệ",
                 });
             }
-            await prisma.expense.delete({
+            await prisma_1.default.expense.delete({
                 where: {
                     id,
                 },
@@ -540,7 +540,7 @@ class CashFlowController {
                 /* ===============================================
                    RECEIPTS
                 =============================================== */
-                prisma.receipt.aggregate({
+                prisma_1.default.receipt.aggregate({
                     where: {
                         created_at: {
                             gte: from,
@@ -559,7 +559,7 @@ class CashFlowController {
                 /* ===============================================
                    EXPENSE
                 =============================================== */
-                prisma.expense.aggregate({
+                prisma_1.default.expense.aggregate({
                     where: {
                         created_at: {
                             gte: from,
@@ -576,7 +576,7 @@ class CashFlowController {
                 /* ===============================================
                    COST OF GOODS EXPORTED
                 =============================================== */
-                prisma.inventoryTransaction.aggregate({
+                prisma_1.default.inventoryTransaction.aggregate({
                     where: {
                         transaction_type: EXPORT_TYPE,
                         created_at: {
@@ -592,7 +592,7 @@ class CashFlowController {
                 /* ===============================================
                    LOSS / BREAKAGE
                 =============================================== */
-                prisma.inventoryTransaction.aggregate({
+                prisma_1.default.inventoryTransaction.aggregate({
                     where: {
                         transaction_type: LOSS_TYPE,
                         created_at: {
@@ -668,7 +668,7 @@ class CashFlowController {
         try {
             const { from, to, } = resolveRange(req);
             const [receipts, expenses, exportTransactions, lossTransactions,] = await Promise.all([
-                prisma.receipt.findMany({
+                prisma_1.default.receipt.findMany({
                     where: {
                         created_at: {
                             gte: from,
@@ -679,7 +679,7 @@ class CashFlowController {
                         created_at: "desc",
                     },
                 }),
-                prisma.expense.findMany({
+                prisma_1.default.expense.findMany({
                     where: {
                         created_at: {
                             gte: from,
@@ -690,7 +690,7 @@ class CashFlowController {
                         created_at: "desc",
                     },
                 }),
-                prisma.inventoryTransaction.findMany({
+                prisma_1.default.inventoryTransaction.findMany({
                     where: {
                         transaction_type: EXPORT_TYPE,
                         created_at: {
@@ -709,7 +709,7 @@ class CashFlowController {
                         created_at: "desc",
                     },
                 }),
-                prisma.inventoryTransaction.findMany({
+                prisma_1.default.inventoryTransaction.findMany({
                     where: {
                         transaction_type: LOSS_TYPE,
                         created_at: {

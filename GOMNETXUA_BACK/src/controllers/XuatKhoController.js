@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /* =========================================================
    CONFIG
 ========================================================= */
@@ -135,7 +138,7 @@ async function runStockTransaction(callback) {
     for (let attempt = 1; attempt <=
         maxRetries; attempt++) {
         try {
-            return await prisma.$transaction(callback, {
+            return await prisma_1.default.$transaction(callback, {
                 isolationLevel: client_1.Prisma
                     .TransactionIsolationLevel
                     .Serializable,
@@ -203,7 +206,7 @@ class ExportStockController {
     ======================================================= */
     async bootstrap(req, res) {
         try {
-            const groups = await prisma.productGroup.findMany({
+            const groups = await prisma_1.default.productGroup.findMany({
                 where: {
                     status: "active",
                 },
@@ -329,7 +332,7 @@ class ExportStockController {
                     },
                 ];
             }
-            const invoices = await prisma.invoice.findMany({
+            const invoices = await prisma_1.default.invoice.findMany({
                 where,
                 include: {
                     brand: true,
@@ -406,7 +409,7 @@ class ExportStockController {
                     data: [],
                 });
             }
-            const variants = await prisma.productVariant.findMany({
+            const variants = await prisma_1.default.productVariant.findMany({
                 where: {
                     status: "active",
                     product: {
@@ -498,7 +501,7 @@ class ExportStockController {
                     message: "Vui lòng quét barcode hoặc nhập SKU",
                 });
             }
-            const variant = await prisma.productVariant.findFirst({
+            const variant = await prisma_1.default.productVariant.findFirst({
                 where: {
                     status: "active",
                     OR: [
@@ -848,7 +851,7 @@ class ExportStockController {
                 where.created_at =
                     createdAt;
             }
-            const rows = await prisma.inventoryTransaction.findMany({
+            const rows = await prisma_1.default.inventoryTransaction.findMany({
                 where,
                 include: {
                     variant: {

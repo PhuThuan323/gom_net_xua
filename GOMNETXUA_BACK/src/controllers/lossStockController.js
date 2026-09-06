@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /* =========================================================
    TRANSACTION TYPES
 ========================================================= */
@@ -77,7 +80,7 @@ async function runTransaction(callback) {
     for (let attempt = 1; attempt <=
         maxRetries; attempt++) {
         try {
-            return await prisma.$transaction(callback, {
+            return await prisma_1.default.$transaction(callback, {
                 isolationLevel: client_1.Prisma
                     .TransactionIsolationLevel
                     .Serializable,
@@ -132,7 +135,7 @@ class LossStockController {
     ======================================================= */
     async bootstrap(req, res) {
         try {
-            const groups = await prisma.productGroup.findMany({
+            const groups = await prisma_1.default.productGroup.findMany({
                 where: {
                     status: "active",
                 },
@@ -208,7 +211,7 @@ class LossStockController {
                     data: [],
                 });
             }
-            const variants = await prisma.productVariant.findMany({
+            const variants = await prisma_1.default.productVariant.findMany({
                 where: {
                     status: "active",
                     product: {
@@ -496,7 +499,7 @@ class LossStockController {
                     : {}),
             };
             const [rows, occurrenceCount,] = await Promise.all([
-                prisma.inventoryTransaction.findMany({
+                prisma_1.default.inventoryTransaction.findMany({
                     where: baseWhere,
                     select: {
                         transaction_type: true,
@@ -504,7 +507,7 @@ class LossStockController {
                         total_value: true,
                     },
                 }),
-                prisma.inventoryTransaction.count({
+                prisma_1.default.inventoryTransaction.count({
                     where: baseWhere,
                 }),
             ]);
@@ -594,7 +597,7 @@ class LossStockController {
                     contains: `Lý do: ${reason}`,
                 };
             }
-            const rows = await prisma.inventoryTransaction.findMany({
+            const rows = await prisma_1.default.inventoryTransaction.findMany({
                 where,
                 include: {
                     variant: {

@@ -227,23 +227,46 @@ function Print({
   // =====================================================
 
   const handlePrint = () => {
+  if (
+    previewLabels.length === 0
+  ) {
+    alert(
+      "Vui lòng xem trước tem trước khi in!"
+    );
 
-    if (
-      previewLabels.length === 0
-    ) {
+    return;
+  }
 
-      alert(
-        "Vui lòng xem trước tem trước khi in!"
+  const body =
+    document.body;
+
+  body.classList.add(
+    "print-barcode"
+  );
+
+  const cleanupPrint =
+    () => {
+      body.classList.remove(
+        "print-barcode"
       );
 
-      return;
+      window.removeEventListener(
+        "afterprint",
+        cleanupPrint
+      );
+    };
 
+  window.addEventListener(
+    "afterprint",
+    cleanupPrint
+  );
+
+  requestAnimationFrame(
+    () => {
+      window.print();
     }
-
-    window.print();
-
-  };
-
+  );
+};
 
   return (
 

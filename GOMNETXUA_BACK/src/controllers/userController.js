@@ -9,7 +9,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const google_auth_library_1 = require("google-auth-library");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 const googleClient = new google_auth_library_1.OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 /* =========================================================
    HELPERS
@@ -84,7 +84,7 @@ class UserController {
     ======================================================= */
     async bootstrapAdmin(req, res) {
         try {
-            const count = await prisma.user.count();
+            const count = await prisma_1.default.user.count();
             if (count > 0) {
                 return res
                     .status(403)
@@ -116,7 +116,7 @@ class UserController {
                 });
             }
             const passwordHash = await bcryptjs_1.default.hash(password, 12);
-            const user = await prisma.user.create({
+            const user = await prisma_1.default.user.create({
                 data: {
                     email,
                     full_name: fullName,
@@ -160,7 +160,7 @@ class UserController {
                     message: "Vui lòng nhập email và mật khẩu",
                 });
             }
-            const user = await prisma.user.findUnique({
+            const user = await prisma_1.default.user.findUnique({
                 where: {
                     email,
                 },
@@ -192,7 +192,7 @@ class UserController {
                     message: "Email hoặc mật khẩu không chính xác",
                 });
             }
-            const updated = await prisma.user.update({
+            const updated = await prisma_1.default.user.update({
                 where: {
                     id: user.id,
                 },
@@ -275,7 +275,7 @@ class UserController {
              *
              * Admin phải tạo tài khoản nhân viên trước.
              */
-            const existing = await prisma.user.findUnique({
+            const existing = await prisma_1.default.user.findUnique({
                 where: {
                     email,
                 },
@@ -319,7 +319,7 @@ class UserController {
                 updateData.avatar_url =
                     payload.picture;
             }
-            const user = await prisma.user.update({
+            const user = await prisma_1.default.user.update({
                 where: {
                     id: existing.id,
                 },
@@ -350,7 +350,7 @@ class UserController {
     ======================================================= */
     async me(req, res) {
         try {
-            const user = await prisma.user.findUnique({
+            const user = await prisma_1.default.user.findUnique({
                 where: {
                     id: req.user.id,
                 },
@@ -392,7 +392,7 @@ class UserController {
                     message: "Họ tên không được để trống",
                 });
             }
-            const user = await prisma.user.update({
+            const user = await prisma_1.default.user.update({
                 where: {
                     id: req.user.id,
                 },
@@ -431,7 +431,7 @@ class UserController {
                     message: "Vui lòng chọn ảnh",
                 });
             }
-            const oldUser = await prisma.user.findUnique({
+            const oldUser = await prisma_1.default.user.findUnique({
                 where: {
                     id: req.user.id,
                 },
@@ -445,7 +445,7 @@ class UserController {
                 });
             }
             const avatarUrl = `/uploads/avatars/${req.file.filename}`;
-            const user = await prisma.user.update({
+            const user = await prisma_1.default.user.update({
                 where: {
                     id: req.user.id,
                 },
@@ -490,7 +490,7 @@ class UserController {
                     message: "Mật khẩu mới phải có ít nhất 8 ký tự",
                 });
             }
-            const user = await prisma.user.findUnique({
+            const user = await prisma_1.default.user.findUnique({
                 where: {
                     id: req.user.id,
                 },
@@ -527,7 +527,7 @@ class UserController {
                 }
             }
             const hash = await bcryptjs_1.default.hash(newPassword, 12);
-            await prisma.user.update({
+            await prisma_1.default.user.update({
                 where: {
                     id: user.id,
                 },
@@ -580,7 +580,7 @@ class UserController {
                     message: "Mật khẩu phải có ít nhất 8 ký tự",
                 });
             }
-            const exists = await prisma.user.findUnique({
+            const exists = await prisma_1.default.user.findUnique({
                 where: {
                     email,
                 },
@@ -594,7 +594,7 @@ class UserController {
                 });
             }
             const passwordHash = await bcryptjs_1.default.hash(password, 12);
-            const user = await prisma.user.create({
+            const user = await prisma_1.default.user.create({
                 data: {
                     email,
                     full_name: fullName,
@@ -662,7 +662,7 @@ class UserController {
                     },
                 ];
             }
-            const users = await prisma.user.findMany({
+            const users = await prisma_1.default.user.findMany({
                 where,
                 orderBy: [
                     {
@@ -715,7 +715,7 @@ class UserController {
                     message: "Mật khẩu tối thiểu 8 ký tự",
                 });
             }
-            const exists = await prisma.user.findUnique({
+            const exists = await prisma_1.default.user.findUnique({
                 where: {
                     email,
                 },
@@ -729,7 +729,7 @@ class UserController {
                 });
             }
             const hash = await bcryptjs_1.default.hash(password, 12);
-            const user = await prisma.user.create({
+            const user = await prisma_1.default.user.create({
                 data: {
                     email,
                     full_name: fullName,
@@ -786,7 +786,7 @@ class UserController {
                 "inactive"
                 ? "inactive"
                 : "active";
-            const user = await prisma.user.update({
+            const user = await prisma_1.default.user.update({
                 where: {
                     id,
                 },
@@ -842,7 +842,7 @@ class UserController {
                 });
             }
             const hash = await bcryptjs_1.default.hash(newPassword, 12);
-            await prisma.user.update({
+            await prisma_1.default.user.update({
                 where: {
                     id,
                 },
@@ -886,7 +886,7 @@ class UserController {
                     message: "Bạn không thể tự khóa tài khoản đang đăng nhập",
                 });
             }
-            const user = await prisma.user.update({
+            const user = await prisma_1.default.user.update({
                 where: {
                     id,
                 },

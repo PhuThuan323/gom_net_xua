@@ -1,8 +1,11 @@
 "use strict";
 // src/controllers/debtProviderController.ts
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /* =========================================================
    HELPERS
 ========================================================= */
@@ -45,7 +48,7 @@ function errorResponse(res, error, status = 400) {
 /* =========================================================
    LẤY SỐ DƯ HIỆN TẠI CỦA NCC
 ========================================================= */
-async function getCurrentBalance(supplierId, tx = prisma) {
+async function getCurrentBalance(supplierId, tx = prisma_1.default) {
     const latest = await tx.supplierDebt.findFirst({
         where: {
             supplier_id: supplierId,
@@ -68,7 +71,7 @@ async function getCurrentBalance(supplierId, tx = prisma) {
    TẠO GIAO DỊCH CÔNG NỢ
 ========================================================= */
 async function createDebtTransaction(input) {
-    return prisma.$transaction(async (tx) => {
+    return prisma_1.default.$transaction(async (tx) => {
         const supplier = await tx.supplier.findUnique({
             where: {
                 id: input.supplier_id,
@@ -154,7 +157,7 @@ class DebtProviderController {
     async dashboard(req, res) {
         try {
             const [debtAggregate, paymentAggregate, adjustmentAggregate, suppliers,] = await Promise.all([
-                prisma.supplierDebt.aggregate({
+                prisma_1.default.supplierDebt.aggregate({
                     where: {
                         transaction_type: "DEBT",
                     },
@@ -162,7 +165,7 @@ class DebtProviderController {
                         amount: true,
                     },
                 }),
-                prisma.supplierDebt.aggregate({
+                prisma_1.default.supplierDebt.aggregate({
                     where: {
                         transaction_type: "PAYMENT",
                     },
@@ -170,7 +173,7 @@ class DebtProviderController {
                         amount: true,
                     },
                 }),
-                prisma.supplierDebt.aggregate({
+                prisma_1.default.supplierDebt.aggregate({
                     where: {
                         transaction_type: "ADJUSTMENT",
                     },
@@ -178,7 +181,7 @@ class DebtProviderController {
                         amount: true,
                     },
                 }),
-                prisma.supplier.findMany({
+                prisma_1.default.supplier.findMany({
                     where: {
                         status: "active",
                     },
@@ -258,7 +261,7 @@ class DebtProviderController {
     ======================================================= */
     async suppliers(req, res) {
         try {
-            const suppliers = await prisma.supplier.findMany({
+            const suppliers = await prisma_1.default.supplier.findMany({
                 where: {
                     status: "active",
                 },
@@ -373,8 +376,8 @@ class DebtProviderController {
                     }
                     : {}),
             };
-            const [rows, total] = await prisma.$transaction([
-                prisma.supplierDebt.findMany({
+            const [rows, total] = await prisma_1.default.$transaction([
+                prisma_1.default.supplierDebt.findMany({
                     where,
                     include: {
                         supplier: {
@@ -401,7 +404,7 @@ class DebtProviderController {
                     skip: (page - 1) * limit,
                     take: limit,
                 }),
-                prisma.supplierDebt.count({
+                prisma_1.default.supplierDebt.count({
                     where,
                 }),
             ]);
@@ -668,7 +671,7 @@ class DebtProviderController {
                     message: "ID nhà cung cấp không hợp lệ",
                 });
             }
-            const supplier = await prisma.supplier.findUnique({
+            const supplier = await prisma_1.default.supplier.findUnique({
                 where: {
                     id: supplierId,
                 },
@@ -691,7 +694,7 @@ class DebtProviderController {
             }
             const currentBalance = await getCurrentBalance(supplierId);
             const [debt, payment, adjustment,] = await Promise.all([
-                prisma.supplierDebt.aggregate({
+                prisma_1.default.supplierDebt.aggregate({
                     where: {
                         supplier_id: supplierId,
                         transaction_type: "DEBT",
@@ -700,7 +703,7 @@ class DebtProviderController {
                         amount: true,
                     },
                 }),
-                prisma.supplierDebt.aggregate({
+                prisma_1.default.supplierDebt.aggregate({
                     where: {
                         supplier_id: supplierId,
                         transaction_type: "PAYMENT",
@@ -709,7 +712,7 @@ class DebtProviderController {
                         amount: true,
                     },
                 }),
-                prisma.supplierDebt.aggregate({
+                prisma_1.default.supplierDebt.aggregate({
                     where: {
                         supplier_id: supplierId,
                         transaction_type: "ADJUSTMENT",
@@ -754,8 +757,8 @@ class DebtProviderController {
             }
             const page = parsePositiveInt(req.query.page, 1);
             const limit = Math.min(parsePositiveInt(req.query.limit, 50), 200);
-            const [rows, total] = await prisma.$transaction([
-                prisma.supplierDebt.findMany({
+            const [rows, total] = await prisma_1.default.$transaction([
+                prisma_1.default.supplierDebt.findMany({
                     where: {
                         supplier_id: supplierId,
                     },
@@ -781,7 +784,7 @@ class DebtProviderController {
                         limit,
                     take: limit,
                 }),
-                prisma.supplierDebt.count({
+                prisma_1.default.supplierDebt.count({
                     where: {
                         supplier_id: supplierId,
                     },

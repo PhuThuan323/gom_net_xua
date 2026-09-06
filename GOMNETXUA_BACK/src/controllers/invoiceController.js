@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_1 = require("@prisma/client");
-const prisma = new client_1.PrismaClient();
+const prisma_1 = __importDefault(require("../lib/prisma"));
 /* =========================================================
    HELPERS
 ========================================================= */
@@ -48,7 +51,7 @@ const sendError = (res, error, status = 400) => {
    GENERATE CUSTOMER CODE
 ========================================================= */
 async function generateCustomerCode() {
-    const last = await prisma.customer.findFirst({
+    const last = await prisma_1.default.customer.findFirst({
         orderBy: {
             id: "desc",
         },
@@ -65,7 +68,7 @@ async function generateCustomerCode() {
 async function generateInvoiceCode() {
     const year = new Date().getFullYear();
     const prefix = `HD-${year}-`;
-    const last = await prisma.invoice.findFirst({
+    const last = await prisma_1.default.invoice.findFirst({
         where: {
             invoice_code: {
                 startsWith: prefix,
@@ -119,7 +122,7 @@ class InvoiceController {
     async bootstrap(req, res) {
         try {
             const [brands, customers, variants, invoiceCode,] = await Promise.all([
-                prisma.invoiceBrand.findMany({
+                prisma_1.default.invoiceBrand.findMany({
                     where: {
                         status: "active",
                     },
@@ -132,13 +135,13 @@ class InvoiceController {
                         },
                     ],
                 }),
-                prisma.customer.findMany({
+                prisma_1.default.customer.findMany({
                     orderBy: {
                         customer_name: "asc",
                     },
                     take: 500,
                 }),
-                prisma.productVariant.findMany({
+                prisma_1.default.productVariant.findMany({
                     where: {
                         status: "active",
                         product: {
@@ -195,7 +198,7 @@ class InvoiceController {
     ======================================================= */
     async brands(req, res) {
         try {
-            const data = await prisma.invoiceBrand.findMany({
+            const data = await prisma_1.default.invoiceBrand.findMany({
                 where: {
                     status: "active",
                 },
@@ -241,7 +244,7 @@ class InvoiceController {
                     message: "Tên thương hiệu không được để trống",
                 });
             }
-            const result = await prisma.$transaction(async (tx) => {
+            const result = await prisma_1.default.$transaction(async (tx) => {
                 if (is_default === true) {
                     await tx.invoiceBrand.updateMany({
                         data: {
@@ -303,7 +306,7 @@ class InvoiceController {
                     ],
                 }
                 : {};
-            const data = await prisma.customer.findMany({
+            const data = await prisma_1.default.customer.findMany({
                 where,
                 orderBy: { customer_name: "asc" },
                 take: 500,
@@ -334,7 +337,7 @@ class InvoiceController {
                 });
             }
             const customerCode = await generateCustomerCode();
-            const result = await prisma.customer.create({
+            const result = await prisma_1.default.customer.create({
                 data: {
                     customer_code: customerCode,
                     customer_name: customer_name.trim(),
@@ -380,7 +383,7 @@ class InvoiceController {
                     message: "Tên khách hàng không được để trống",
                 });
             }
-            const result = await prisma.customer.update({
+            const result = await prisma_1.default.customer.update({
                 where: {
                     id,
                 },
@@ -417,7 +420,7 @@ class InvoiceController {
                     message: "ID khách hàng không hợp lệ",
                 });
             }
-            const invoiceCount = await prisma.invoice.count({
+            const invoiceCount = await prisma_1.default.invoice.count({
                 where: {
                     customer_id: id,
                 },
@@ -428,7 +431,7 @@ class InvoiceController {
                     message: "Khách hàng đã có hóa đơn nên không thể xóa. Bạn có thể chỉnh sửa thông tin khách hàng.",
                 });
             }
-            await prisma.customer.delete({
+            await prisma_1.default.customer.delete({
                 where: {
                     id,
                 },
@@ -491,7 +494,7 @@ class InvoiceController {
                     ],
                 }
                 : {};
-            const data = await prisma.invoice.findMany({
+            const data = await prisma_1.default.invoice.findMany({
                 where,
                 include: invoiceListInclude,
                 orderBy: [
@@ -528,7 +531,7 @@ class InvoiceController {
     async invoiceDetail(req, res) {
         try {
             const id = Number(req.params.id);
-            const invoice = await prisma.invoice.findUnique({
+            const invoice = await prisma_1.default.invoice.findUnique({
                 where: {
                     id,
                 },
@@ -620,7 +623,7 @@ class InvoiceController {
                 if (unitPrice.lessThan(0)) {
                     throw new Error("Đơn giá không hợp lệ");
                 }
-                const variant = await prisma.productVariant.findUnique({
+                const variant = await prisma_1.default.productVariant.findUnique({
                     where: {
                         id: variantId,
                     },
@@ -664,7 +667,7 @@ class InvoiceController {
                 invoice_code.trim()
                 ? invoice_code.trim()
                 : await generateInvoiceCode();
-            const result = await prisma.invoice.create({
+            const result = await prisma_1.default.invoice.create({
                 data: {
                     invoice_code: finalCode,
                     invoice_date: parseDate(invoice_date),
