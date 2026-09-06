@@ -107,6 +107,16 @@ export default function UserManagement() {
   ] = useState([]);
 
   const [
+    affiliateOptions,
+    setAffiliateOptions,
+  ] = useState([]);
+
+  const [
+    affiliateLoading,
+    setAffiliateLoading,
+  ] = useState(false);
+
+  const [
     search,
     setSearch,
   ] = useState("");
@@ -140,6 +150,57 @@ export default function UserManagement() {
     resettingUser,
     setResettingUser,
   ] = useState(null);
+
+  const loadAffiliates =
+    useCallback(
+      async () => {
+        try {
+          setAffiliateLoading(
+            true
+          );
+
+          /*
+           * Dùng CHÍNH endpoint đang đọc danh sách Affiliate
+           * từ Google Sheet.
+           *
+           * Khi thêm Affiliate mới trên Sheet,
+           * lần mở/làm mới form này sẽ tự xuất hiện.
+           */
+          const result =
+            await api(
+              "/affiliate-commissions/affiliates"
+            );
+
+          setAffiliateOptions(
+            Array.isArray(
+              result.data
+            )
+              ? result.data
+              : []
+          );
+        } catch (error) {
+          console.error(
+            "LOAD AFFILIATES:",
+            error
+          );
+
+          setAffiliateOptions(
+            []
+          );
+        } finally {
+          setAffiliateLoading(
+            false
+          );
+        }
+      },
+      []
+    );
+
+  useEffect(() => {
+    loadAffiliates();
+  }, [
+    loadAffiliates,
+  ]);
 
   const loadUsers =
     useCallback(
@@ -419,6 +480,7 @@ export default function UserManagement() {
                 <th>SĐT</th>
                 <th>Chức vụ</th>
                 <th>Quyền</th>
+                <th>Affiliate</th>
                 <th>Google</th>
                 <th>Đăng nhập gần nhất</th>
                 <th>Trạng thái</th>
@@ -500,6 +562,14 @@ export default function UserManagement() {
                           user.role
                         )}
                       </span>
+                    </td>
+
+                    <td>
+                      {user.role ===
+                      "LIVESTREAMER"
+                        ? user.affiliate_code ||
+                          "Chưa gắn"
+                        : "—"}
                     </td>
 
                     <td>
@@ -589,7 +659,7 @@ export default function UserManagement() {
                 !loading && (
                   <tr>
                     <td
-                      colSpan="9"
+                      colSpan="10"
                       className="user-empty"
                     >
                       Chưa có tài khoản phù hợp.
@@ -608,6 +678,12 @@ export default function UserManagement() {
       {creating && (
         <UserFormModal
           title="Thêm nhân viên"
+          affiliateOptions={
+            affiliateOptions
+          }
+          affiliateLoading={
+            affiliateLoading
+          }
           onClose={() =>
             setCreating(false)
           }
@@ -623,6 +699,12 @@ export default function UserManagement() {
         <UserFormModal
           title="Cập nhật nhân viên"
           user={editingUser}
+          affiliateOptions={
+            affiliateOptions
+          }
+          affiliateLoading={
+            affiliateLoading
+          }
           onClose={() =>
             setEditingUser(null)
           }
@@ -654,6 +736,8 @@ export default function UserManagement() {
 function UserFormModal({
   title,
   user = null,
+  affiliateOptions = [],
+  affiliateLoading = false,
   onClose,
   onSaved,
 }) {
@@ -675,6 +759,9 @@ function UserFormModal({
 
     role:
       user?.role || "EMPLOYEE",
+
+    affiliate_code:
+      user?.affiliate_code || "",
 
     status:
       user?.status || "active",
@@ -723,6 +810,18 @@ function UserFormModal({
         return;
       }
 
+      if (
+        form.role ===
+          "LIVESTREAMER" &&
+        !form.affiliate_code
+      ) {
+        alert(
+          "Vui lòng gắn nhân viên livestream với một Affiliate."
+        );
+
+        return;
+      }
+
       try {
         setSaving(true);
 
@@ -745,6 +844,12 @@ function UserFormModal({
 
                   role:
                     form.role,
+
+                  affiliate_code:
+                    form.role ===
+                    "LIVESTREAMER"
+                      ? form.affiliate_code
+                      : null,
 
                   status:
                     form.status,
@@ -773,6 +878,12 @@ function UserFormModal({
 
                   role:
                     form.role,
+
+                  affiliate_code:
+                    form.role ===
+                    "LIVESTREAMER"
+                      ? form.affiliate_code
+                      : null,
 
                   password:
                     form.password,
@@ -923,13 +1034,21 @@ function UserFormModal({
 
         <select
           value={form.role}
-          onChange={(e) =>
+          onChange={(e) => {
+            const nextRole =
+              e.target.value;
+
             setForm({
               ...form,
               role:
-                e.target.value,
-            })
-          }
+                nextRole,
+              affiliate_code:
+                nextRole ===
+                "LIVESTREAMER"
+                  ? form.affiliate_code
+                  : "",
+            });
+          }}
         >
           <option value="EMPLOYEE">
             Nhân viên kho 
@@ -942,6 +1061,75 @@ function UserFormModal({
             Nhân viên livestream
           </option>
         </select>
+
+        {form.role ===
+          "LIVESTREAMER" && (
+          <>
+            <label>
+              Gắn Affiliate
+            </label>
+
+            <select
+              value={
+                form.affiliate_code
+              }
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  affiliate_code:
+                    e.target.value,
+                })
+              }
+              disabled={
+                affiliateLoading
+              }
+            >
+              <option value="">
+                {affiliateLoading
+                  ? "Đang tải Affiliate từ Google Sheet..."
+                  : "-- Chọn Affiliate --"}
+              </option>
+
+              {affiliateOptions.map(
+                (
+                  item,
+                  index
+                ) => (
+                  <option
+                    key={`${item.ma_affiliate}-${index}`}
+                    value={
+                      item.ma_affiliate
+                    }
+                  >
+                    {
+                      item.ma_affiliate
+                    }
+                    {
+                      item.ten_affiliate
+                        ? ` - ${item.ten_affiliate}`
+                        : ""
+                    }
+                  </option>
+                )
+              )}
+            </select>
+
+            <small
+              style={{
+                display:
+                  "block",
+                marginTop:
+                  "6px",
+                marginBottom:
+                  "12px",
+                color:
+                  "#7a685d",
+              }}
+            >
+              Danh sách này lấy trực tiếp từ Google Sheet. Thêm Affiliate mới trên Sheet thì danh sách quản trị sẽ tự cập nhật.
+            </small>
+          </>
+        )}
 
         {user && (
           <>

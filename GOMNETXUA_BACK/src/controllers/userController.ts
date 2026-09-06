@@ -91,6 +91,7 @@ const safeUser = <
     position: string | null;
     avatar_url: string | null;
     role: UserRole;
+    affiliate_code: string | null;
     status: string;
     google_sub: string | null;
     last_login_at: Date | null;
@@ -120,6 +121,9 @@ const safeUser = <
 
   role:
     user.role,
+
+  affiliate_code:
+    user.affiliate_code,
 
   status:
     user.status,
@@ -1406,6 +1410,35 @@ async register(
           12
         );
 
+      const selectedRole =
+        validRole(
+          req.body?.role
+        );
+
+      const affiliateCode =
+        selectedRole ===
+        UserRole.LIVESTREAMER
+          ? text(
+              req.body
+                ?.affiliate_code
+            )
+          : null;
+
+      if (
+        selectedRole ===
+          UserRole.LIVESTREAMER &&
+        !affiliateCode
+      ) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+
+            message:
+              "Nhân viên livestream phải được gắn với một Affiliate",
+          });
+      }
+
       const user =
         await prisma.user.create({
           data: {
@@ -1428,9 +1461,10 @@ async register(
               ),
 
             role:
-              validRole(
-                req.body?.role
-              ),
+              selectedRole,
+
+            affiliate_code:
+              affiliateCode,
 
             status:
               "active",
@@ -1522,6 +1556,35 @@ async register(
           ? "inactive"
           : "active";
 
+      const selectedRole =
+        validRole(
+          req.body?.role
+        );
+
+      const affiliateCode =
+        selectedRole ===
+        UserRole.LIVESTREAMER
+          ? text(
+              req.body
+                ?.affiliate_code
+            )
+          : null;
+
+      if (
+        selectedRole ===
+          UserRole.LIVESTREAMER &&
+        !affiliateCode
+      ) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+
+            message:
+              "Nhân viên livestream phải được gắn với một Affiliate",
+          });
+      }
+
       const user =
         await prisma.user.update({
           where: {
@@ -1543,9 +1606,10 @@ async register(
               ),
 
             role:
-              validRole(
-                req.body?.role
-              ),
+              selectedRole,
+
+            affiliate_code:
+              affiliateCode,
 
             status,
           },

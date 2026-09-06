@@ -28,10 +28,15 @@ const normalizeEmail = (value) => {
         .toLowerCase();
 };
 const validRole = (value) => {
-    return value ===
-        "ADMIN"
-        ? client_1.UserRole.ADMIN
-        : client_1.UserRole.EMPLOYEE;
+    if (value ===
+        "ADMIN") {
+        return client_1.UserRole.ADMIN;
+    }
+    if (value ===
+        "LIVESTREAMER") {
+        return client_1.UserRole.LIVESTREAMER;
+    }
+    return client_1.UserRole.EMPLOYEE;
 };
 const safeUser = (user) => ({
     id: user.id,
@@ -41,6 +46,7 @@ const safeUser = (user) => ({
     position: user.position,
     avatar_url: user.avatar_url,
     role: user.role,
+    affiliate_code: user.affiliate_code,
     status: user.status,
     google_connected: Boolean(user.google_sub),
     last_login_at: user.last_login_at,
@@ -601,7 +607,7 @@ class UserController {
                     phone,
                     password_hash: passwordHash,
                     role: client_1.UserRole.EMPLOYEE,
-                    position: "Nhân viên",
+                    position: "Nhân viên kho",
                     status: "active",
                 },
             });
@@ -638,8 +644,8 @@ class UserController {
                     status;
             }
             if (role === "ADMIN" ||
-                role ===
-                    "EMPLOYEE") {
+                role === "EMPLOYEE" ||
+                role === "LIVESTREAMER") {
                 where.role =
                     role;
             }
@@ -729,6 +735,22 @@ class UserController {
                 });
             }
             const hash = await bcryptjs_1.default.hash(password, 12);
+            const selectedRole = validRole(req.body?.role);
+            const affiliateCode = selectedRole ===
+                client_1.UserRole.LIVESTREAMER
+                ? text(req.body
+                    ?.affiliate_code)
+                : null;
+            if (selectedRole ===
+                client_1.UserRole.LIVESTREAMER &&
+                !affiliateCode) {
+                return res
+                    .status(400)
+                    .json({
+                    success: false,
+                    message: "Nhân viên livestream phải được gắn với một Affiliate",
+                });
+            }
             const user = await prisma_1.default.user.create({
                 data: {
                     email,
@@ -736,7 +758,8 @@ class UserController {
                     password_hash: hash,
                     phone: text(req.body?.phone),
                     position: text(req.body?.position),
-                    role: validRole(req.body?.role),
+                    role: selectedRole,
+                    affiliate_code: affiliateCode,
                     status: "active",
                 },
             });
@@ -786,6 +809,22 @@ class UserController {
                 "inactive"
                 ? "inactive"
                 : "active";
+            const selectedRole = validRole(req.body?.role);
+            const affiliateCode = selectedRole ===
+                client_1.UserRole.LIVESTREAMER
+                ? text(req.body
+                    ?.affiliate_code)
+                : null;
+            if (selectedRole ===
+                client_1.UserRole.LIVESTREAMER &&
+                !affiliateCode) {
+                return res
+                    .status(400)
+                    .json({
+                    success: false,
+                    message: "Nhân viên livestream phải được gắn với một Affiliate",
+                });
+            }
             const user = await prisma_1.default.user.update({
                 where: {
                     id,
@@ -794,7 +833,8 @@ class UserController {
                     full_name: fullName,
                     phone: text(req.body?.phone),
                     position: text(req.body?.position),
-                    role: validRole(req.body?.role),
+                    role: selectedRole,
+                    affiliate_code: affiliateCode,
                     status,
                 },
             });

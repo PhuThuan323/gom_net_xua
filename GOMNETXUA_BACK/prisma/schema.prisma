@@ -366,7 +366,8 @@ model User {
 
   role UserRole @default(EMPLOYEE)
 
-  google_sub String? @unique @db.VarChar(255)
+  affiliate_code String? @db.VarChar(100)
+  google_sub     String? @unique @db.VarChar(255)
 
   status String @default("active")
   // active

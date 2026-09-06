@@ -300,7 +300,6 @@ function Sidebar({
 
       roles: [
         "ADMIN",
-        "EMPLOYEE",
         "LIVESTREAMER",
       ],
     },

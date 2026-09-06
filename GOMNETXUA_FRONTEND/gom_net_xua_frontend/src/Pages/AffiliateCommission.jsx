@@ -134,6 +134,20 @@ const displayDate = (
 export default function AffiliateCommission({
   currentUser,
 }) {
+  const isAdmin =
+    currentUser?.role ===
+    "ADMIN";
+
+  const isLivestreamer =
+    currentUser?.role ===
+    "LIVESTREAMER";
+
+  const assignedAffiliate =
+    String(
+      currentUser?.affiliate_code ||
+        ""
+    ).trim();
+
   const [
     selectedMonth,
     setSelectedMonth
@@ -147,7 +161,13 @@ export default function AffiliateCommission({
     setSelectedAffiliate,
   ] =
     useState(
-      "ALL"
+      currentUser?.role ===
+        "LIVESTREAMER"
+        ? String(
+            currentUser?.affiliate_code ||
+              ""
+          ).trim()
+        : "ALL"
     );
 
   const [
@@ -224,20 +244,38 @@ export default function AffiliateCommission({
     useState("");
 
   /* =====================================================
+     ĐỒNG BỘ AFFILIATE ĐƯỢC GẮN CHO LIVESTREAMER
+  ===================================================== */
+
+  useEffect(() => {
+    if (
+      isLivestreamer
+    ) {
+      setSelectedAffiliate(
+        assignedAffiliate
+      );
+    }
+  }, [
+    isLivestreamer,
+    assignedAffiliate,
+  ]);
+
+  /* =====================================================
      LOAD AFFILIATE
   ===================================================== */
 
   useEffect(() => {
-
     const load =
       async () => {
-
         try {
-
           const token =
             localStorage.getItem(
               "nx_token"
             );
+
+          if (!token) {
+            return;
+          }
 
           const response =
             await fetch(
@@ -246,40 +284,89 @@ export default function AffiliateCommission({
                 headers: {
                   Authorization:
                     `Bearer ${token}`,
+                  Accept:
+                    "application/json",
                 },
+                cache:
+                  "no-store",
               }
             );
 
-          const result =
-            await response.json();
+          const raw =
+            await response.text();
 
-          if (
-            response.ok &&
-            result.success !==
-              false
-          ) {
+          let result = {};
 
-            setAffiliateOptions(
-              Array.isArray(
-                result.data
-              )
-                ? result.data
-                : []
+          try {
+            result =
+              raw
+                ? JSON.parse(
+                    raw
+                  )
+                : {};
+          } catch {
+            throw new Error(
+              "API Affiliate không trả JSON"
             );
           }
 
-        } catch (error) {
+          if (
+            !response.ok ||
+            result.success ===
+              false
+          ) {
+            throw new Error(
+              result.message ||
+                "Không tải được danh sách Affiliate"
+            );
+          }
 
+          const list =
+            Array.isArray(
+              result.data
+            )
+              ? result.data
+              : [];
+
+          setAffiliateOptions(
+            list
+          );
+
+          /*
+           * ADMIN:
+           * - API trả toàn bộ Affiliate từ Sheet.
+           *
+           * LIVESTREAMER:
+           * - Backend phải chỉ trả Affiliate đã gắn.
+           * - Không cho user thấy danh sách của người khác.
+           */
+          if (
+            isLivestreamer &&
+            assignedAffiliate
+          ) {
+            setSelectedAffiliate(
+              assignedAffiliate
+            );
+          }
+        } catch (error) {
           console.error(
             "LOAD AFFILIATE:",
             error
+          );
+
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Không tải được danh sách Affiliate"
           );
         }
       };
 
     load();
-
-  }, []);
+  }, [
+    isLivestreamer,
+    assignedAffiliate,
+  ]);
 
   /* =====================================================
      LOAD REPORT
@@ -304,13 +391,27 @@ export default function AffiliateCommission({
           );
         }
 
+        if (
+          isLivestreamer &&
+          !assignedAffiliate
+        ) {
+          throw new Error(
+            "Tài khoản chưa được quản trị viên gắn với Affiliate."
+          );
+        }
+
+        const effectiveAffiliate =
+          isLivestreamer
+            ? assignedAffiliate
+            : selectedAffiliate;
+
         const query =
           new URLSearchParams({
             month:
               selectedMonth,
 
             affiliate:
-              selectedAffiliate,
+              effectiveAffiliate,
 
             status:
               selectedStatus,
@@ -541,16 +642,19 @@ export default function AffiliateCommission({
           </span>
 
           <h1>
-            Quản trị hoa hồng
+            {isLivestreamer
+              ? "Hoa hồng của tôi"
+              : "Quản trị hoa hồng"}
           </h1>
 
           <p>
-            Báo cáo và đối soát
-            Affiliate từ Google Sheet
+            {isLivestreamer
+              ? "Theo dõi đơn hàng và hoa hồng Affiliate của tài khoản đang đăng nhập."
+              : "Báo cáo và đối soát Affiliate từ Google Sheet"}
           </p>
 
         </div>
-        {currentUser?.role === "ADMIN" && (
+        {isAdmin && (
             <a
             className="affiliate-v4-connected"
             href="https://docs.google.com/spreadsheets/d/1RZ4lmGfPvLM09ilfgrXVDd7x9-jEvgbmhEjeIlBkX2Y/edit?usp=sharing"
@@ -594,49 +698,88 @@ export default function AffiliateCommission({
             Affiliate
           </label>
 
-          <select
-            value={
-              selectedAffiliate
-            }
-            onChange={(e) =>
-              setSelectedAffiliate(
-                e.target.value
-              )
-            }
-          >
-
-            <option value="ALL">
-              Tất cả Affiliate
-            </option>
-
-            {affiliateOptions.map(
-              (
-                item,
-                index
-              ) => (
-
+          {isLivestreamer ? (
+            <select
+              value={
+                assignedAffiliate
+              }
+              disabled
+            >
+              {affiliateOptions.length >
+              0 ? (
+                affiliateOptions.map(
+                  (
+                    item,
+                    index
+                  ) => (
+                    <option
+                      key={`${item.ma_affiliate}-${index}`}
+                      value={
+                        item.ma_affiliate
+                      }
+                    >
+                      {
+                        item.ma_affiliate
+                      }
+                      {
+                        item.ten_affiliate
+                          ? ` - ${item.ten_affiliate}`
+                          : ""
+                      }
+                    </option>
+                  )
+                )
+              ) : (
                 <option
-                  key={`${item.ma_affiliate}-${index}`}
                   value={
-                    item.ma_affiliate
+                    assignedAffiliate
                   }
                 >
-                  {
-                    item.ma_affiliate
-                  }
-
-                  {
-                    item.ten_affiliate
-                      ? ` - ${item.ten_affiliate}`
-                      : ""
-                  }
-
+                  {assignedAffiliate ||
+                    "-- Chưa được gắn Affiliate --"}
                 </option>
+              )}
+            </select>
+          ) : (
+            <select
+              value={
+                selectedAffiliate
+              }
+              onChange={(e) =>
+                setSelectedAffiliate(
+                  e.target.value
+                )
+              }
+            >
+              <option value="ALL">
+                Tất cả Affiliate
+              </option>
 
-              )
-            )}
+              {affiliateOptions.map(
+                (
+                  item,
+                  index
+                ) => (
+                  <option
+                    key={`${item.ma_affiliate}-${index}`}
+                    value={
+                      item.ma_affiliate
+                    }
+                  >
+                    {
+                      item.ma_affiliate
+                    }
 
-          </select>
+                    {
+                      item.ten_affiliate
+                        ? ` - ${item.ten_affiliate}`
+                        : ""
+                    }
+                  </option>
+                )
+              )}
+            </select>
+          )}
 
         </div>
 
@@ -800,7 +943,7 @@ export default function AffiliateCommission({
 
           <input
             type="text"
-            placeholder="Tìm mã đơn, Affiliate..."
+            placeholder={isLivestreamer ? "Tìm mã đơn..." : "Tìm mã đơn, Affiliate..."}
             value={
               search
             }
