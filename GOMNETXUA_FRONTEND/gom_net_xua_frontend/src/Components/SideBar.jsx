@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import "./Sidebar.css";
 
 function Sidebar({
@@ -7,18 +11,52 @@ function Sidebar({
   currentUser,
 }) {
   const checkMobile = () => {
-    if (typeof window === "undefined") {
+    if (
+      typeof window ===
+      "undefined"
+    ) {
       return false;
     }
 
-    return window.matchMedia("(max-width: 768px)").matches;
+    return window
+      .matchMedia(
+        "(max-width: 768px)"
+      )
+      .matches;
   };
 
-  const [isMobile, setIsMobile] = useState(checkMobile);
-
-  const [sidebarOpen, setSidebarOpen] = useState(
-    () => !checkMobile()
+  const [
+    isMobile,
+    setIsMobile,
+  ] = useState(
+    checkMobile
   );
+
+  const [
+    sidebarOpen,
+    setSidebarOpen,
+  ] = useState(
+    () =>
+      !checkMobile()
+  );
+
+  // =========================
+  // ROLE
+  // =========================
+
+  const role =
+    currentUser?.role ||
+    "";
+
+  const isAdmin =
+    role === "ADMIN";
+
+  const isWarehouse =
+    role === "EMPLOYEE";
+
+  const isLivestreamer =
+    role ===
+    "LIVESTREAMER";
 
   // =========================
   // RESPONSIVE
@@ -26,26 +64,33 @@ function Sidebar({
 
   useEffect(() => {
     const mediaQuery =
-      window.matchMedia("(max-width: 768px)");
+      window.matchMedia(
+        "(max-width: 768px)"
+      );
 
-    const handleScreenChange = (event) => {
-      const mobile = event.matches;
+    const handleScreenChange =
+      (event) => {
+        const mobile =
+          event.matches;
 
-      setIsMobile(mobile);
+        setIsMobile(
+          mobile
+        );
 
-      // Mobile mặc định đóng
-      // Desktop mặc định mở
-      setSidebarOpen(!mobile);
-    };
+        // Mobile mặc định đóng
+        // Desktop mặc định mở
+        setSidebarOpen(
+          !mobile
+        );
+      };
 
-    // Đồng bộ ngay lần đầu
-    setIsMobile(mediaQuery.matches);
+    setIsMobile(
+      mediaQuery.matches
+    );
 
-    if (mediaQuery.matches) {
-      setSidebarOpen(false);
-    } else {
-      setSidebarOpen(true);
-    }
+    setSidebarOpen(
+      !mediaQuery.matches
+    );
 
     mediaQuery.addEventListener(
       "change",
@@ -61,133 +106,266 @@ function Sidebar({
   }, []);
 
   // =========================
-  // KHÓA SCROLL KHI MỞ MOBILE
+  // KHÓA SCROLL MOBILE
   // =========================
 
   useEffect(() => {
-    if (isMobile && sidebarOpen) {
-      document.body.style.overflow = "hidden";
+    if (
+      isMobile &&
+      sidebarOpen
+    ) {
+      document.body.style.overflow =
+        "hidden";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        "";
     }
 
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow =
+        "";
     };
-  }, [isMobile, sidebarOpen]);
+  }, [
+    isMobile,
+    sidebarOpen,
+  ]);
 
   // =========================
-  // PHÂN QUYỀN
+  // LIVESTREAMER:
+  // CHỈ ĐƯỢC Ở TRANG AFFILIATE
   // =========================
 
-  const isAdmin =
-    currentUser?.role === "ADMIN";
+  useEffect(() => {
+    if (
+      isLivestreamer &&
+      activePage !==
+        "affiliate"
+    ) {
+      setActivePage(
+        "affiliate"
+      );
+    }
+  }, [
+    isLivestreamer,
+    activePage,
+    setActivePage,
+  ]);
 
   // =========================
-  // MENU
+  // MENU + QUYỀN
   // =========================
 
   const menus = [
     {
-      key: "overall",
-      label: "Tổng quan",
-      adminOnly: true,
+      key:
+        "overall",
+
+      label:
+        "Tổng quan",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "products",
-      label: "Sản phẩm & biến thể",
-      adminOnly: false,
+      key:
+        "products",
+
+      label:
+        "Sản phẩm & biến thể",
+
+      roles: [
+        "ADMIN",
+        "EMPLOYEE",
+      ],
     },
 
     {
-      key: "barcode",
-      label: "Mã vạch & tem",
-      adminOnly: false,
+      key:
+        "barcode",
+
+      label:
+        "Mã vạch & tem",
+
+      roles: [
+        "ADMIN",
+        "EMPLOYEE",
+      ],
     },
 
     {
-      key: "nhacungcap",
-      label: "Nhà cung cấp",
-      adminOnly: true,
+      key:
+        "nhacungcap",
+
+      label:
+        "Nhà cung cấp",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "nhapkho",
-      label: "Nhập kho",
-      adminOnly: true,
+      key:
+        "nhapkho",
+
+      label:
+        "Nhập kho",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "no",
-      label: "Công nợ nhà cung cấp",
-      adminOnly: true,
+      key:
+        "no",
+
+      label:
+        "Công nợ nhà cung cấp",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "baogia",
-      label: "Báo Giá",
-      adminOnly: true,
+      key:
+        "baogia",
+
+      label:
+        "Báo Giá",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "xuatkho",
-      label: "Xuất kho",
-      adminOnly: false,
+      key:
+        "xuatkho",
+
+      label:
+        "Xuất kho",
+
+      roles: [
+        "ADMIN",
+        "EMPLOYEE",
+      ],
     },
 
     {
-      key: "loss",
-      label: "Thất Thoát",
-      adminOnly: true,
+      key:
+        "loss",
+
+      label:
+        "Thất Thoát",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "cashflow",
-      label: "Thu - Chi",
-      adminOnly: true,
+      key:
+        "cashflow",
+
+      label:
+        "Thu - Chi",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "report",
-      label: "Báo cáo",
-      adminOnly: true,
+      key:
+        "report",
+
+      label:
+        "Báo cáo",
+
+      roles: [
+        "ADMIN",
+      ],
     },
 
     {
-      key: "affiliate",
-      label: "Hoa hồng đơn hàng",
-      adminOnly: false,
+      key:
+        "affiliate",
+
+      label:
+        "Hoa hồng đơn hàng",
+
+      roles: [
+        "ADMIN",
+        "EMPLOYEE",
+        "LIVESTREAMER",
+      ],
     },
 
     {
-      key: "users",
-      label: "Quản lý nhân viên",
-      adminOnly: true,
+      key:
+        "users",
+
+      label:
+        "Quản lý nhân viên",
+
+      roles: [
+        "ADMIN",
+      ],
     },
   ];
 
   const visibleMenus =
     menus.filter(
       (item) =>
-        !item.adminOnly ||
-        isAdmin
+        item.roles.includes(
+          role
+        )
     );
 
   // =========================
   // CHUYỂN TRANG
   // =========================
 
-  const handleChangePage = (page) => {
-    console.log("Chuyển sang:", page);
+  const handleChangePage =
+    (page) => {
+      /*
+       * Chặn thêm một lớp ở frontend.
+       * Livestreamer tuyệt đối không chuyển
+       * sang trang khác affiliate.
+       */
+      if (
+        isLivestreamer &&
+        page !==
+          "affiliate"
+      ) {
+        setActivePage(
+          "affiliate"
+        );
 
-    setActivePage(page);
+        return;
+      }
 
-    // Mobile chọn xong tự đóng
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
+      console.log(
+        "Chuyển sang:",
+        page
+      );
+
+      setActivePage(
+        page
+      );
+
+      if (
+        isMobile
+      ) {
+        setSidebarOpen(
+          false
+        );
+      }
+    };
 
   return (
     <>
@@ -195,31 +373,37 @@ function Sidebar({
           NÚT ☰ MOBILE
       ============================== */}
 
-      {isMobile && !sidebarOpen && (
-        <button
-          type="button"
-          className="nx-mobile-menu-button"
-          onClick={() =>
-            setSidebarOpen(true)
-          }
-          aria-label="Mở menu"
-        >
-          ☰
-        </button>
-      )}
+      {isMobile &&
+        !sidebarOpen && (
+          <button
+            type="button"
+            className="nx-mobile-menu-button"
+            onClick={() =>
+              setSidebarOpen(
+                true
+              )
+            }
+            aria-label="Mở menu"
+          >
+            ☰
+          </button>
+        )}
 
       {/* =============================
           OVERLAY MOBILE
       ============================== */}
 
-      {isMobile && sidebarOpen && (
-        <div
-          className="nx-sidebar-overlay"
-          onClick={() =>
-            setSidebarOpen(false)
-          }
-        />
-      )}
+      {isMobile &&
+        sidebarOpen && (
+          <div
+            className="nx-sidebar-overlay"
+            onClick={() =>
+              setSidebarOpen(
+                false
+              )
+            }
+          />
+        )}
 
       {/* =============================
           SIDEBAR
@@ -238,7 +422,7 @@ function Sidebar({
             : "nx-sidebar-closed",
         ].join(" ")}
       >
-        {/* HEADER RIÊNG MOBILE */}
+        {/* HEADER MOBILE */}
 
         {isMobile && (
           <div className="nx-mobile-sidebar-header">
@@ -252,7 +436,13 @@ function Sidebar({
               </strong>
 
               <span>
-                Hệ thống quản lý nội bộ
+                {isLivestreamer
+                  ? "Nhân viên livestream"
+                  : isWarehouse
+                    ? "Nhân viên kho"
+                    : isAdmin
+                      ? "Quản trị viên"
+                      : "Hệ thống quản lý nội bộ"}
               </span>
             </div>
           </div>
@@ -264,7 +454,9 @@ function Sidebar({
           type="button"
           className="nx-sidebar-toggle"
           onClick={() =>
-            setSidebarOpen(false)
+            setSidebarOpen(
+              false
+            )
           }
           aria-label={
             isMobile
@@ -272,30 +464,41 @@ function Sidebar({
               : "Thu gọn menu"
           }
         >
-          {isMobile ? "×" : "‹"}
+          {isMobile
+            ? "×"
+            : "‹"}
         </button>
 
         {/* MENU */}
 
         <nav className="nx-sidebar-menu">
-          {visibleMenus.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={[
-                "nx-sidebar-menu-item",
+          {visibleMenus.map(
+            (item) => (
+              <button
+                key={
+                  item.key
+                }
+                type="button"
+                className={[
+                  "nx-sidebar-menu-item",
 
-                activePage === item.key
-                  ? "active"
-                  : "",
-              ].join(" ")}
-              onClick={() =>
-                handleChangePage(item.key)
-              }
-            >
-              {item.label}
-            </button>
-          ))}
+                  activePage ===
+                  item.key
+                    ? "active"
+                    : "",
+                ].join(" ")}
+                onClick={() =>
+                  handleChangePage(
+                    item.key
+                  )
+                }
+              >
+                {
+                  item.label
+                }
+              </button>
+            )
+          )}
         </nav>
       </aside>
 
@@ -303,18 +506,21 @@ function Sidebar({
           NÚT MỞ DESKTOP
       ============================== */}
 
-      {!isMobile && !sidebarOpen && (
-        <button
-          type="button"
-          className="nx-sidebar-desktop-open"
-          onClick={() =>
-            setSidebarOpen(true)
-          }
-          aria-label="Mở sidebar"
-        >
-          ›
-        </button>
-      )}
+      {!isMobile &&
+        !sidebarOpen && (
+          <button
+            type="button"
+            className="nx-sidebar-desktop-open"
+            onClick={() =>
+              setSidebarOpen(
+                true
+              )
+            }
+            aria-label="Mở sidebar"
+          >
+            ›
+          </button>
+        )}
     </>
   );
 }

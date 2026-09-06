@@ -86,10 +86,19 @@ async function api(
 
 const roleLabel = (
   role
-) =>
-  role === "ADMIN"
-    ? "Quản trị viên"
-    : "Nhân viên";
+) => {
+  switch (role) {
+    case "ADMIN":
+      return "Quản trị viên";
+
+    case "LIVESTREAMER":
+      return "Nhân viên livestream";
+
+    case "EMPLOYEE":
+    default:
+      return "Nhân viên kho";
+  }
+};
 
 export default function UserManagement() {
   const [
@@ -296,7 +305,7 @@ export default function UserManagement() {
 
         <div className="user-stat-card">
           <span>
-            Nhân viên
+            Nhân viên kho
           </span>
 
           <strong>
@@ -358,7 +367,11 @@ export default function UserManagement() {
           </option>
 
           <option value="EMPLOYEE">
-            Nhân viên
+            Nhân viên kho
+          </option>
+
+          <option value="LIVESTREAMER">
+            Nhân viên livestream
           </option>
         </select>
 
@@ -480,6 +493,7 @@ export default function UserManagement() {
                           user.role === "ADMIN"
                             ? "admin"
                             : "employee"
+                            
                         }`}
                       >
                         {roleLabel(
@@ -918,11 +932,14 @@ function UserFormModal({
           }
         >
           <option value="EMPLOYEE">
-            Nhân viên
+            Nhân viên kho 
           </option>
 
           <option value="ADMIN">
             Quản trị viên
+          </option>
+          <option value="LIVESTREAMER">
+            Nhân viên livestream
           </option>
         </select>
 

@@ -65,10 +65,21 @@ const normalizeEmail = (
 const validRole = (
   value: unknown
 ): UserRole => {
-  return value ===
+  if (
+    value ===
     "ADMIN"
-    ? UserRole.ADMIN
-    : UserRole.EMPLOYEE;
+  ) {
+    return UserRole.ADMIN;
+  }
+
+  if (
+    value ===
+    "LIVESTREAMER"
+  ) {
+    return UserRole.LIVESTREAMER;
+  }
+
+  return UserRole.EMPLOYEE;
 };
 
 const safeUser = <
@@ -1150,7 +1161,7 @@ async register(
             UserRole.EMPLOYEE,
 
           position:
-            "Nhân viên",
+            "Nhân viên kho",
 
           status:
             "active",
@@ -1243,11 +1254,11 @@ async register(
 
       if (
         role === "ADMIN" ||
-        role ===
-          "EMPLOYEE"
+        role === "EMPLOYEE" ||
+        role === "LIVESTREAMER"
       ) {
         where.role =
-          role;
+          role as UserRole;
       }
 
       if (search) {

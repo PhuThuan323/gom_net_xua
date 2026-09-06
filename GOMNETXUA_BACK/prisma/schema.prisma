@@ -346,6 +346,7 @@ model InvoiceBrand {
 enum UserRole {
   ADMIN
   EMPLOYEE
+  LIVESTREAMER
 }
 
 model User {
