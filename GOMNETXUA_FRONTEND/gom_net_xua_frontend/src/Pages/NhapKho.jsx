@@ -8,6 +8,28 @@ const API_URL = import.meta.env.VITE_API_URL;
 const formatMoney = (value) =>
   Number(value || 0).toLocaleString("vi-VN") + " đ";
 
+const parseApiResponse = async (response) => {
+  const text = await response.text();
+
+  let data = {};
+
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    const preview = text
+      .replace(/\s+/g, " ")
+      .slice(0, 160);
+
+    throw new Error(
+      `API không trả JSON (HTTP ${response.status}). ` +
+        `Có thể backend chưa có route PUT/DELETE hoặc request đang trỏ nhầm sang frontend. ` +
+        `Phản hồi: ${preview || "rỗng"}`
+    );
+  }
+
+  return data;
+};
+
 const getToday = () => {
   const now = new Date();
   const offset = now.getTimezoneOffset();
@@ -56,9 +78,9 @@ function NhapKho() {
           fetch(`${API_URL}/import-receipts`),
         ]);
 
-      const supplierResult = await supplierResponse.json();
-      const productResult = await productResponse.json();
-      const historyResult = await historyResponse.json();
+      const supplierResult = await parseApiResponse(supplierResponse);
+      const productResult = await parseApiResponse(productResponse);
+      const historyResult = await parseApiResponse(historyResponse);
 
       if (!supplierResponse.ok || supplierResult.success === false) {
         throw new Error(
@@ -313,7 +335,7 @@ function NhapKho() {
         }
       );
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
 
       if (!response.ok || !result.success) {
         throw new Error(
@@ -423,7 +445,7 @@ function NhapKho() {
         }
       );
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
 
       if (!response.ok || !result.success) {
         throw new Error(
@@ -514,7 +536,7 @@ function NhapKho() {
         }),
       });
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
 
       if (!response.ok || !result.success) {
         throw new Error(
@@ -555,7 +577,7 @@ function NhapKho() {
         }
       );
 
-      const result = await response.json();
+      const result = await parseApiResponse(response);
 
       if (!response.ok || !result.success) {
         throw new Error(

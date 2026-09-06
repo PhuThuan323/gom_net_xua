@@ -1,62 +1,66 @@
-import express from "express";
+import { Router } from "express";
 
 import {
   createImportReceipt,
   getAllImportReceipts,
   getImportReceiptById,
+  updateImportReceipt,
   updateImportPayment,
   deleteImportReceipt,
   getImportTemplateData,
-  previewImportExcel
+  previewImportExcel,
 } from "../controllers/importReceiptController";
 
+const router = Router();
 
-const router =
-  express.Router();
-
+/*
+ * QUAN TRỌNG:
+ * route cố định phải đặt TRƯỚC /:id
+ */
 router.get(
-  "/template-data",
+  "/template",
   getImportTemplateData
 );
 
 router.post(
-  "/preview",
+  "/preview-excel",
   previewImportExcel
 );
 
-// LẤY TẤT CẢ PHIẾU NHẬP
 router.get(
   "/",
   getAllImportReceipts
 );
 
-
-// LẤY CHI TIẾT PHIẾU NHẬP
-router.get(
-  "/:id",
-  getImportReceiptById
-);
-
-
-// TẠO PHIẾU NHẬP
 router.post(
   "/",
   createImportReceipt
 );
 
+/*
+ * Đây là route frontend đang gọi khi bấm "Cập nhật phiếu".
+ * Nếu thiếu route này, Express thường trả trang HTML
+ * "Cannot PUT /import-receipts/..."
+ * => frontend báo Unexpected token '<'.
+ */
+router.put(
+  "/:id",
+  updateImportReceipt
+);
 
-// CẬP NHẬT TIỀN ĐÃ THANH TOÁN
 router.patch(
   "/:id/payment",
   updateImportPayment
 );
 
-
-// XÓA PHIẾU NHẬP
 router.delete(
   "/:id",
   deleteImportReceipt
 );
 
+router.get(
+  "/:id",
+  getImportReceiptById
+);
 
 export default router;
