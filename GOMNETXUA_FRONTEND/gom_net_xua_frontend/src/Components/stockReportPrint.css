@@ -1,0 +1,647 @@
+/* =========================================================
+   STOCK REPORT - SCREEN + PRINT
+   GỐM SỨ ĐẶC SẢN NÉT XƯA
+========================================================= */
+
+/* =========================================================
+   SCREEN
+========================================================= */
+
+.stock-report-filter {
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(180px, 1fr)
+    );
+
+  align-items: end;
+}
+
+.stock-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.stock-filter-field label {
+  color: #70401f;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stock-filter-current {
+  min-height: 52px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 9px 13px;
+
+  border: 1px solid #dfc2a9;
+  border-radius: 10px;
+
+  background: #fffaf5;
+}
+
+.stock-filter-current span {
+  color: #8a6d57;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.stock-filter-current strong {
+  margin: 2px 0;
+
+  color: #662d10;
+  font-size: 15px;
+}
+
+.stock-filter-current small {
+  color: #7c746f;
+  font-size: 11px;
+}
+
+.stock-report-actions {
+  grid-column:
+    1 / -1;
+
+  margin-top: 2px;
+}
+
+.stock-period-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+}
+
+.stock-period-summary span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.stock-period-summary strong {
+  color: #6a2d0d;
+}
+
+.stock-print-only {
+  display: none;
+}
+
+@media (max-width: 1100px) {
+  .stock-report-filter {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 700px) {
+  .stock-report-filter {
+    grid-template-columns:
+      1fr;
+  }
+
+  .stock-report-actions {
+    flex-direction: column;
+  }
+
+  .stock-report-actions
+  .report-btn {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   PRINT TEMPLATE
+========================================================= */
+
+.stock-print-root {
+  width: 100%;
+}
+
+.stock-print-sheet {
+  position: relative;
+
+  width: 210mm;
+  min-height: 297mm;
+
+  margin: 0;
+
+  padding:
+    7mm
+    10mm
+    9mm;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  color: #111111;
+
+  font-family:
+    Arial,
+    "Segoe UI",
+    sans-serif;
+
+  page-break-after: always;
+
+  break-after: page;
+}
+
+.stock-print-sheet:last-child {
+  page-break-after: auto;
+
+  break-after: auto;
+}
+
+/* TOP */
+
+.stock-print-topline {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1.3fr
+    1fr;
+
+  align-items: start;
+
+  gap: 4mm;
+
+  font-size: 7pt;
+}
+
+.stock-print-top-title {
+  text-align: center;
+
+  font-weight: 800;
+}
+
+.stock-print-meta {
+  text-align: right;
+
+  line-height: 1.45;
+}
+
+/* BRAND */
+
+.stock-print-brand {
+  display: flex;
+
+  align-items: center;
+
+  gap: 3mm;
+
+  margin-top: 1mm;
+}
+
+.stock-print-logo {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 14mm;
+
+  width: 14mm;
+  height: 14mm;
+
+  border:
+    0.5mm solid #444;
+
+  border-radius: 50%;
+
+  font-size: 13pt;
+  font-weight: 900;
+}
+
+.stock-print-brand h2 {
+  margin:
+    0 0 1mm;
+
+  font-size: 13pt;
+}
+
+.stock-print-brand p {
+  margin:
+    0.4mm 0;
+
+  font-size: 7.2pt;
+}
+
+.stock-print-divider {
+  margin:
+    2mm 0 3mm;
+
+  border-top:
+    0.6mm solid #333;
+}
+
+/* TITLE */
+
+.stock-print-main-title {
+  margin-bottom:
+    3mm;
+
+  text-align: center;
+}
+
+.stock-print-main-title h1 {
+  margin: 0;
+
+  font-size: 14pt;
+  font-weight: 900;
+}
+
+.stock-print-main-title p {
+  margin:
+    1mm 0 0;
+
+  font-size: 7.5pt;
+}
+
+/* PERIOD */
+
+.stock-print-period {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 3mm;
+
+  margin-bottom: 2mm;
+
+  padding:
+    1.7mm
+    2.5mm;
+
+  border:
+    0.25mm solid #999;
+
+  font-size: 7.5pt;
+}
+
+.stock-print-period > div:last-child {
+  text-align: right;
+}
+
+.stock-print-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      6,
+      minmax(0, 1fr)
+    );
+
+  margin-bottom: 2.5mm;
+
+  border:
+    0.25mm solid #999;
+
+  font-size: 6.8pt;
+}
+
+.stock-print-summary span {
+  padding:
+    1.4mm
+    1mm;
+
+  text-align: center;
+
+  border-right:
+    0.2mm solid #bbb;
+}
+
+.stock-print-summary span:last-child {
+  border-right: 0;
+}
+
+/* TABLE */
+
+.stock-print-table {
+  width: 100%;
+
+  table-layout: fixed;
+
+  border-collapse:
+    collapse;
+
+  font-size: 6.35pt;
+}
+
+.stock-print-table th,
+.stock-print-table td {
+  border:
+    0.25mm solid #555;
+
+  padding:
+    1mm
+    0.8mm;
+
+  vertical-align:
+    middle;
+
+  text-align: center;
+
+  line-height: 1.12;
+
+  word-break:
+    break-word;
+}
+
+.stock-print-table th {
+  background: #f3f3f3;
+
+  font-weight: 800;
+}
+
+.stock-print-table
+th:nth-child(1) {
+  width: 4%;
+}
+
+.stock-print-table
+th:nth-child(2) {
+  width: 18%;
+}
+
+.stock-print-table
+th:nth-child(3) {
+  width: 15%;
+}
+
+.stock-print-table
+th:nth-child(4) {
+  width: 10%;
+}
+
+.stock-print-table
+th:nth-child(5) {
+  width: 7%;
+}
+
+.stock-print-table
+th:nth-child(6) {
+  width: 6%;
+}
+
+.stock-print-table
+th:nth-child(7) {
+  width: 6%;
+}
+
+.stock-print-table
+th:nth-child(8) {
+  width: 8%;
+}
+
+.stock-print-table
+th:nth-child(9) {
+  width: 7%;
+}
+
+.stock-print-table
+th:nth-child(10) {
+  width: 9%;
+}
+
+.stock-print-table
+th:nth-child(11) {
+  width: 10%;
+}
+
+.stock-print-table
+td:nth-child(2),
+.stock-print-table
+td:nth-child(3) {
+  text-align: left;
+}
+
+.stock-print-empty {
+  height: 22mm;
+
+  color: #777;
+
+  text-align:
+    center !important;
+}
+
+/* SIGNATURE */
+
+.stock-print-signature {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      1fr
+    );
+
+  gap: 5mm;
+
+  margin-top: 6mm;
+
+  text-align: center;
+}
+
+.stock-print-signature strong {
+  display: block;
+
+  margin-bottom:
+    12mm;
+
+  font-size: 7.5pt;
+}
+
+.stock-print-signature span {
+  font-size: 6.8pt;
+
+  font-style: italic;
+}
+
+/* FOOTER */
+
+.stock-print-footer {
+  position: absolute;
+
+  right: 10mm;
+  bottom: 4mm;
+  left: 10mm;
+
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  align-items: center;
+
+  font-size: 6.3pt;
+}
+
+/* =========================================================
+   PRINT MODE
+========================================================= */
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+
+    padding: 0 !important;
+
+    width: 100% !important;
+
+    background:
+      #ffffff !important;
+
+    overflow:
+      visible !important;
+  }
+
+  /*
+   * Khi in báo cáo kho:
+   * ẩn toàn bộ giao diện thật.
+   */
+  body.print-stock-report
+  .report-page,
+
+  body.print-stock-report
+  .nx-sidebar,
+
+  body.print-stock-report
+  .sidebar,
+
+  body.print-stock-report
+  .nx-sidebar-desktop,
+
+  body.print-stock-report
+  .nx-sidebar-mobile,
+
+  body.print-stock-report
+  .nx-sidebar-desktop-open,
+
+  body.print-stock-report
+  .desktop-sidebar-open,
+
+  body.print-stock-report
+  .mobile-menu-button,
+
+  body.print-stock-report
+  .nx-mobile-menu-button,
+
+  body.print-stock-report
+  .sidebar-overlay,
+
+  body.print-stock-report
+  .nx-sidebar-overlay,
+
+  body.print-stock-report
+  .topbar,
+
+  body.print-stock-report
+  .nx-topbar,
+
+  body.print-stock-report
+  .app-header,
+
+  body.print-stock-report
+  .report-print-only {
+    display:
+      none !important;
+  }
+
+  body.print-stock-report
+  #root,
+
+  body.print-stock-report
+  .app,
+
+  body.print-stock-report
+  .main-content {
+    width:
+      100% !important;
+
+    max-width:
+      none !important;
+
+    height:
+      auto !important;
+
+    min-height:
+      0 !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    overflow:
+      visible !important;
+
+    transform:
+      none !important;
+  }
+
+  body.print-stock-report
+  .stock-print-only {
+    display:
+      block !important;
+
+    position:
+      absolute !important;
+
+    top:
+      0 !important;
+
+    left:
+      0 !important;
+
+    width:
+      210mm !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    background:
+      #ffffff !important;
+
+    visibility:
+      visible !important;
+  }
+
+  body.print-stock-report
+  .stock-print-only,
+
+  body.print-stock-report
+  .stock-print-only * {
+    visibility:
+      visible !important;
+  }
+
+  body.print-stock-report
+  .stock-print-sheet {
+    -webkit-print-color-adjust:
+      exact !important;
+
+    print-color-adjust:
+      exact !important;
+  }
+}
+
+@page {
+  size:
+    A4 portrait;
+
+  margin: 0;
+}
