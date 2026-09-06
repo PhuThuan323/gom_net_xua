@@ -224,3 +224,398 @@
     border: none;
   }
 }
+
+/* =========================================================
+   DEBT HISTORY - EDIT / DELETE
+========================================================= */
+
+.debt-history-table th:last-child,
+.debt-history-table td:last-child {
+  min-width: 145px;
+}
+
+.debt-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.debt-row-btn {
+  min-height: 38px;
+
+  padding:
+    0 12px;
+
+  border: 0;
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.debt-row-btn.edit {
+  background:
+    #eadfce;
+
+  color:
+    #71300e;
+}
+
+.debt-row-btn.delete {
+  background:
+    #f8dedb;
+
+  color:
+    #a42b22;
+}
+
+.debt-row-btn:hover:not(:disabled) {
+  filter:
+    brightness(0.96);
+}
+
+.debt-row-btn:disabled {
+  opacity:
+    0.45;
+
+  cursor:
+    not-allowed;
+}
+
+.debt-auto-note {
+  margin-top:
+    5px;
+
+  color:
+    #8a7769;
+
+  font-size:
+    11px;
+
+  line-height:
+    1.25;
+}
+
+/* =========================================================
+   EDIT MODAL
+========================================================= */
+
+.debt-edit-overlay {
+  position:
+    fixed;
+
+  inset:
+    0;
+
+  display:
+    flex;
+
+  align-items:
+    center;
+  justify-content:
+    center;
+
+  padding:
+    20px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.48
+    );
+
+  z-index:
+    999999;
+}
+
+.debt-edit-modal {
+  width:
+    min(
+      540px,
+      100%
+    );
+
+  max-height:
+    calc(
+      100vh - 40px
+    );
+
+  overflow-y:
+    auto;
+
+  padding:
+    24px;
+
+  border:
+    1px solid
+    #e2c7af;
+
+  border-radius:
+    18px;
+
+  background:
+    #fffdfa;
+
+  box-shadow:
+    0 20px 60px
+    rgba(
+      0,
+      0,
+      0,
+      0.28
+    );
+}
+
+.debt-edit-modal-header {
+  display:
+    flex;
+
+  justify-content:
+    space-between;
+
+  align-items:
+    flex-start;
+
+  gap:
+    15px;
+
+  margin-bottom:
+    18px;
+}
+
+.debt-edit-modal-header h2 {
+  margin:
+    0 0 4px;
+
+  color:
+    #5e2607;
+
+  font-size:
+    25px;
+}
+
+.debt-edit-modal-header p {
+  margin:
+    0;
+
+  color:
+    #826a59;
+}
+
+.debt-edit-close {
+  display:
+    flex;
+
+  align-items:
+    center;
+  justify-content:
+    center;
+
+  flex:
+    0 0 40px;
+
+  width:
+    40px;
+  height:
+    40px;
+
+  padding:
+    0;
+
+  border:
+    0;
+
+  border-radius:
+    10px;
+
+  background:
+    #7a3413;
+
+  color:
+    white;
+
+  font-size:
+    28px;
+
+  cursor:
+    pointer;
+}
+
+.debt-edit-modal label {
+  display:
+    block;
+
+  margin:
+    13px 0 7px;
+
+  color:
+    #684025;
+
+  font-weight:
+    800;
+}
+
+.debt-edit-modal input,
+.debt-edit-modal select,
+.debt-edit-modal textarea {
+  width:
+    100%;
+
+  min-height:
+    48px;
+
+  box-sizing:
+    border-box;
+
+  padding:
+    10px 12px;
+
+  border:
+    1px solid
+    #d9b89d;
+
+  border-radius:
+    10px;
+
+  background:
+    white;
+
+  color:
+    #25150c;
+
+  font-size:
+    16px;
+}
+
+.debt-edit-modal textarea {
+  min-height:
+    100px;
+
+  resize:
+    vertical;
+}
+
+.debt-edit-help {
+  display:
+    block;
+
+  margin-top:
+    6px;
+
+  color:
+    #8b6d56;
+}
+
+.debt-edit-actions {
+  display:
+    flex;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    10px;
+
+  margin-top:
+    22px;
+}
+
+.debt-edit-cancel,
+.debt-edit-save {
+  min-height:
+    44px;
+
+  padding:
+    0 18px;
+
+  border:
+    0;
+
+  border-radius:
+    10px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+}
+
+.debt-edit-cancel {
+  background:
+    #eee3d9;
+
+  color:
+    #6b3a1d;
+}
+
+.debt-edit-save {
+  background:
+    #803914;
+
+  color:
+    white;
+}
+
+.debt-edit-cancel:disabled,
+.debt-edit-save:disabled {
+  opacity:
+    0.55;
+
+  cursor:
+    not-allowed;
+}
+
+@media (
+  max-width:
+    760px
+) {
+  .debt-row-actions {
+    min-width:
+      135px;
+
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+  .debt-row-btn {
+    width:
+      100%;
+  }
+
+  .debt-edit-overlay {
+    align-items:
+      flex-start;
+
+    padding:
+      10px;
+  }
+
+  .debt-edit-modal {
+    margin-top:
+      10px;
+
+    padding:
+      18px;
+  }
+
+  .debt-edit-actions {
+    flex-direction:
+      column-reverse;
+  }
+
+  .debt-edit-cancel,
+  .debt-edit-save {
+    width:
+      100%;
+  }
+}

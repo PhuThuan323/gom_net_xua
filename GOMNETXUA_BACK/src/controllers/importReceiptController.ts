@@ -196,34 +196,66 @@ const getCurrentSupplierBalance = async (
   tx: Prisma.TransactionClient,
   supplierId: number
 ): Promise<Prisma.Decimal> => {
-  const latest =
-    await tx.supplierDebt.findFirst({
+  /*
+   * KHÔNG dùng dòng balance_after mới nhất.
+   *
+   * Công thức nguồn sự thật:
+   * DEBT + ADJUSTMENT - PAYMENT.
+   *
+   * Cách này không sai khi sửa phiếu cũ
+   * hoặc nhập giao dịch lùi ngày.
+   */
+  const [
+    debt,
+    payment,
+    adjustment,
+  ] = await Promise.all([
+    tx.supplierDebt.aggregate({
       where: {
-        supplier_id:
-          supplierId,
+        supplier_id: supplierId,
+        transaction_type: "DEBT",
       },
-
-      orderBy: [
-        {
-          transaction_date:
-            "desc",
-        },
-        {
-          id:
-            "desc",
-        },
-      ],
-
-      select: {
-        balance_after:
-          true,
+      _sum: {
+        amount: true,
       },
-    });
+    }),
 
-  return (
-    latest?.balance_after ??
-    new Prisma.Decimal(0)
-  );
+    tx.supplierDebt.aggregate({
+      where: {
+        supplier_id: supplierId,
+        transaction_type: "PAYMENT",
+      },
+      _sum: {
+        amount: true,
+      },
+    }),
+
+    tx.supplierDebt.aggregate({
+      where: {
+        supplier_id: supplierId,
+        transaction_type: "ADJUSTMENT",
+      },
+      _sum: {
+        amount: true,
+      },
+    }),
+  ]);
+
+  const totalDebt =
+    debt._sum.amount ??
+    new Prisma.Decimal(0);
+
+  const totalPayment =
+    payment._sum.amount ??
+    new Prisma.Decimal(0);
+
+  const totalAdjustment =
+    adjustment._sum.amount ??
+    new Prisma.Decimal(0);
+
+  return totalDebt
+    .plus(totalAdjustment)
+    .minus(totalPayment);
 };
 
 const appendSupplierDebt = async (

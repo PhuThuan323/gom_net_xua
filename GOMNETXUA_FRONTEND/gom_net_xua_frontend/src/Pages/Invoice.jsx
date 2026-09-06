@@ -10,65 +10,61 @@ import InvoiceEditor from "../Components/Invoice/invoiceEditor";
 
 import "../Components/Invoice/invoice.css";
 
-/*
-|--------------------------------------------------------------------------
-| API
-|--------------------------------------------------------------------------
-*/
-
 const API_URL = (
   import.meta.env.VITE_API_URL ||
   "http://localhost:3000"
 ).replace(/\/+$/, "");
 
-/*
- * Không để dấu / ở cuối.
- *
- * API:
- * http://localhost:3000/invoice
- */
-const INVOICE_API = `${API_URL}/invoice`;
+const INVOICE_API =
+  `${API_URL}/invoice`;
 
-/*
-|--------------------------------------------------------------------------
-| API HELPER
-|--------------------------------------------------------------------------
-*/
+async function api(
+  path,
+  options = {}
+) {
+  const safePath =
+    path.startsWith("/")
+      ? path
+      : `/${path}`;
 
-async function api(path, options = {}) {
-  /*
-   * Bảo đảm path luôn bắt đầu bằng /
-   */
-  const safePath = path.startsWith("/")
-    ? path
-    : `/${path}`;
+  const url =
+    `${INVOICE_API}${safePath}`;
 
-  const url = `${INVOICE_API}${safePath}`;
+  const response =
+    await fetch(
+      url,
+      {
+        ...options,
 
-  const response = await fetch(url, {
-    ...options,
+        headers: {
+          "Content-Type":
+            "application/json",
 
-    headers: {
-      "Content-Type": "application/json",
+          ...(options.headers ||
+            {}),
+        },
+      }
+    );
 
-      ...(options.headers || {}),
-    },
-  });
-
-  const raw = await response.text();
+  const raw =
+    await response.text();
 
   let data;
 
   try {
-    data = raw
-      ? JSON.parse(raw)
-      : {};
-  } catch (error) {
+    data =
+      raw
+        ? JSON.parse(
+            raw
+          )
+        : {};
+  } catch {
     console.error(
       "API KHÔNG TRẢ JSON:",
       {
         url,
-        status: response.status,
+        status:
+          response.status,
         raw,
       }
     );
@@ -80,7 +76,8 @@ async function api(path, options = {}) {
 
   if (
     !response.ok ||
-    data?.success === false
+    data?.success ===
+      false
   ) {
     throw new Error(
       data?.message ||
@@ -91,21 +88,21 @@ async function api(path, options = {}) {
   return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| PAGE
-|--------------------------------------------------------------------------
-*/
-
 export default function Invoice() {
-  const [brands, setBrands] =
-    useState([]);
+  const [
+    brands,
+    setBrands,
+  ] = useState([]);
 
-  const [customers, setCustomers] =
-    useState([]);
+  const [
+    customers,
+    setCustomers,
+  ] = useState([]);
 
-  const [variants, setVariants] =
-    useState([]);
+  const [
+    variants,
+    setVariants,
+  ] = useState([]);
 
   const [
     invoiceCode,
@@ -117,206 +114,272 @@ export default function Invoice() {
     setInvoicesRefresh,
   ] = useState(0);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [
+    editingInvoice,
+    setEditingInvoice,
+  ] = useState(null);
 
-  /*
-  |--------------------------------------------------------------------------
-  | Bootstrap
-  |--------------------------------------------------------------------------
-  */
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
   const loadBootstrap =
-    useCallback(async () => {
-      try {
-        setLoading(true);
-
-        const result =
-          await api(
-            "/bootstrap"
+    useCallback(
+      async () => {
+        try {
+          setLoading(
+            true
           );
 
-        const payload =
-          result?.data || {};
+          const result =
+            await api(
+              "/bootstrap"
+            );
 
-        /*
-         * Luôn kiểm tra Array
-         * để tránh lỗi .filter / .map
-         */
-        setBrands(
-          Array.isArray(
-            payload.brands
-          )
-            ? payload.brands
-            : []
-        );
+          const payload =
+            result?.data ||
+            {};
 
-        setCustomers(
-          Array.isArray(
-            payload.customers
-          )
-            ? payload.customers
-            : []
-        );
+          setBrands(
+            Array.isArray(
+              payload.brands
+            )
+              ? payload.brands
+              : []
+          );
 
-        setVariants(
-          Array.isArray(
-            payload.variants
-          )
-            ? payload.variants
-            : []
-        );
+          setCustomers(
+            Array.isArray(
+              payload.customers
+            )
+              ? payload.customers
+              : []
+          );
 
-        setInvoiceCode(
-          payload.invoice_code ||
-            ""
-        );
-      } catch (error) {
-        console.error(
-          "LOAD INVOICE BOOTSTRAP:",
-          error
-        );
+          setVariants(
+            Array.isArray(
+              payload.variants
+            )
+              ? payload.variants
+              : []
+          );
 
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Không thể tải dữ liệu hóa đơn"
-        );
+          setInvoiceCode(
+            payload.invoice_code ||
+              ""
+          );
+        } catch (error) {
+          console.error(
+            "LOAD INVOICE BOOTSTRAP:",
+            error
+          );
 
-        /*
-         * Không để state undefined
-         */
-        setBrands([]);
-        setCustomers([]);
-        setVariants([]);
-      } finally {
-        setLoading(false);
-      }
-    }, []);
+          alert(
+            error instanceof
+            Error
+              ? error.message
+              : "Không thể tải dữ liệu hóa đơn"
+          );
 
-  /*
-  |--------------------------------------------------------------------------
-  | Initial
-  |--------------------------------------------------------------------------
-  */
+          setBrands([]);
+          setCustomers([]);
+          setVariants([]);
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      },
+      []
+    );
 
   useEffect(() => {
     loadBootstrap();
-  }, [loadBootstrap]);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Refresh Customers
-  |--------------------------------------------------------------------------
-  */
+  }, [
+    loadBootstrap,
+  ]);
 
   const refreshCustomers =
-    useCallback(async () => {
-      try {
-        const result =
-          await api(
-            "/customers"
+    useCallback(
+      async () => {
+        try {
+          const result =
+            await api(
+              "/customers"
+            );
+
+          setCustomers(
+            Array.isArray(
+              result?.data
+            )
+              ? result.data
+              : []
+          );
+        } catch (error) {
+          console.error(
+            "REFRESH CUSTOMERS:",
+            error
           );
 
-        setCustomers(
-          Array.isArray(
-            result?.data
-          )
-            ? result.data
-            : []
-        );
-      } catch (error) {
-        console.error(
-          "REFRESH CUSTOMERS:",
-          error
-        );
-
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Không tải được danh bạ khách hàng"
-        );
-      }
-    }, []);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Brand Saved
-  |--------------------------------------------------------------------------
-  */
+          alert(
+            error instanceof
+            Error
+              ? error.message
+              : "Không tải được danh bạ khách hàng"
+          );
+        }
+      },
+      []
+    );
 
   const handleBrandSaved =
-    useCallback(async () => {
-      try {
-        const result =
-          await api(
-            "/brands"
+    useCallback(
+      async () => {
+        try {
+          const result =
+            await api(
+              "/brands"
+            );
+
+          setBrands(
+            Array.isArray(
+              result?.data
+            )
+              ? result.data
+              : []
+          );
+        } catch (error) {
+          console.error(
+            "REFRESH BRANDS:",
+            error
           );
 
-        setBrands(
-          Array.isArray(
+          alert(
+            error instanceof
+            Error
+              ? error.message
+              : "Không tải được thương hiệu"
+          );
+        }
+      },
+      []
+    );
+
+  const getNextInvoiceCode =
+    useCallback(
+      async () => {
+        try {
+          const result =
+            await api(
+              "/next-code"
+            );
+
+          setInvoiceCode(
             result?.data
-          )
-            ? result.data
-            : []
-        );
-      } catch (error) {
-        console.error(
-          "REFRESH BRANDS:",
-          error
-        );
-
-        alert(
-          error instanceof Error
-            ? error.message
-            : "Không tải được thương hiệu"
-        );
-      }
-    }, []);
-
-  /*
-  |--------------------------------------------------------------------------
-  | Invoice Saved
-  |--------------------------------------------------------------------------
-  */
+              ?.invoice_code ||
+              ""
+          );
+        } catch (error) {
+          console.error(
+            "NEXT INVOICE CODE:",
+            error
+          );
+        }
+      },
+      []
+    );
 
   const handleInvoiceSaved =
-    useCallback(async () => {
-      try {
-        const result =
-          await api(
-            "/next-code"
-          );
-
-        setInvoiceCode(
-          result?.data
-            ?.invoice_code ||
-            ""
+    useCallback(
+      async () => {
+        setEditingInvoice(
+          null
         );
+
+        await getNextInvoiceCode();
 
         setInvoicesRefresh(
           (prev) =>
             prev + 1
         );
-      } catch (error) {
-        console.error(
-          "NEXT INVOICE CODE:",
-          error
-        );
-      }
-    }, []);
+      },
+      [
+        getNextInvoiceCode,
+      ]
+    );
 
-  /*
-  |--------------------------------------------------------------------------
-  | Render
-  |--------------------------------------------------------------------------
-  */
+  const handleInvoiceDeleted =
+    useCallback(
+      async () => {
+        setInvoicesRefresh(
+          (prev) =>
+            prev + 1
+        );
+      },
+      []
+    );
+
+  const handleEditInvoice =
+    useCallback(
+      (invoice) => {
+        if (
+          !invoice
+        ) {
+          return;
+        }
+
+        if (
+          invoice.warehouse_status ===
+          "processed"
+        ) {
+          alert(
+            "Báo giá này đã xuất kho nên không thể sửa."
+          );
+
+          return;
+        }
+
+        setEditingInvoice(
+          invoice
+        );
+
+        setTimeout(
+          () => {
+            document
+              .getElementById(
+                "invoice-editor"
+              )
+              ?.scrollIntoView({
+                behavior:
+                  "smooth",
+
+                block:
+                  "start",
+              });
+          },
+          50
+        );
+      },
+      []
+    );
+
+  const cancelEdit =
+    useCallback(
+      () => {
+        setEditingInvoice(
+          null
+        );
+      },
+      []
+    );
 
   return (
     <main className="invoice-page">
-
       <InvoiceRegistry
-        api={api}
+        api={
+          api
+        }
         customers={
           Array.isArray(
             customers
@@ -327,13 +390,21 @@ export default function Invoice() {
         onCustomersChanged={
           refreshCustomers
         }
+        onEditInvoice={
+          handleEditInvoice
+        }
+        onInvoicesChanged={
+          handleInvoiceDeleted
+        }
         refreshKey={
           invoicesRefresh
         }
       />
 
       <InvoiceBrandSettings
-        api={api}
+        api={
+          api
+        }
         brands={
           Array.isArray(
             brands
@@ -347,8 +418,18 @@ export default function Invoice() {
       />
 
       <InvoiceEditor
-        api={api}
-
+        /*
+         * Đổi key khi chuyển Tạo mới <-> Sửa
+         * để reset state sạch, tránh giữ dữ liệu báo giá cũ.
+         */
+        key={
+          editingInvoice?.id
+            ? `edit-${editingInvoice.id}`
+            : `new-${invoiceCode}`
+        }
+        api={
+          api
+        }
         brands={
           Array.isArray(
             brands
@@ -356,7 +437,6 @@ export default function Invoice() {
             ? brands
             : []
         }
-
         customers={
           Array.isArray(
             customers
@@ -364,7 +444,6 @@ export default function Invoice() {
             ? customers
             : []
         }
-
         variants={
           Array.isArray(
             variants
@@ -372,15 +451,18 @@ export default function Invoice() {
             ? variants
             : []
         }
-
         invoiceCode={
           invoiceCode
         }
-
+        editingInvoice={
+          editingInvoice
+        }
+        onCancelEdit={
+          cancelEdit
+        }
         onCustomerSaved={
           refreshCustomers
         }
-
         onInvoiceSaved={
           handleInvoiceSaved
         }
@@ -391,7 +473,6 @@ export default function Invoice() {
           Đang tải dữ liệu...
         </div>
       )}
-
     </main>
   );
 }

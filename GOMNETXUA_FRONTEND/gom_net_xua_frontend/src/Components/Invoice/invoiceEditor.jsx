@@ -26,6 +26,33 @@ const money = (value) =>
     Number(value || 0)
   ) + " đ";
 
+const toInputDate = (value) => {
+  if (!value) {
+    return today();
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return today();
+  }
+
+  const offset =
+    date.getTimezoneOffset();
+
+  return new Date(
+    date.getTime() -
+      offset * 60000
+  )
+    .toISOString()
+    .slice(0, 10);
+};
+
 const emptyItem = () => ({
   variant_id: "",
   quantity: 0,
@@ -643,6 +670,8 @@ export default function InvoiceEditor({
   customers,
   variants,
   invoiceCode,
+  editingInvoice = null,
+  onCancelEdit,
   onCustomerSaved,
   onInvoiceSaved,
 }) {
@@ -693,7 +722,18 @@ export default function InvoiceEditor({
   const [saving, setSaving] =
     useState(false);
 
+  const [
+    productSearch,
+    setProductSearch,
+  ] = useState("");
+
   useEffect(() => {
+    if (
+      editingInvoice
+    ) {
+      return;
+    }
+
     setForm(
       (x) => ({
         ...x,
@@ -703,7 +743,160 @@ export default function InvoiceEditor({
           x.invoice_code,
       })
     );
-  }, [invoiceCode]);
+  }, [
+    invoiceCode,
+    editingInvoice,
+  ]);
+
+  /*
+   * Khi bấm "Sửa" từ danh sách báo giá:
+   * đổ toàn bộ dữ liệu cũ vào editor.
+   *
+   * Parent dùng key theo editingInvoice.id,
+   * nên khi Hủy sửa component sẽ remount về form mới.
+   */
+  useEffect(() => {
+    if (
+      !editingInvoice
+    ) {
+      return;
+    }
+
+    if (
+      editingInvoice.warehouse_status ===
+      "processed"
+    ) {
+      alert(
+        "Báo giá này đã xuất kho nên không thể sửa."
+      );
+
+      onCancelEdit?.();
+
+      return;
+    }
+
+    const customer =
+      editingInvoice.customer ||
+      {};
+
+    setForm({
+      brand_id:
+        String(
+          editingInvoice.brand_id ??
+            editingInvoice.brand?.id ??
+            ""
+        ),
+
+      invoice_code:
+        editingInvoice.invoice_code ||
+        "",
+
+      invoice_date:
+        toInputDate(
+          editingInvoice.invoice_date
+        ),
+
+      channel:
+        editingInvoice.channel ||
+        "",
+
+      order_code:
+        editingInvoice.order_code ||
+        "",
+
+      customer_id:
+        editingInvoice.customer_id
+          ? String(
+              editingInvoice.customer_id
+            )
+          : "",
+
+      customer_name:
+        customer.customer_name ||
+        "",
+
+      phone:
+        customer.phone ||
+        "",
+
+      address:
+        customer.address ||
+        "",
+
+      shipping_address:
+        editingInvoice.shipping_address ||
+        customer.shipping_address ||
+        "",
+
+      tax_code:
+        customer.tax_code ||
+        "",
+
+      email:
+        customer.email ||
+        "",
+
+      payment_method:
+        editingInvoice.payment_method ||
+        "COD",
+
+      deposit_amount:
+        Number(
+          editingInvoice.deposit_amount ??
+            editingInvoice.paid_amount ??
+            0
+        ),
+
+      shipping_fee:
+        Number(
+          editingInvoice.shipping_fee ||
+            0
+        ),
+
+      note:
+        editingInvoice.note ||
+        "",
+    });
+
+    const oldItems =
+      Array.isArray(
+        editingInvoice.items
+      )
+        ? editingInvoice.items
+        : [];
+
+    setItems(
+      oldItems.length
+        ? oldItems.map(
+            (item) => ({
+              variant_id:
+                String(
+                  item.variant_id
+                ),
+
+              quantity:
+                Number(
+                  item.quantity ||
+                    0
+                ),
+
+              unit_price:
+                Number(
+                  item.unit_price ||
+                    0
+                ),
+            })
+          )
+        : [
+            emptyItem(),
+          ]
+    );
+
+    setProductSearch("");
+  }, [
+    editingInvoice,
+    onCancelEdit,
+  ]);
 
   useEffect(() => {
     if (
@@ -750,6 +943,93 @@ export default function InvoiceEditor({
         form.brand_id,
       ]
     );
+
+  const productSearchResults =
+    useMemo(() => {
+      const keyword =
+        productSearch
+          .trim()
+          .toLowerCase();
+
+      if (!keyword) {
+        return [];
+      }
+
+      return variants
+        .filter(
+          (variant) =>
+            [
+              variant.display_name,
+              variant.product_name,
+              variant.product_code,
+              variant.variant_code,
+              variant.barcode,
+              variant.size,
+              variant.group_name,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase()
+              .includes(keyword)
+        )
+        .slice(0, 20);
+    }, [
+      variants,
+      productSearch,
+    ]);
+
+  const quickAddVariant =
+    (variant) => {
+      if (!variant) {
+        return;
+      }
+
+      setItems(
+        (old) => {
+          const emptyIndex =
+            old.findIndex(
+              (item) =>
+                !item.variant_id
+            );
+
+          const newItem = {
+            variant_id:
+              String(
+                variant.id
+              ),
+
+            quantity:
+              1,
+
+            unit_price:
+              Number(
+                variant.selling_price ||
+                  0
+              ),
+          };
+
+          if (
+            emptyIndex >= 0
+          ) {
+            const next =
+              [...old];
+
+            next[
+              emptyIndex
+            ] = newItem;
+
+            return next;
+          }
+
+          return [
+            ...old,
+            newItem,
+          ];
+        }
+      );
+
+      setProductSearch("");
+    };
 
   const chooseCustomer =
     (id) => {
@@ -1009,12 +1289,21 @@ export default function InvoiceEditor({
       try {
         setSaving(true);
 
+        const isEditing =
+          Boolean(
+            editingInvoice?.id
+          );
+
         const result =
           await api(
-            "/invoices",
+            isEditing
+              ? `/invoices/${editingInvoice.id}`
+              : "/invoices",
             {
               method:
-                "POST",
+                isEditing
+                  ? "PUT"
+                  : "POST",
 
               body:
                 JSON.stringify({
@@ -1088,10 +1377,20 @@ export default function InvoiceEditor({
             }
           );
 
-        await onInvoiceSaved?.();
+        await onInvoiceSaved?.({
+          invoice:
+            result.data,
+
+          edited:
+            Boolean(
+              editingInvoice?.id
+            ),
+        });
 
         alert(
-          "Đã lưu hóa đơn"
+          editingInvoice?.id
+            ? "Đã cập nhật báo giá"
+            : "Đã lưu báo giá"
         );
 
         return result.data;
@@ -1572,19 +1871,22 @@ ${rows}
     };
 
   return (
-    <section className="invoice-card invoice-editor">
+    <section
+      id="invoice-editor"
+      className="invoice-card invoice-editor"
+    >
       <div className="invoice-section-heading">
         <div>
           <h2>
-            Tạo hóa đơn bán hàng
+            {editingInvoice
+              ? `Sửa báo giá ${form.invoice_code}`
+              : "Tạo hóa đơn bán hàng"}
           </h2>
 
           <p>
-            Chỉ phục vụ báo
-            giá/xác nhận đơn với
-            khách, không hạch
-            toán doanh thu và
-            không tự trừ kho.
+            {editingInvoice
+              ? "Đang chỉnh báo giá chưa xuất kho. Lưu lại sẽ cập nhật nội dung nhưng không trừ kho."
+              : "Chỉ phục vụ báo giá/xác nhận đơn với khách, không hạch toán doanh thu và không tự trừ kho."}
           </p>
         </div>
 
@@ -1597,9 +1899,28 @@ ${rows}
             disabled={saving}
           >
             {saving
-              ? "Đang lưu..."
-              : "Lưu hóa đơn"}
+              ? editingInvoice
+                ? "Đang cập nhật..."
+                : "Đang lưu..."
+              : editingInvoice
+                ? "Cập nhật báo giá"
+                : "Lưu hóa đơn"}
           </button>
+
+          {editingInvoice && (
+            <button
+              type="button"
+              className="invoice-btn invoice-cancel-edit-btn"
+              onClick={
+                onCancelEdit
+              }
+              disabled={
+                saving
+              }
+            >
+              Hủy sửa
+            </button>
+          )}
 
           <button
             className="invoice-btn secondary"
@@ -2014,6 +2335,84 @@ ${rows}
           >
             + Thêm sản phẩm
           </button>
+        </div>
+
+        <div className="invoice-product-search-box">
+          <span className="invoice-product-search-icon">
+            🔎
+          </span>
+
+          <input
+            type="text"
+            className="invoice-product-search"
+            value={
+              productSearch
+            }
+            placeholder="Tìm sản phẩm theo tên, size, SKU, barcode hoặc nhóm..."
+            onChange={(e) =>
+              setProductSearch(
+                e.target.value
+              )
+            }
+          />
+
+          {productSearch.trim() && (
+            <div className="invoice-product-search-results">
+              {productSearchResults.length ===
+              0 ? (
+                <div className="invoice-product-search-empty">
+                  Không tìm thấy sản phẩm phù hợp.
+                </div>
+              ) : (
+                productSearchResults.map(
+                  (variant) => (
+                    <button
+                      type="button"
+                      key={
+                        variant.id
+                      }
+                      className="invoice-product-search-result"
+                      onClick={() =>
+                        quickAddVariant(
+                          variant
+                        )
+                      }
+                    >
+                      <span>
+                        <strong>
+                          {variant.display_name}
+                        </strong>
+
+                        <small>
+                          SKU:{" "}
+                          {variant.variant_code ||
+                            "—"}
+                          {" · "}
+                          Barcode:{" "}
+                          {variant.barcode ||
+                            "—"}
+                        </small>
+                      </span>
+
+                      <span className="invoice-product-search-stock">
+                        Tồn{" "}
+                        {Number(
+                          variant.current_quantity ||
+                            0
+                        ).toLocaleString(
+                          "vi-VN"
+                        )}
+                      </span>
+
+                      <span className="invoice-product-search-add">
+                        + Thêm
+                      </span>
+                    </button>
+                  )
+                )
+              )}
+            </div>
+          )}
         </div>
 
         <div className="invoice-table-wrap">

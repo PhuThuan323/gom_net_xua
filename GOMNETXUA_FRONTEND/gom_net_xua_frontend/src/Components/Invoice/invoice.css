@@ -592,3 +592,385 @@
   }
 }
 
+/* =========================================================
+   INVOICE - BRAND DIAGNOSTIC
+========================================================= */
+
+.invoice-brand-warning {
+  margin-top: 10px;
+  padding: 12px 14px;
+
+  border:
+    1px solid #e0b98e;
+  border-radius: 10px;
+
+  background: #fff5e9;
+  color: #7a3b17;
+
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   PRODUCT QUICK SEARCH
+========================================================= */
+
+.invoice-product-search-box {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  margin:
+    4px 0 16px;
+
+  z-index: 30;
+}
+
+.invoice-product-search-icon {
+  position: absolute;
+  left: 15px;
+
+  pointer-events: none;
+
+  font-size: 18px;
+}
+
+.invoice-product-search {
+  width: 100%;
+  min-height: 52px;
+
+  padding:
+    0 16px 0 46px;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid #dfbea0;
+  border-radius: 12px;
+
+  background: #fff;
+
+  color: #241208;
+
+  font-size: 16px;
+}
+
+.invoice-product-search:focus {
+  outline: none;
+
+  border-color: #914619;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(
+      145,
+      70,
+      25,
+      0.1
+    );
+}
+
+.invoice-product-search-results {
+  position: absolute;
+
+  top:
+    calc(100% + 6px);
+  right: 0;
+  left: 0;
+
+  max-height: 360px;
+
+  overflow-y: auto;
+
+  border:
+    1px solid #dbc0a7;
+  border-radius: 12px;
+
+  background: #fffdfa;
+
+  box-shadow:
+    0 14px 40px
+    rgba(
+      0,
+      0,
+      0,
+      0.16
+    );
+
+  z-index: 9999;
+}
+
+.invoice-product-search-result {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  gap: 14px;
+
+  align-items: center;
+
+  width: 100%;
+
+  padding: 12px 14px;
+
+  border: 0;
+  border-bottom:
+    1px solid #eee0d5;
+
+  background: transparent;
+
+  color: #281307;
+
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.invoice-product-search-result:last-child {
+  border-bottom: 0;
+}
+
+.invoice-product-search-result:hover {
+  background: #f6eadf;
+}
+
+.invoice-product-search-result strong,
+.invoice-product-search-result small {
+  display: block;
+}
+
+.invoice-product-search-result small {
+  margin-top: 4px;
+
+  color: #816e5f;
+}
+
+.invoice-product-search-stock {
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  background: #f0e7dd;
+
+  white-space: nowrap;
+
+  font-weight: 700;
+}
+
+.invoice-product-search-add {
+  color: #7e3511;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.invoice-product-search-empty {
+  padding: 18px;
+
+  color: #7d6c60;
+
+  text-align: center;
+}
+
+
+/* =========================================================
+   INVOICE REGISTRY SCROLL
+========================================================= */
+
+.invoice-registry-toolbar {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 12px;
+}
+
+.invoice-registry-toolbar .invoice-search {
+  flex: 1;
+  margin: 0;
+}
+
+.invoice-scroll-buttons {
+  display: flex;
+
+  flex: 0 0 auto;
+
+  gap: 6px;
+}
+
+.invoice-scroll-btn {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: #8b411a;
+
+  color: white;
+
+  font-size: 17px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.invoice-scroll-btn:hover {
+  background: #71310f;
+}
+
+.invoice-registry-scroll {
+  max-height: 440px;
+
+  overflow-y: auto !important;
+  overflow-x: auto !important;
+
+  scroll-behavior: smooth;
+
+  border:
+    1px solid #ead6c4;
+  border-radius: 13px;
+}
+
+.invoice-registry-scroll
+.invoice-table {
+  margin-top: 0;
+}
+
+.invoice-registry-scroll
+.invoice-table thead th {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 5;
+}
+
+
+/* =========================================================
+   QUOTE STATUS + ACTIONS
+========================================================= */
+
+.invoice-warehouse-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 96px;
+
+  padding: 6px 9px;
+
+  border-radius: 30px;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.invoice-warehouse-badge.pending {
+  background: #fff1cf;
+
+  color: #8a5700;
+}
+
+.invoice-warehouse-badge.processed {
+  background: #dff1e4;
+
+  color: #257440;
+}
+
+.invoice-row-actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  min-width: 260px;
+}
+
+.invoice-row-actions
+.invoice-btn {
+  min-height: 38px;
+
+  padding:
+    0 11px;
+
+  font-size: 12px;
+}
+
+.invoice-edit-quote-btn {
+  background: #e6edf6 !important;
+
+  color: #24557b !important;
+}
+
+.invoice-delete-quote-btn {
+  background: #f7dddd !important;
+
+  color: #a82e25 !important;
+}
+
+.invoice-edit-quote-btn:disabled,
+.invoice-delete-quote-btn:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+.invoice-cancel-edit-btn {
+  background: #f0e1d4 !important;
+
+  color: #743611 !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 760px) {
+  .invoice-registry-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .invoice-scroll-buttons {
+    justify-content: flex-end;
+  }
+
+  .invoice-product-search-result {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto;
+  }
+
+  .invoice-product-search-add {
+    grid-column:
+      1 / -1;
+
+    justify-self: end;
+  }
+
+  .invoice-row-actions {
+    min-width: 190px;
+  }
+}
+
+

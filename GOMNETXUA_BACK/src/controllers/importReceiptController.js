@@ -104,24 +104,53 @@ const validateAndPrepareItems = async (rawItems) => {
     }));
 };
 const getCurrentSupplierBalance = async (tx, supplierId) => {
-    const latest = await tx.supplierDebt.findFirst({
-        where: {
-            supplier_id: supplierId,
-        },
-        orderBy: [
-            {
-                transaction_date: "desc",
+    /*
+     * KHÔNG dùng dòng balance_after mới nhất.
+     *
+     * Công thức nguồn sự thật:
+     * DEBT + ADJUSTMENT - PAYMENT.
+     *
+     * Cách này không sai khi sửa phiếu cũ
+     * hoặc nhập giao dịch lùi ngày.
+     */
+    const [debt, payment, adjustment,] = await Promise.all([
+        tx.supplierDebt.aggregate({
+            where: {
+                supplier_id: supplierId,
+                transaction_type: "DEBT",
             },
-            {
-                id: "desc",
+            _sum: {
+                amount: true,
             },
-        ],
-        select: {
-            balance_after: true,
-        },
-    });
-    return (latest?.balance_after ??
-        new client_1.Prisma.Decimal(0));
+        }),
+        tx.supplierDebt.aggregate({
+            where: {
+                supplier_id: supplierId,
+                transaction_type: "PAYMENT",
+            },
+            _sum: {
+                amount: true,
+            },
+        }),
+        tx.supplierDebt.aggregate({
+            where: {
+                supplier_id: supplierId,
+                transaction_type: "ADJUSTMENT",
+            },
+            _sum: {
+                amount: true,
+            },
+        }),
+    ]);
+    const totalDebt = debt._sum.amount ??
+        new client_1.Prisma.Decimal(0);
+    const totalPayment = payment._sum.amount ??
+        new client_1.Prisma.Decimal(0);
+    const totalAdjustment = adjustment._sum.amount ??
+        new client_1.Prisma.Decimal(0);
+    return totalDebt
+        .plus(totalAdjustment)
+        .minus(totalPayment);
 };
 const appendSupplierDebt = async (tx, input) => {
     const amount = toDecimal(input.amount);

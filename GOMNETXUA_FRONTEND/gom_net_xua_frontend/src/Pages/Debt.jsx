@@ -1,73 +1,187 @@
-import { useCallback, useEffect, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+
 import DebtControl from "../Components/Debt/debtControl";
 import DebtHistory from "../Components/Debt/debtHistory";
-import "../Components/Debt/debt.css"
-const API_BASE = import.meta.env.VITE_API_URL + "/debt";
+
+import "../Components/Debt/debt.css";
+
+const API_BASE =
+  import.meta.env.VITE_API_URL +
+  "/debt";
 
 const money = (value) =>
-  new Intl.NumberFormat("vi-VN").format(Number(value || 0)) + " đ";
+  new Intl.NumberFormat(
+    "vi-VN"
+  ).format(
+    Number(value || 0)
+  ) + " đ";
 
 export default function Debt() {
-  const [dashboard, setDashboard] = useState({
+  const [
+    dashboard,
+    setDashboard,
+  ] = useState({
     total_debt: 0,
     total_payment: 0,
     total_balance: 0,
     overdue_balance: 0,
   });
 
-  const [suppliers, setSuppliers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [
+    suppliers,
+    setSuppliers,
+  ] = useState([]);
 
-  const fetchJson = useCallback(async (url, options = {}) => {
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    refreshKey,
+    setRefreshKey,
+  ] = useState(0);
+
+  const fetchJson =
+    useCallback(
+      async (
+        url,
+        options = {}
+      ) => {
+        const response =
+          await fetch(
+            url,
+            {
+              headers: {
+                "Content-Type":
+                  "application/json",
+
+                ...(options.headers ||
+                  {}),
+              },
+
+              ...options,
+            }
+          );
+
+        const text =
+          await response.text();
+
+        let data = {};
+
+        try {
+          data =
+            text
+              ? JSON.parse(
+                  text
+                )
+              : {};
+        } catch {
+          throw new Error(
+            `API không trả JSON (HTTP ${response.status}). Kiểm tra route backend.`
+          );
+        }
+
+        if (
+          !response.ok ||
+          data.success ===
+            false
+        ) {
+          throw new Error(
+            data.message ||
+              "Không thể tải dữ liệu"
+          );
+        }
+
+        return data;
       },
-      ...options,
-    });
+      []
+    );
 
-    const data = await response.json();
+  const loadDashboard =
+    useCallback(
+      async () => {
+        const result =
+          await fetchJson(
+            `${API_BASE}/dashboard`
+          );
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || "Không thể tải dữ liệu");
-    }
+        setDashboard(
+          result.data ||
+            {}
+        );
+      },
+      [
+        fetchJson,
+      ]
+    );
 
-    return data;
-  }, []);
+  const loadSuppliers =
+    useCallback(
+      async () => {
+        const result =
+          await fetchJson(
+            `${API_BASE}/suppliers`
+          );
 
-  const loadDashboard = useCallback(async () => {
-    const result = await fetchJson(`${API_BASE}/dashboard`);
-    setDashboard(result.data || {});
-  }, [fetchJson]);
+        setSuppliers(
+          result.data ||
+            []
+        );
+      },
+      [
+        fetchJson,
+      ]
+    );
 
-  const loadSuppliers = useCallback(async () => {
-    const result = await fetchJson(`${API_BASE}/suppliers`);
-    setSuppliers(result.data || []);
-  }, [fetchJson]);
+  const refreshAll =
+    useCallback(
+      async () => {
+        try {
+          setLoading(
+            true
+          );
 
-  const refreshAll = useCallback(async () => {
-    try {
-      setLoading(true);
+          await Promise.all([
+            loadDashboard(),
+            loadSuppliers(),
+          ]);
 
-      await Promise.all([
-        loadDashboard(),
-        loadSuppliers(),
-      ]);
+          setRefreshKey(
+            (
+              prev
+            ) =>
+              prev + 1
+          );
+        } catch (error) {
+          console.error(
+            error
+          );
 
-      setRefreshKey((prev) => prev + 1);
-    } catch (error) {
-      console.error(error);
-      alert(error.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [loadDashboard, loadSuppliers]);
+          alert(
+            error.message
+          );
+        } finally {
+          setLoading(
+            false
+          );
+        }
+      },
+      [
+        loadDashboard,
+        loadSuppliers,
+      ]
+    );
 
   useEffect(() => {
     refreshAll();
-  }, [refreshAll]);
+  }, [
+    refreshAll,
+  ]);
 
   return (
     <div className="debt-page">
@@ -78,7 +192,9 @@ export default function Debt() {
           </div>
 
           <div className="debt-summary-value">
-            {money(dashboard.total_debt)}
+            {money(
+              dashboard.total_debt
+            )}
           </div>
         </div>
 
@@ -88,7 +204,9 @@ export default function Debt() {
           </div>
 
           <div className="debt-summary-value">
-            {money(dashboard.total_payment)}
+            {money(
+              dashboard.total_payment
+            )}
           </div>
         </div>
 
@@ -98,7 +216,9 @@ export default function Debt() {
           </div>
 
           <div className="debt-summary-value">
-            {money(dashboard.total_balance)}
+            {money(
+              dashboard.total_balance
+            )}
           </div>
         </div>
 
@@ -108,21 +228,38 @@ export default function Debt() {
           </div>
 
           <div className="debt-summary-value">
-            {money(dashboard.overdue_balance)}
+            {money(
+              dashboard.overdue_balance
+            )}
           </div>
         </div>
       </div>
 
       <DebtControl
-        suppliers={suppliers}
-        apiBase={API_BASE}
-        onSuccess={refreshAll}
+        suppliers={
+          suppliers
+        }
+        apiBase={
+          API_BASE
+        }
+        onSuccess={
+          refreshAll
+        }
       />
 
       <DebtHistory
-        suppliers={suppliers}
-        apiBase={API_BASE}
-        refreshKey={refreshKey}
+        suppliers={
+          suppliers
+        }
+        apiBase={
+          API_BASE
+        }
+        refreshKey={
+          refreshKey
+        }
+        onChanged={
+          refreshAll
+        }
       />
 
       {loading && (

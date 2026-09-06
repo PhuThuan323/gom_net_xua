@@ -1,218 +1,286 @@
 import {
   useEffect,
   useMemo,
-  useState
+  useState,
 } from "react";
 
 import SupplierForm from "../Components/Suppliers/SupplierForm";
 
-import SupplierTable
-  from "../Components/Suppliers/SupplierTable";
+import SupplierTable from "../Components/Suppliers/SupplierTable";
 
 import "../Components/Suppliers/SuppliersPage.css";
-
 
 const API_URL =
   import.meta.env.VITE_API_URL;
 
+const parseJsonSafe = async (
+  response
+) => {
+  const text =
+    await response.text();
+
+  let data = {};
+
+  try {
+    data =
+      text
+        ? JSON.parse(text)
+        : {};
+  } catch {
+    throw new Error(
+      `API không trả JSON (HTTP ${response.status}). ` +
+        `Kiểm tra lại VITE_API_URL hoặc route backend.`
+    );
+  }
+
+  return data;
+};
 
 function NhaCungCap() {
-
-
-  // =============================================
-  // STATE
-  // =============================================
-
   const [
     suppliers,
-    setSuppliers
+    setSuppliers,
   ] = useState([]);
-
 
   const [
     loading,
-    setLoading
+    setLoading,
   ] = useState(true);
-
 
   const [
     searchKeyword,
-    setSearchKeyword
+    setSearchKeyword,
   ] = useState("");
-
 
   const [
     showForm,
-    setShowForm
+    setShowForm,
   ] = useState(false);
-
 
   const [
     selectedSupplier,
-    setSelectedSupplier
+    setSelectedSupplier,
   ] = useState(null);
 
+  /* =========================================================
+     LOAD NCC + CÔNG NỢ
 
-  // =============================================
-  // LẤY DANH SÁCH NHÀ CUNG CẤP
-  // =============================================
+     /suppliers
+       = thông tin NCC
+
+     /debt/suppliers
+       = total_debt
+       = total_payment
+       = current_balance
+       = total_adjustment
+  ========================================================= */
 
   const loadSuppliers =
     async () => {
-
       try {
-
-        setLoading(true);
-
-
-        const response =
-          await fetch(
-            `${API_URL}/suppliers`
-          );
-
-
-        const result =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            result.message ||
-            "Không thể tải danh sách nhà cung cấp"
-          );
-
-        }
-
-
-        setSuppliers(
-
-          Array.isArray(
-            result.data
-          )
-
-            ? result.data
-
-            : []
-
+        setLoading(
+          true
         );
 
+        const [
+          supplierResponse,
+          debtResponse,
+        ] =
+          await Promise.all([
+            fetch(
+              `${API_URL}/suppliers`
+            ),
 
+            fetch(
+              `${API_URL}/debt/suppliers`
+            ),
+          ]);
+
+        const [
+          supplierResult,
+          debtResult,
+        ] =
+          await Promise.all([
+            parseJsonSafe(
+              supplierResponse
+            ),
+
+            parseJsonSafe(
+              debtResponse
+            ),
+          ]);
+
+        if (
+          !supplierResponse.ok ||
+          supplierResult.success ===
+            false
+        ) {
+          throw new Error(
+            supplierResult.message ||
+              "Không thể tải danh sách nhà cung cấp"
+          );
+        }
+
+        if (
+          !debtResponse.ok ||
+          debtResult.success ===
+            false
+        ) {
+          throw new Error(
+            debtResult.message ||
+              "Không thể tải số liệu công nợ nhà cung cấp"
+          );
+        }
+
+        const baseSuppliers =
+          Array.isArray(
+            supplierResult.data
+          )
+            ? supplierResult.data
+            : [];
+
+        const debtSuppliers =
+          Array.isArray(
+            debtResult.data
+          )
+            ? debtResult.data
+            : [];
+
+        const debtMap =
+          new Map(
+            debtSuppliers.map(
+              (item) => [
+                Number(
+                  item.id
+                ),
+
+                item,
+              ]
+            )
+          );
+
+        const merged =
+          baseSuppliers.map(
+            (supplier) => {
+              const debt =
+                debtMap.get(
+                  Number(
+                    supplier.id
+                  )
+                ) || {};
+
+              return {
+                ...supplier,
+
+                /*
+                 * Giữ thông tin NCC từ API /suppliers,
+                 * ghép số liệu công nợ từ /debt/suppliers.
+                 */
+                total_debt:
+                  debt.total_debt ??
+                  "0",
+
+                gross_debt:
+                  debt.gross_debt ??
+                  "0",
+
+                total_adjustment:
+                  debt.total_adjustment ??
+                  "0",
+
+                total_payment:
+                  debt.total_payment ??
+                  "0",
+
+                paid_amount:
+                  debt.total_payment ??
+                  debt.paid_amount ??
+                  "0",
+
+                current_balance:
+                  debt.current_balance ??
+                  "0",
+
+                remaining_debt:
+                  debt.current_balance ??
+                  debt.remaining_debt ??
+                  "0",
+              };
+            }
+          );
+
+        setSuppliers(
+          merged
+        );
       } catch (error) {
-
         console.error(
           "Lỗi tải nhà cung cấp:",
           error
         );
 
-
         alert(
           error.message ||
-          "Không thể tải danh sách nhà cung cấp"
+            "Không thể tải danh sách nhà cung cấp"
         );
-
-
       } finally {
-
-        setLoading(false);
-
+        setLoading(
+          false
+        );
       }
-
     };
 
-
-  // =============================================
-  // LOAD DATA
-  // =============================================
-
   useEffect(() => {
-
     loadSuppliers();
-
   }, []);
-
-
-  // =============================================
-  // TÌM KIẾM
-  // =============================================
 
   const filteredSuppliers =
     useMemo(() => {
-
       const keyword =
         searchKeyword
           .toLowerCase()
           .trim();
 
-
       if (!keyword) {
-
         return suppliers;
-
       }
-
 
       return suppliers.filter(
         (supplier) => {
-
           const supplierCode =
             supplier.supplier_code
-              ?.toLowerCase()
-              || "";
-
+              ?.toLowerCase() ||
+            "";
 
           const supplierName =
             supplier.supplier_name
-              ?.toLowerCase()
-              || "";
-
+              ?.toLowerCase() ||
+            "";
 
           const phone =
             supplier.phone
-              ?.toLowerCase()
-              || "";
-
+              ?.toLowerCase() ||
+            "";
 
           return (
-
             supplierCode.includes(
               keyword
-            )
-
-            ||
-
+            ) ||
             supplierName.includes(
               keyword
-            )
-
-            ||
-
+            ) ||
             phone.includes(
               keyword
             )
-
           );
-
         }
-
       );
-
-
     }, [
-
       suppliers,
-      searchKeyword
-
+      searchKeyword,
     ]);
-
-
-  // =============================================
-  // THÊM NHÀ CUNG CẤP
-  // =============================================
 
   const handleAddSupplier =
     () => {
-
       setSelectedSupplier(
         null
       );
@@ -220,17 +288,10 @@ function NhaCungCap() {
       setShowForm(
         true
       );
-
     };
-
-
-  // =============================================
-  // SỬA NHÀ CUNG CẤP
-  // =============================================
 
   const handleEditSupplier =
     (supplier) => {
-
       setSelectedSupplier(
         supplier
       );
@@ -238,221 +299,178 @@ function NhaCungCap() {
       setShowForm(
         true
       );
-
     };
 
-
-  // =============================================
-  // XÓA NHÀ CUNG CẤP
-  // =============================================
-
   const handleDeleteSupplier =
-    async (supplier) => {
-
+    async (
+      supplier
+    ) => {
       const confirmDelete =
         window.confirm(
-
           `Bạn có chắc muốn xóa nhà cung cấp "${supplier.supplier_name}" không?`
-
         );
 
-
-      if (!confirmDelete) {
-
+      if (
+        !confirmDelete
+      ) {
         return;
-
       }
 
+      /*
+       * Không cho xóa NCC còn công nợ.
+       * Tránh cascade xóa luôn lịch sử SupplierDebt.
+       */
+      if (
+        Number(
+          supplier.current_balance ||
+            0
+        ) !== 0
+      ) {
+        alert(
+          `Không thể xóa nhà cung cấp đang còn nợ ` +
+            `${Number(
+              supplier.current_balance ||
+                0
+            ).toLocaleString(
+              "vi-VN"
+            )} đ. ` +
+            `Hãy xử lý công nợ trước.`
+        );
+
+        return;
+      }
 
       try {
-
         const response =
           await fetch(
-
             `${API_URL}/suppliers/${supplier.id}`,
-
             {
               method:
-                "DELETE"
+                "DELETE",
             }
-
           );
-
 
         const result =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-
-            result.message ||
-            "Không thể xóa nhà cung cấp"
-
+          await parseJsonSafe(
+            response
           );
 
+        if (
+          !response.ok ||
+          result.success ===
+            false
+        ) {
+          throw new Error(
+            result.message ||
+              "Không thể xóa nhà cung cấp"
+          );
         }
-
 
         alert(
           "Xóa nhà cung cấp thành công"
         );
 
-
-        loadSuppliers();
-
-
+        await loadSuppliers();
       } catch (error) {
-
         console.error(
           "Lỗi xóa:",
           error
         );
 
-
         alert(
           error.message ||
-          "Không thể xóa nhà cung cấp"
+            "Không thể xóa nhà cung cấp"
         );
-
       }
-
     };
 
-
-  // =============================================
-  // LƯU FORM
-  // =============================================
-
   const handleSaveSupplier =
-    async (formData) => {
-
+    async (
+      formData
+    ) => {
       try {
-
         let url =
           `${API_URL}/suppliers`;
-
 
         let method =
           "POST";
 
-
-        // Nếu đang sửa
-        if (selectedSupplier) {
-
+        if (
+          selectedSupplier
+        ) {
           url =
             `${API_URL}/suppliers/${selectedSupplier.id}`;
 
-
           method =
             "PUT";
-
         }
-
 
         const response =
           await fetch(
-
             url,
-
             {
-
               method,
 
               headers: {
-
                 "Content-Type":
-                  "application/json"
-
+                  "application/json",
               },
 
               body:
-
                 JSON.stringify(
                   formData
-                )
-
+                ),
             }
-
           );
-
 
         const result =
-          await response.json();
-
-
-        if (!response.ok) {
-
-          throw new Error(
-
-            result.message ||
-            "Không thể lưu nhà cung cấp"
-
+          await parseJsonSafe(
+            response
           );
 
+        if (
+          !response.ok ||
+          result.success ===
+            false
+        ) {
+          throw new Error(
+            result.message ||
+              "Không thể lưu nhà cung cấp"
+          );
         }
 
-
         alert(
-
           selectedSupplier
-
             ? "Cập nhật nhà cung cấp thành công"
-
             : "Thêm nhà cung cấp thành công"
-
         );
-
 
         setShowForm(
           false
         );
 
-
         setSelectedSupplier(
           null
         );
 
-
-        loadSuppliers();
-
-
+        await loadSuppliers();
       } catch (error) {
-
         console.error(
           "Lỗi lưu:",
           error
         );
 
-
         alert(
           error.message ||
-          "Không thể lưu nhà cung cấp"
+            "Không thể lưu nhà cung cấp"
         );
-
       }
-
     };
 
-
-  // =============================================
-  // RENDER
-  // =============================================
-
   return (
-
     <div className="supplier-page">
-
-
-      {/* ========================================= */}
-      {/* HEADER */}
-      {/* ========================================= */}
-
       <div className="supplier-header">
-
         <div>
-
           <h1>
             Danh mục nhà cung cấp
           </h1>
@@ -460,9 +478,7 @@ function NhaCungCap() {
           <p>
             Quản lý thông tin và theo dõi tổng công nợ theo từng nhà cung cấp.
           </p>
-
         </div>
-
 
         <button
           className="add-supplier-btn"
@@ -470,120 +486,66 @@ function NhaCungCap() {
             handleAddSupplier
           }
         >
-
           + Thêm nhà cung cấp
-
         </button>
-
       </div>
 
-
-
-      {/* ========================================= */}
-      {/* SEARCH */}
-      {/* ========================================= */}
-
       <div className="supplier-search-card">
-
         <input
-
           type="text"
-
           placeholder="Tìm tên, mã hoặc số điện thoại"
-
           value={
             searchKeyword
           }
-
-          onChange={
-            (event) =>
-
-              setSearchKeyword(
-                event.target.value
-              )
+          onChange={(
+            event
+          ) =>
+            setSearchKeyword(
+              event.target.value
+            )
           }
-
         />
-
       </div>
 
-
-
-      {/* ========================================= */}
-      {/* TABLE */}
-      {/* ========================================= */}
-
       {loading ? (
-
         <div className="supplier-loading">
-
           Đang tải dữ liệu...
-
         </div>
-
       ) : (
-
         <SupplierTable
-
           suppliers={
             filteredSuppliers
           }
-
           onEdit={
             handleEditSupplier
           }
-
           onDelete={
             handleDeleteSupplier
           }
-
         />
-
       )}
 
-
-
-      {/* ========================================= */}
-      {/* FORM MODAL */}
-      {/* ========================================= */}
-
       {showForm && (
-
         <SupplierForm
-
           supplier={
             selectedSupplier
           }
-
           onSave={
             handleSaveSupplier
           }
+          onClose={() => {
+            setShowForm(
+              false
+            );
 
-          onClose={
-            () => {
-
-              setShowForm(
-                false
-              );
-
-
-              setSelectedSupplier(
-                null
-              );
-
-            }
-          }
-
+            setSelectedSupplier(
+              null
+            );
+          }}
         />
-
       )}
-
-
     </div>
-
   );
-
 }
-
 
 export default NhaCungCap;

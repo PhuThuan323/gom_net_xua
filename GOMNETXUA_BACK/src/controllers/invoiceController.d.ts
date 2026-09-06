@@ -11,6 +11,8 @@ declare class InvoiceController {
     invoices(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     invoiceDetail(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     createInvoice(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    updateInvoice(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    deleteInvoice(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
 }
 declare const _default: InvoiceController;
 export default _default;

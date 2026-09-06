@@ -1,12 +1,17 @@
-import { Router } from "express";
+// src/routes/invoiceRoutes.ts
 
-import invoiceController from "../controllers/invoiceController";
+import {
+  Router,
+} from "express";
+
+import invoiceController
+  from "../controllers/invoiceController";
 
 const router =
   Router();
 
 /* =========================================================
-   BOOTSTRAP
+   BOOTSTRAP + BRAND
 ========================================================= */
 
 router.get(
@@ -16,10 +21,6 @@ router.get(
   )
 );
 
-/* =========================================================
-   BRANDS
-========================================================= */
-
 router.get(
   "/brands",
   invoiceController.brands.bind(
@@ -27,6 +28,9 @@ router.get(
   )
 );
 
+/*
+ * Nút "Lưu cài đặt" thương hiệu gọi route này.
+ */
 router.put(
   "/brands/:id",
   invoiceController.updateBrand.bind(
@@ -67,7 +71,7 @@ router.delete(
 );
 
 /* =========================================================
-   INVOICE CODE
+   INVOICE / BÁO GIÁ
 ========================================================= */
 
 router.get(
@@ -77,10 +81,6 @@ router.get(
   )
 );
 
-/* =========================================================
-   INVOICES
-========================================================= */
-
 router.get(
   "/invoices",
   invoiceController.invoices.bind(
@@ -88,16 +88,34 @@ router.get(
   )
 );
 
-router.get(
-  "/invoices/:id",
-  invoiceController.invoiceDetail.bind(
+router.post(
+  "/invoices",
+  invoiceController.createInvoice.bind(
     invoiceController
   )
 );
 
-router.post(
-  "/invoices",
-  invoiceController.createInvoice.bind(
+/*
+ * SỬA / XÓA BÁO GIÁ.
+ * Backend tự chặn nếu báo giá đã xuất kho.
+ */
+router.put(
+  "/invoices/:id",
+  invoiceController.updateInvoice.bind(
+    invoiceController
+  )
+);
+
+router.delete(
+  "/invoices/:id",
+  invoiceController.deleteInvoice.bind(
+    invoiceController
+  )
+);
+
+router.get(
+  "/invoices/:id",
+  invoiceController.invoiceDetail.bind(
     invoiceController
   )
 );

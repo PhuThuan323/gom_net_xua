@@ -5,6 +5,7 @@ import {
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -27,8 +28,10 @@ const dateVN = (value) => {
 
 export default function InvoiceRegistry({
   api,
-  customers=[],
+  customers = [],
   onCustomersChanged,
+  onEditInvoice,
+  onInvoicesChanged,
   refreshKey = 0,
 }) {
   const [
@@ -51,6 +54,14 @@ export default function InvoiceRegistry({
 
   const [showCustomerForm, setShowCustomerForm] =
     useState(false);
+
+  const invoiceScrollRef =
+    useRef(null);
+
+  const [
+    deletingInvoiceId,
+    setDeletingInvoiceId,
+  ] = useState(null);
 
   const loadInvoices =
     useCallback(
@@ -285,21 +296,164 @@ const printInvoice = async (invoice) => {
     );
   }
 };
+
+
+const editInvoice = async (invoice) => {
+  if (
+    invoice.warehouse_status ===
+    "processed"
+  ) {
+    alert(
+      "Báo giá này đã xuất kho nên không thể sửa."
+    );
+
+    return;
+  }
+
+  try {
+    const detail =
+      await getInvoiceDetail(
+        invoice.id
+      );
+
+    if (
+      detail.warehouse_status ===
+      "processed"
+    ) {
+      alert(
+        "Báo giá này đã xuất kho nên không thể sửa."
+      );
+
+      return;
+    }
+
+    onEditInvoice?.(
+      detail
+    );
+  } catch (error) {
+    alert(
+      error?.message ||
+        "Không thể tải báo giá để sửa"
+    );
+  }
+};
+
+const deleteInvoice = async (invoice) => {
+  if (
+    invoice.warehouse_status ===
+    "processed"
+  ) {
+    alert(
+      "Báo giá này đã xuất kho nên không thể xóa. " +
+        "Hệ thống cần giữ lại để đối chiếu xuất kho."
+    );
+
+    return;
+  }
+
+  const confirmed =
+    window.confirm(
+      `Bạn có chắc muốn xóa báo giá ${invoice.invoice_code}?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    setDeletingInvoiceId(
+      invoice.id
+    );
+
+    await api(
+      `/invoices/${invoice.id}`,
+      {
+        method:
+          "DELETE",
+      }
+    );
+
+    alert(
+      "Đã xóa báo giá"
+    );
+
+    await loadInvoices();
+
+    await onInvoicesChanged?.();
+  } catch (error) {
+    alert(
+      error?.message ||
+        "Không thể xóa báo giá"
+    );
+  } finally {
+    setDeletingInvoiceId(
+      null
+    );
+  }
+};
+
+const scrollInvoices =
+  (direction) => {
+    const el =
+      invoiceScrollRef.current;
+
+    if (!el) {
+      return;
+    }
+
+    el.scrollBy({
+      top:
+        direction *
+        320,
+
+      behavior:
+        "smooth",
+    });
+  };
   return (
     <>
       <section className="invoice-card">
-        <input
-          className="invoice-search"
-          placeholder="Tìm số hóa đơn, tên khách, SĐT, mã đơn"
-          value={invoiceSearch}
-          onChange={(e) =>
-            setInvoiceSearch(
-              e.target.value
-            )
-          }
-        />
+        <div className="invoice-registry-toolbar">
+          <input
+            className="invoice-search"
+            placeholder="Tìm số báo giá, tên khách, SĐT, mã đơn"
+            value={invoiceSearch}
+            onChange={(e) =>
+              setInvoiceSearch(
+                e.target.value
+              )
+            }
+          />
 
-        <div className="invoice-table-wrap">
+          <div className="invoice-scroll-buttons">
+            <button
+              type="button"
+              className="invoice-scroll-btn"
+              onClick={() =>
+                scrollInvoices(-1)
+              }
+              title="Trượt lên"
+            >
+              ▲
+            </button>
+
+            <button
+              type="button"
+              className="invoice-scroll-btn"
+              onClick={() =>
+                scrollInvoices(1)
+              }
+              title="Trượt xuống"
+            >
+              ▼
+            </button>
+          </div>
+        </div>
+
+        <div
+          ref={invoiceScrollRef}
+          className="invoice-table-wrap invoice-registry-scroll"
+        >
           <table className="invoice-table">
             <thead>
               <tr>
@@ -320,7 +474,14 @@ const printInvoice = async (invoice) => {
                 <th>
                   Tổng tiền
                 </th>
-                <th> Thao tác </th>
+
+                <th>
+                  Kho
+                </th>
+
+                <th>
+                  Thao tác
+                </th>
                 
               </tr>
             </thead>
@@ -329,7 +490,7 @@ const printInvoice = async (invoice) => {
               {invoices.length ===
               0 ? (
                 <tr>
-                  <td colSpan="8">
+                  <td colSpan="9">
                     Chưa có hóa
                     đơn bán hàng.
                   </td>
@@ -392,30 +553,97 @@ const printInvoice = async (invoice) => {
                         )}
                       </td>
                       <td>
-  <div className="invoice-row-actions">
+                        <span
+                          className={`invoice-warehouse-badge ${
+                            invoice.warehouse_status ===
+                            "processed"
+                              ? "processed"
+                              : "pending"
+                          }`}
+                        >
+                          {invoice.warehouse_status ===
+                          "processed"
+                            ? "Đã xuất kho"
+                            : "Chưa xuất kho"}
+                        </span>
+                      </td>
 
-    <button
-      type="button"
-      className="invoice-btn invoice-view-btn"
-      onClick={() =>
-        viewInvoice(invoice)
-      }
-    >
-      Xem lại đơn hàng
-    </button>
+                      <td>
+                        <div className="invoice-row-actions">
+                          <button
+                            type="button"
+                            className="invoice-btn invoice-view-btn"
+                            onClick={() =>
+                              viewInvoice(invoice)
+                            }
+                          >
+                            Xem
+                          </button>
 
-    <button
-      type="button"
-      className="invoice-btn invoice-pdf-btn"
-      onClick={() =>
-        printInvoice(invoice)
-      }
-    >
-      Xuất PDF / A4
-    </button>
+                          <button
+                            type="button"
+                            className="invoice-btn invoice-pdf-btn"
+                            onClick={() =>
+                              printInvoice(invoice)
+                            }
+                          >
+                            PDF / A4
+                          </button>
 
-  </div>
-</td>
+                          <button
+                            type="button"
+                            className="invoice-btn invoice-edit-quote-btn"
+                            disabled={
+                              invoice.warehouse_status ===
+                              "processed"
+                            }
+                            onClick={() =>
+                              editInvoice(invoice)
+                            }
+                            title={
+                              invoice.warehouse_status ===
+                              "processed"
+                                ? "Đã xuất kho nên không thể sửa"
+                                : "Sửa báo giá"
+                            }
+                          >
+                            Sửa
+                          </button>
+
+                          <button
+                            type="button"
+                            className="invoice-btn invoice-delete-quote-btn"
+                            disabled={
+                              invoice.warehouse_status ===
+                                "processed" ||
+                              Number(
+                                deletingInvoiceId
+                              ) ===
+                                Number(
+                                  invoice.id
+                                )
+                            }
+                            onClick={() =>
+                              deleteInvoice(invoice)
+                            }
+                            title={
+                              invoice.warehouse_status ===
+                              "processed"
+                                ? "Đã xuất kho nên không thể xóa"
+                                : "Xóa báo giá"
+                            }
+                          >
+                            {Number(
+                              deletingInvoiceId
+                            ) ===
+                            Number(
+                              invoice.id
+                            )
+                              ? "Đang xóa..."
+                              : "Xóa"}
+                          </button>
+                        </div>
+                      </td>
                       
                     </tr>
                   )

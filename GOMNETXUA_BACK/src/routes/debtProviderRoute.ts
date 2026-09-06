@@ -1,168 +1,89 @@
-// src/routes/debtProviderRoute.ts
+// src/routes/debtProviderRoutes.ts
 
 import { Router } from "express";
 
-import debtProviderController from "../controllers/debtProviderController";
+import debtController from "../controllers/debtProviderController";
 
-const router = Router();
+const router =
+  Router();
 
 /*
-|--------------------------------------------------------------------------
-| DASHBOARD CÔNG NỢ
-|--------------------------------------------------------------------------
-|
-| GET /api/debts/dashboard
-|
-*/
+ * Route cố định đặt trước route có :id
+ */
 
 router.get(
   "/dashboard",
-  debtProviderController.dashboard.bind(
-    debtProviderController
+  debtController.dashboard.bind(
+    debtController
   )
 );
-
-/*
-|--------------------------------------------------------------------------
-| DANH SÁCH NHÀ CUNG CẤP + SỐ DƯ
-|--------------------------------------------------------------------------
-|
-| GET /api/debts/suppliers
-|
-*/
 
 router.get(
   "/suppliers",
-  debtProviderController.suppliers.bind(
-    debtProviderController
+  debtController.suppliers.bind(
+    debtController
   )
 );
-
-/*
-|--------------------------------------------------------------------------
-| LỊCH SỬ TẤT CẢ GIAO DỊCH
-|--------------------------------------------------------------------------
-|
-| GET /api/debts/transactions
-|
-| Query:
-| ?supplier_id=1
-| &transaction_type=DEBT
-| &from=2026-08-01
-| &to=2026-08-31
-| &page=1
-| &limit=100
-|
-*/
 
 router.get(
   "/transactions",
-  debtProviderController.transactions.bind(
-    debtProviderController
+  debtController.transactions.bind(
+    debtController
   )
 );
-
-/*
-|--------------------------------------------------------------------------
-| TỔNG QUAN CÔNG NỢ 1 NHÀ CUNG CẤP
-|--------------------------------------------------------------------------
-|
-| GET /api/debts/suppliers/:id/summary
-|
-*/
 
 router.get(
   "/suppliers/:id/summary",
-  debtProviderController.supplierSummary.bind(
-    debtProviderController
+  debtController.supplierSummary.bind(
+    debtController
   )
 );
-
-/*
-|--------------------------------------------------------------------------
-| LỊCH SỬ CÔNG NỢ 1 NHÀ CUNG CẤP
-|--------------------------------------------------------------------------
-|
-| GET /api/debts/suppliers/:id/history
-|
-*/
 
 router.get(
   "/suppliers/:id/history",
-  debtProviderController.supplierHistory.bind(
-    debtProviderController
+  debtController.supplierHistory.bind(
+    debtController
   )
 );
 
 /*
-|--------------------------------------------------------------------------
-| TẠO KHOẢN NỢ MỚI / NỢ THÊM
-|--------------------------------------------------------------------------
-|
-| POST /api/debts
-|
-| Body:
-|
-| {
-|   "supplier_id": 1,
-|   "amount": 13800000,
-|   "transaction_date": "2026-08-19",
-|   "reference_code": "PN0001",
-|   "note": "TỔNG 690 THÙNG XỐP"
-| }
-|
-*/
-
+ * Tạo công nợ thủ công
+ */
 router.post(
   "/",
-  debtProviderController.createDebt.bind(
-    debtProviderController
+  debtController.createDebt.bind(
+    debtController
   )
 );
-
-/*
-|--------------------------------------------------------------------------
-| TRẢ CÔNG NỢ
-|--------------------------------------------------------------------------
-|
-| POST /debt/payment
-|
-| Body:
-|
-| {
-|   "supplier_id": 1,
-|   "amount": 50000000,
-|   "transaction_date": "2026-08-30",
-|   "payment_method": "Chuyển khoản",
-|   "reference_code": "CK300826",
-|   "note": "Thanh toán công nợ NCC"
-| }
-|
-*/
 
 router.post(
   "/payment",
-  debtProviderController.createPayment.bind(
-    debtProviderController
+  debtController.createPayment.bind(
+    debtController
+  )
+);
+
+router.post(
+  "/adjustment",
+  debtController.createAdjustment.bind(
+    debtController
   )
 );
 
 /*
-|--------------------------------------------------------------------------
-| ĐIỀU CHỈNH CÔNG NỢ
-|--------------------------------------------------------------------------
-|
-| POST /api/debts/adjustment
-|
-| amount dương  = tăng công nợ
-| amount âm     = giảm công nợ
-|
-*/
+ * SỬA / XÓA 1 giao dịch công nợ
+ */
+router.put(
+  "/transactions/:id",
+  debtController.updateTransaction.bind(
+    debtController
+  )
+);
 
-router.post(
-  "/adjustment",
-  debtProviderController.createAdjustment.bind(
-    debtProviderController
+router.delete(
+  "/transactions/:id",
+  debtController.deleteTransaction.bind(
+    debtController
   )
 );
 

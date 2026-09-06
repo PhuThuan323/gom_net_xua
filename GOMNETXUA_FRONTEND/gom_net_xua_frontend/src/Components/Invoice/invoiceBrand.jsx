@@ -18,7 +18,7 @@ const EMPTY = {
 
 export default function InvoiceBrandSettings({
   api,
-  brands,
+  brands = [],
   onSaved,
 }) {
   const [
@@ -29,28 +29,59 @@ export default function InvoiceBrandSettings({
   const [
     form,
     setForm,
-  ] = useState(EMPTY);
+  ] = useState(
+    EMPTY
+  );
 
-  const [saving, setSaving] =
-    useState(false);
+  const [
+    saving,
+    setSaving,
+  ] = useState(false);
 
   /*
-   * Khi API load brands lần đầu
-   * chọn brand default.
+   * Chọn brand mặc định khi bootstrap có dữ liệu.
+   * Nếu brand đang chọn không còn trong danh sách,
+   * tự chọn lại brand default / brand đầu tiên.
    */
   useEffect(() => {
     if (
+      !Array.isArray(
+        brands
+      ) ||
       brands.length === 0
     ) {
+      setSelectedId(
+        ""
+      );
+
+      setForm(
+        EMPTY
+      );
+
       return;
     }
 
-    if (!selectedId) {
+    const currentExists =
+      brands.some(
+        (brand) =>
+          String(
+            brand.id
+          ) ===
+          String(
+            selectedId
+          )
+      );
+
+    if (
+      !selectedId ||
+      !currentExists
+    ) {
       const defaultBrand =
         brands.find(
           (x) =>
             x.is_default
-        ) || brands[0];
+        ) ||
+        brands[0];
 
       setSelectedId(
         String(
@@ -63,21 +94,24 @@ export default function InvoiceBrandSettings({
     selectedId,
   ]);
 
-  /*
-   * Chọn brand
-   * => tự đổ dữ liệu vào form.
-   */
   useEffect(() => {
     if (!selectedId) {
-      setForm(EMPTY);
+      setForm(
+        EMPTY
+      );
+
       return;
     }
 
     const brand =
       brands.find(
         (x) =>
-          String(x.id) ===
-          String(selectedId)
+          String(
+            x.id
+          ) ===
+          String(
+            selectedId
+          )
       );
 
     if (!brand) {
@@ -130,59 +164,112 @@ export default function InvoiceBrandSettings({
   ]);
 
   const update =
-    (field, value) => {
+    (
+      field,
+      value
+    ) => {
       setForm(
         (old) => ({
           ...old,
-          [field]: value,
+
+          [field]:
+            value,
         })
       );
     };
 
   const save =
     async () => {
+      /*
+       * Code cũ:
+       * if (!form.id) return;
+       *
+       * => khi dropdown brand trống, bấm Lưu không báo gì.
+       * Bản này báo rõ nguyên nhân.
+       */
       if (!form.id) {
+        alert(
+          "Chưa có thương hiệu để lưu. " +
+            "Hãy kiểm tra API /invoice/bootstrap có trả brands hay chưa."
+        );
+
         return;
       }
 
       if (
-        !form.brand_name.trim()
+        !form.brand_name
+          .trim()
       ) {
         alert(
           "Vui lòng nhập tên thương hiệu"
         );
+
         return;
       }
 
       try {
-        setSaving(true);
-
-        await api(
-          `/brands/${form.id}`,
-          {
-            method:
-              "PUT",
-
-            body:
-              JSON.stringify(
-                form
-              ),
-          }
+        setSaving(
+          true
         );
 
-        await onSaved?.();
+        const result =
+          await api(
+            `/brands/${form.id}`,
+            {
+              method:
+                "PUT",
+
+              body:
+                JSON.stringify(
+                  form
+                ),
+            }
+          );
+
+        /*
+         * Backend PUT /invoice/brands/:id
+         * phải trả result.data.
+         */
+        if (
+          result?.data
+        ) {
+          setForm(
+            (old) => ({
+              ...old,
+              ...result.data,
+            })
+          );
+        }
+
+        await onSaved?.(
+          result?.data
+        );
 
         alert(
           "Đã lưu cài đặt thương hiệu"
         );
       } catch (error) {
+        console.error(
+          "SAVE BRAND:",
+          error
+        );
+
         alert(
-          error.message
+          error?.message ||
+            "Không thể lưu cài đặt thương hiệu"
         );
       } finally {
-        setSaving(false);
+        setSaving(
+          false
+        );
       }
     };
+
+  const noBrand =
+    !Array.isArray(
+      brands
+    ) ||
+    brands.length === 0;
 
   return (
     <section className="invoice-card invoice-brand-settings">
@@ -193,20 +280,22 @@ export default function InvoiceBrandSettings({
           </h2>
 
           <p>
-            Mỗi thương hiệu có
-            thông tin riêng. Khi
-            tạo hóa đơn, hệ thống
-            tự dùng đúng thông
-            tin của thương hiệu
-            được chọn.
+            Mỗi thương hiệu có thông tin riêng.
+            Khi tạo hóa đơn, hệ thống tự dùng đúng
+            thông tin của thương hiệu được chọn.
           </p>
         </div>
 
         <button
           type="button"
           className="invoice-btn primary"
-          onClick={save}
-          disabled={saving}
+          onClick={
+            save
+          }
+          disabled={
+            saving ||
+            noBrand
+          }
         >
           {saving
             ? "Đang lưu..."
@@ -220,26 +309,47 @@ export default function InvoiceBrandSettings({
 
       <select
         className="brand-selector"
-        value={selectedId}
+        value={
+          selectedId
+        }
         onChange={(e) =>
           setSelectedId(
             e.target.value
           )
         }
+        disabled={
+          noBrand
+        }
       >
-        {brands.map(
-          (brand) => (
-            <option
-              key={brand.id}
-              value={brand.id}
-            >
-              {
-                brand.brand_name
-              }
-            </option>
+        {noBrand ? (
+          <option value="">
+            -- Chưa có thương hiệu --
+          </option>
+        ) : (
+          brands.map(
+            (brand) => (
+              <option
+                key={
+                  brand.id
+                }
+                value={
+                  brand.id
+                }
+              >
+                {brand.brand_name}
+              </option>
+            )
           )
         )}
       </select>
+
+      {noBrand && (
+        <div className="invoice-brand-warning">
+          Không nhận được dữ liệu thương hiệu từ backend.
+          Kiểm tra bảng invoice_brands và API
+          <strong> /invoice/bootstrap</strong>.
+        </div>
+      )}
 
       <div className="brand-setting-grid">
         <div className="invoice-subcard">
@@ -254,6 +364,9 @@ export default function InvoiceBrandSettings({
           <input
             value={
               form.brand_name
+            }
+            disabled={
+              noBrand
             }
             onChange={(e) =>
               update(
@@ -273,6 +386,9 @@ export default function InvoiceBrandSettings({
                 value={
                   form.tax_code
                 }
+                disabled={
+                  noBrand
+                }
                 onChange={(e) =>
                   update(
                     "tax_code",
@@ -284,13 +400,15 @@ export default function InvoiceBrandSettings({
 
             <div>
               <label>
-                Điện thoại /
-                Zalo
+                Điện thoại / Zalo
               </label>
 
               <input
                 value={
                   form.phone
+                }
+                disabled={
+                  noBrand
                 }
                 onChange={(e) =>
                   update(
@@ -310,6 +428,9 @@ export default function InvoiceBrandSettings({
             value={
               form.address
             }
+            disabled={
+              noBrand
+            }
             onChange={(e) =>
               update(
                 "address",
@@ -325,6 +446,9 @@ export default function InvoiceBrandSettings({
           <input
             value={
               form.email
+            }
+            disabled={
+              noBrand
             }
             onChange={(e) =>
               update(
@@ -350,6 +474,9 @@ export default function InvoiceBrandSettings({
                 value={
                   form.bank_name
                 }
+                disabled={
+                  noBrand
+                }
                 onChange={(e) =>
                   update(
                     "bank_name",
@@ -367,6 +494,9 @@ export default function InvoiceBrandSettings({
               <input
                 value={
                   form.bank_account
+                }
+                disabled={
+                  noBrand
                 }
                 onChange={(e) =>
                   update(
@@ -386,6 +516,9 @@ export default function InvoiceBrandSettings({
             value={
               form.bank_holder
             }
+            disabled={
+              noBrand
+            }
             onChange={(e) =>
               update(
                 "bank_holder",
@@ -401,6 +534,9 @@ export default function InvoiceBrandSettings({
           <input
             value={
               form.logo_text
+            }
+            disabled={
+              noBrand
             }
             maxLength={20}
             placeholder="NX / HQ"

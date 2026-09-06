@@ -724,6 +724,272 @@ class InvoiceController {
             return sendError(res, error);
         }
     }
+    /* =======================================================
+       UPDATE INVOICE / BÁO GIÁ
+  
+       PUT /invoice/invoices/:id
+  
+       QUAN TRỌNG:
+       - CHỈ sửa khi warehouse_status = "not_processed"
+       - Nếu đã xuất kho ("processed") thì khóa sửa
+       - KHÔNG trừ kho tại đây
+       - Giữ nguyên logic xuất kho từ báo giá
+    ======================================================= */
+    async updateInvoice(req, res) {
+        try {
+            const id = Number(req.params.id);
+            if (!Number.isInteger(id) ||
+                id <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "ID báo giá/hóa đơn không hợp lệ",
+                });
+            }
+            const existing = await prisma_1.default.invoice.findUnique({
+                where: {
+                    id,
+                },
+                include: {
+                    items: true,
+                },
+            });
+            if (!existing) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy báo giá/hóa đơn",
+                });
+            }
+            /*
+             * BẢO VỆ LOGIC XUẤT KHO:
+             * exportStockController dùng warehouse_status
+             * not_processed -> processed.
+             *
+             * Khi đã processed thì không cho sửa nội dung báo giá,
+             * tránh dữ liệu báo giá khác với dữ liệu đã trừ kho.
+             */
+            if (existing.warehouse_status ===
+                "processed") {
+                return res.status(409).json({
+                    success: false,
+                    message: "Báo giá này đã được xuất kho nên không thể sửa. " +
+                        "Dữ liệu xuất kho đã được chốt.",
+                });
+            }
+            const { invoice_code, invoice_date, brand_id, customer_id, channel, order_code, payment_method, deposit_amount, shipping_fee, shipping_address, note, items, } = req.body ?? {};
+            const brandId = Number(brand_id);
+            if (!Number.isInteger(brandId) ||
+                brandId <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Vui lòng chọn thương hiệu phát hành hóa đơn",
+                });
+            }
+            if (!Array.isArray(items) ||
+                items.length === 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Báo giá phải có ít nhất 1 sản phẩm",
+                });
+            }
+            const normalizedItems = [];
+            for (const item of items) {
+                const variantId = Number(item.variant_id);
+                const quantity = Number(item.quantity);
+                const unitPrice = dec(item.unit_price);
+                if (!Number.isInteger(variantId) ||
+                    variantId <= 0) {
+                    throw new Error("Có sản phẩm chưa được chọn");
+                }
+                if (!Number.isFinite(quantity) ||
+                    quantity <= 0) {
+                    throw new Error("Số lượng sản phẩm phải lớn hơn 0");
+                }
+                if (unitPrice.lessThan(0)) {
+                    throw new Error("Đơn giá không hợp lệ");
+                }
+                const variant = await prisma_1.default.productVariant.findUnique({
+                    where: {
+                        id: variantId,
+                    },
+                    select: {
+                        current_quantity: true,
+                        status: true,
+                    },
+                });
+                if (!variant ||
+                    variant.status !==
+                        "active") {
+                    throw new Error("Sản phẩm không tồn tại hoặc đã ngừng bán");
+                }
+                /*
+                 * Báo giá chỉ KIỂM TRA tồn hiện tại.
+                 * KHÔNG trừ kho.
+                 */
+                if (quantity >
+                    variant.current_quantity) {
+                    throw new Error(`Số lượng bán (${quantity}) vượt tồn hiện tại (${variant.current_quantity})`);
+                }
+                normalizedItems.push({
+                    variant_id: variantId,
+                    quantity,
+                    unit_price: unitPrice,
+                    total_price: unitPrice.mul(quantity),
+                });
+            }
+            const subtotal = normalizedItems.reduce((sum, item) => sum.plus(item.total_price), new client_1.Prisma.Decimal(0));
+            const shipping = dec(shipping_fee);
+            const deposit = dec(deposit_amount);
+            const totalAmount = subtotal.plus(shipping);
+            if (deposit.lessThan(0)) {
+                throw new Error("Tiền cọc không hợp lệ");
+            }
+            if (deposit.greaterThan(totalAmount)) {
+                throw new Error("Tiền cọc không được lớn hơn tổng thanh toán");
+            }
+            const finalCode = typeof invoice_code ===
+                "string" &&
+                invoice_code.trim()
+                ? invoice_code.trim()
+                : existing.invoice_code;
+            const result = await prisma_1.default.$transaction(async (tx) => {
+                /*
+                 * InvoiceItem có relation cascade khi xóa invoice,
+                 * nhưng khi UPDATE ta chủ động xóa dòng cũ rồi tạo lại.
+                 */
+                await tx.invoiceItem.deleteMany({
+                    where: {
+                        invoice_id: id,
+                    },
+                });
+                return tx.invoice.update({
+                    where: {
+                        id,
+                    },
+                    data: {
+                        invoice_code: finalCode,
+                        invoice_date: parseDate(invoice_date),
+                        brand_id: brandId,
+                        customer_id: customer_id
+                            ? Number(customer_id)
+                            : null,
+                        channel: text(channel),
+                        order_code: text(order_code),
+                        subtotal,
+                        shipping_fee: shipping,
+                        total_amount: totalAmount,
+                        deposit_amount: deposit,
+                        /*
+                         * Giữ cách tính hiện tại của hệ thống:
+                         * paid_amount = tiền cọc.
+                         */
+                        paid_amount: deposit,
+                        payment_method: text(payment_method),
+                        shipping_address: text(shipping_address),
+                        note: text(note),
+                        /*
+                         * KHÔNG đụng warehouse_status.
+                         * Nếu đang not_processed thì vẫn giữ nguyên để
+                         * module Xuất kho tiếp tục nhận báo giá này.
+                         */
+                        items: {
+                            create: normalizedItems,
+                        },
+                    },
+                    include: {
+                        brand: true,
+                        customer: true,
+                        items: {
+                            include: {
+                                variant: {
+                                    include: {
+                                        product: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+            });
+            return res.json({
+                success: true,
+                message: "Đã cập nhật báo giá/hóa đơn",
+                data: {
+                    ...result,
+                    subtotal: result.subtotal.toString(),
+                    shipping_fee: result.shipping_fee.toString(),
+                    total_amount: result.total_amount.toString(),
+                    deposit_amount: result.deposit_amount.toString(),
+                    paid_amount: result.paid_amount.toString(),
+                    items: result.items.map((item) => ({
+                        ...item,
+                        unit_price: item.unit_price.toString(),
+                        total_price: item.total_price.toString(),
+                    })),
+                },
+            });
+        }
+        catch (error) {
+            return sendError(res, error);
+        }
+    }
+    /* =======================================================
+       DELETE INVOICE / BÁO GIÁ
+  
+       DELETE /invoice/invoices/:id
+  
+       QUAN TRỌNG:
+       - Chỉ xóa khi CHƯA xuất kho
+       - Nếu warehouse_status = processed thì chặn
+       - Không tác động dữ liệu InventoryTransaction
+    ======================================================= */
+    async deleteInvoice(req, res) {
+        try {
+            const id = Number(req.params.id);
+            if (!Number.isInteger(id) ||
+                id <= 0) {
+                return res.status(400).json({
+                    success: false,
+                    message: "ID báo giá/hóa đơn không hợp lệ",
+                });
+            }
+            const invoice = await prisma_1.default.invoice.findUnique({
+                where: {
+                    id,
+                },
+                select: {
+                    id: true,
+                    invoice_code: true,
+                    warehouse_status: true,
+                },
+            });
+            if (!invoice) {
+                return res.status(404).json({
+                    success: false,
+                    message: "Không tìm thấy báo giá/hóa đơn",
+                });
+            }
+            if (invoice.warehouse_status ===
+                "processed") {
+                return res.status(409).json({
+                    success: false,
+                    message: "Báo giá này đã được xuất kho nên không thể xóa. " +
+                        "Cần giữ lại để đối chiếu lịch sử xuất kho.",
+                });
+            }
+            await prisma_1.default.invoice.delete({
+                where: {
+                    id,
+                },
+            });
+            return res.json({
+                success: true,
+                message: `Đã xóa báo giá ${invoice.invoice_code}`,
+            });
+        }
+        catch (error) {
+            return sendError(res, error);
+        }
+    }
 }
 exports.default = new InvoiceController();
 //# sourceMappingURL=invoiceController.js.map
