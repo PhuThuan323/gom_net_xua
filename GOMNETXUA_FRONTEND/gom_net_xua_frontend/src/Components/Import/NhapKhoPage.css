@@ -1071,3 +1071,144 @@
   font-size: 13px;
   font-style: italic;
 }
+
+/* =========================================================
+   IMPORT RECEIPT - EDIT / DELETE
+========================================================= */
+
+.editing-receipt-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 16px;
+  padding: 16px 18px;
+
+  border: 1px solid #d9ad84;
+  border-left: 5px solid #8a3f17;
+  border-radius: 14px;
+
+  background: #fff5eb;
+}
+
+.editing-receipt-banner > div {
+  min-width: 0;
+}
+
+.editing-receipt-banner strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #6e2e0d;
+
+  font-size: 17px;
+}
+
+.editing-receipt-banner span {
+  color: #7c6859;
+
+  font-size: 14px;
+}
+
+.cancel-edit-receipt-btn {
+  flex: 0 0 auto;
+
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  border: 1px solid #cba88d;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #71300e;
+
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.cancel-edit-receipt-btn:hover {
+  background: #f5e7dc;
+}
+
+.import-history-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+}
+
+.history-action-btn {
+  min-height: 40px;
+
+  padding: 0 13px;
+
+  border: 0;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+}
+
+.history-action-btn:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+.history-action-btn.print {
+  background: #eadfce;
+
+  color: #71300e;
+}
+
+.history-action-btn.edit {
+  background: #e3edf6;
+
+  color: #194f78;
+}
+
+.history-action-btn.delete {
+  background: #f7dfdc;
+
+  color: #a1261d;
+}
+
+.history-action-btn.print:hover:not(:disabled) {
+  background: #dfcfba;
+}
+
+.history-action-btn.edit:hover:not(:disabled) {
+  background: #d2e3f2;
+}
+
+.history-action-btn.delete:hover:not(:disabled) {
+  background: #f0cbc6;
+}
+
+@media (max-width: 760px) {
+  .editing-receipt-banner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cancel-edit-receipt-btn {
+    width: 100%;
+  }
+
+  .import-history-actions {
+    min-width: 235px;
+  }
+
+  .history-action-btn {
+    flex: 1 1 auto;
+  }
+}

@@ -31,6 +31,11 @@ function NhapKho() {
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [showPrint, setShowPrint] = useState(false);
 
+  // SỬA / XÓA PHIẾU NHẬP
+  const [editingReceiptId, setEditingReceiptId] = useState(null);
+  const [editingReceiptCode, setEditingReceiptCode] = useState("");
+  const [deletingReceiptId, setDeletingReceiptId] = useState(null);
+
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -275,6 +280,175 @@ function NhapKho() {
     [selectedItems]
   );
 
+  const resetReceiptForm = () => {
+    setImportDate(getToday());
+    setSupplierId("");
+    setReceivedBy("");
+    setNote("");
+    setSearchTerm("");
+
+    setEditingReceiptId(null);
+    setEditingReceiptCode("");
+
+    setImportItems(
+      allVariants.map((item) => ({
+        ...item,
+        import_quantity: 0,
+        note: "",
+      }))
+    );
+  };
+
+  const handleEditReceipt = async (receiptId) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        `${API_URL}/import-receipts/${receiptId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Không thể tải phiếu nhập để sửa"
+        );
+      }
+
+      const receipt = result.data || {};
+
+      setEditingReceiptId(Number(receipt.id));
+      setEditingReceiptCode(receipt.receipt_code || "");
+
+      const rawDate = receipt.import_date
+        ? new Date(receipt.import_date)
+        : new Date();
+
+      if (Number.isNaN(rawDate.getTime())) {
+        setImportDate(getToday());
+      } else {
+        const offset = rawDate.getTimezoneOffset();
+        setImportDate(
+          new Date(rawDate.getTime() - offset * 60 * 1000)
+            .toISOString()
+            .split("T")[0]
+        );
+      }
+
+      setSupplierId(
+        String(
+          receipt.supplier_id ??
+            receipt.supplier?.id ??
+            ""
+        )
+      );
+
+      setReceivedBy(receipt.received_by || "");
+      setNote(receipt.note || "");
+
+      const receiptItemMap = new Map(
+        (receipt.items || []).map((item) => [
+          Number(item.variant_id),
+          item,
+        ])
+      );
+
+      setImportItems(
+        allVariants.map((item) => {
+          const oldItem = receiptItemMap.get(
+            Number(item.variant_id)
+          );
+
+          if (!oldItem) {
+            return {
+              ...item,
+              import_quantity: 0,
+              note: "",
+            };
+          }
+
+          return {
+            ...item,
+            import_quantity: Number(oldItem.quantity || 0),
+            purchase_price: Number(
+              oldItem.purchase_price ?? item.purchase_price ?? 0
+            ),
+            note: oldItem.note || "",
+          };
+        })
+      );
+
+      setSearchTerm("");
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } catch (err) {
+      console.error("Lỗi tải phiếu để sửa:", err);
+      alert(err.message || "Không thể tải phiếu nhập để sửa");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteReceipt = async (receipt) => {
+    if (!receipt?.id) return;
+
+    const confirmed = window.confirm(
+      `Bạn có chắc muốn xóa phiếu nhập ${receipt.receipt_code || ""}?\n\n` +
+        `Hệ thống phải hoàn lại tồn kho đã nhập từ phiếu này. ` +
+        `Nếu số tồn hiện tại không đủ để hoàn, backend nên từ chối xóa.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingReceiptId(Number(receipt.id));
+      setError("");
+
+      const response = await fetch(
+        `${API_URL}/import-receipts/${receipt.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.message || "Không thể xóa phiếu nhập kho"
+        );
+      }
+
+      alert(result.message || "Đã xóa phiếu nhập kho");
+
+      if (
+        Number(editingReceiptId) === Number(receipt.id)
+      ) {
+        resetReceiptForm();
+      }
+
+      await loadInitialData();
+    } catch (err) {
+      console.error("Lỗi xóa phiếu nhập:", err);
+      setError(err.message || "Không thể xóa phiếu nhập kho");
+      alert(err.message || "Không thể xóa phiếu nhập kho");
+    } finally {
+      setDeletingReceiptId(null);
+    }
+  };
+
   const handleConfirm = async () => {
     if (selectedItems.length === 0) {
       alert("Vui lòng nhập số lượng cho ít nhất một sản phẩm");
@@ -298,9 +472,13 @@ function NhapKho() {
     }
 
     const confirmed = window.confirm(
-      `Bạn có chắc muốn nhập ${totalQuantity} sản phẩm, tổng giá trị ${formatMoney(
-        totalAmount
-      )}?`
+      editingReceiptId
+        ? `Bạn có chắc muốn cập nhật phiếu ${editingReceiptCode || ""} với ${totalQuantity} sản phẩm, tổng giá trị ${formatMoney(
+            totalAmount
+          )}?`
+        : `Bạn có chắc muốn nhập ${totalQuantity} sản phẩm, tổng giá trị ${formatMoney(
+            totalAmount
+          )}?`
     );
 
     if (!confirmed) return;
@@ -316,8 +494,14 @@ function NhapKho() {
         note: item.note || "",
       }));
 
-      const response = await fetch(`${API_URL}/import-receipts`, {
-        method: "POST",
+      const isEditing = Boolean(editingReceiptId);
+
+      const endpoint = isEditing
+        ? `${API_URL}/import-receipts/${editingReceiptId}`
+        : `${API_URL}/import-receipts`;
+
+      const response = await fetch(endpoint, {
+        method: isEditing ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -334,17 +518,21 @@ function NhapKho() {
 
       if (!response.ok || !result.success) {
         throw new Error(
-          result.message || "Không thể tạo phiếu nhập kho"
+          result.message ||
+            (isEditing
+              ? "Không thể cập nhật phiếu nhập kho"
+              : "Không thể tạo phiếu nhập kho")
         );
       }
 
-      alert("Nhập kho thành công!");
+      alert(
+        result.message ||
+          (isEditing
+            ? "Cập nhật phiếu nhập kho thành công!"
+            : "Nhập kho thành công!")
+      );
 
-      setImportDate(getToday());
-      setSupplierId("");
-      setReceivedBy("");
-      setNote("");
-      setSearchTerm("");
+      resetReceiptForm();
 
       await loadInitialData();
     } catch (err) {
@@ -392,6 +580,29 @@ function NhapKho() {
       </div>
 
       {error && <div className="error-message">{error}</div>}
+
+      {editingReceiptId && (
+        <section className="editing-receipt-banner">
+          <div>
+            <strong>
+              Đang sửa phiếu: {editingReceiptCode || editingReceiptId}
+            </strong>
+            <span>
+              Thay đổi thông tin hoặc số lượng bên dưới rồi bấm
+              "Cập nhật phiếu nhập".
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="cancel-edit-receipt-btn"
+            onClick={resetReceiptForm}
+            disabled={loading}
+          >
+            Hủy sửa
+          </button>
+        </section>
+      )}
 
       {/* THÔNG TIN PHIẾU */}
       <section className="import-info-card">
@@ -628,7 +839,13 @@ function NhapKho() {
           onClick={handleConfirm}
           disabled={loading || selectedItems.length === 0}
         >
-          {loading ? "Đang lưu..." : "Lưu phiếu nhập kho"}
+          {loading
+            ? editingReceiptId
+              ? "Đang cập nhật..."
+              : "Đang lưu..."
+            : editingReceiptId
+              ? "Cập nhật phiếu nhập"
+              : "Lưu phiếu nhập kho"}
         </button>
       </section>
 
@@ -636,6 +853,9 @@ function NhapKho() {
       <ImportHistory
         history={history}
         onPrint={handlePrintReceipt}
+        onEdit={handleEditReceipt}
+        onDelete={handleDeleteReceipt}
+        deletingId={deletingReceiptId}
       />
 
       {/* IN PHIẾU */}
