@@ -78,6 +78,36 @@ const today = () => {
     .slice(0, 10);
 };
 
+
+const toDateInput = (
+  value
+) => {
+  if (!value) {
+    return today();
+  }
+
+  const date =
+    new Date(value);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return today();
+  }
+
+  const offset =
+    date.getTimezoneOffset();
+
+  return new Date(
+    date.getTime() -
+      offset * 60000
+  )
+    .toISOString()
+    .slice(0, 10);
+};
+
 export default function Export({
   currentUser,
 }) {
@@ -121,6 +151,11 @@ export default function Export({
 
   const [historyRefresh, setHistoryRefresh] =
     useState(0);
+
+  const [
+    editingExportCode,
+    setEditingExportCode,
+  ] = useState("");
 
   const scanInputRef =
     useRef(null);
@@ -532,6 +567,176 @@ export default function Export({
     }, []);
 
   /* =========================================================
+     SỬA PHIẾU XUẤT TỪ LỊCH SỬ
+  ========================================================= */
+
+  const editExportReceipt =
+    useCallback(
+      async (
+        exportCode
+      ) => {
+        try {
+          const result =
+            await api(
+              `/receipts/${encodeURIComponent(
+                exportCode
+              )}`
+            );
+
+          const receipt =
+            result?.data;
+
+          if (!receipt) {
+            throw new Error(
+              "Không nhận được dữ liệu phiếu xuất"
+            );
+          }
+
+          const nextQuantityMap =
+            {};
+
+          for (
+            const item of
+              receipt.items || []
+          ) {
+            nextQuantityMap[
+              Number(
+                item.variant_id
+              )
+            ] =
+              Number(
+                item.quantity ||
+                  0
+              );
+          }
+
+          setEditingExportCode(
+            receipt.export_code
+          );
+
+          setExportDate(
+            toDateInput(
+              receipt.export_date
+            )
+          );
+
+          setExportedBy(
+            receipt.exported_by ||
+            ""
+          );
+
+          setChannelNote(
+            receipt.channel_note ||
+            ""
+          );
+
+          setQuantityMap(
+            nextQuantityMap
+          );
+
+          /*
+           * Nếu phiếu đã xuất từ báo giá:
+           * giữ sourceInvoice để UI khóa thay đổi SP/SL,
+           * chỉ cho sửa ngày / người xuất / ghi chú.
+           *
+           * Backend cũng kiểm tra lần nữa.
+           */
+          setSourceInvoice(
+            receipt.source_invoice ||
+            null
+          );
+
+          setSearch("");
+
+          setScanStatus({
+            type:
+              "success",
+
+            message:
+              `Đang sửa phiếu ${receipt.export_code}`,
+          });
+
+          window.scrollTo({
+            top: 0,
+            behavior:
+              "smooth",
+          });
+        } catch (error) {
+          console.error(
+            error
+          );
+
+          alert(
+            error?.message ||
+              "Không thể tải phiếu xuất để sửa"
+          );
+        }
+      },
+      []
+    );
+
+  const cancelEditReceipt =
+    useCallback(
+      () => {
+        setEditingExportCode(
+          ""
+        );
+
+        setQuantityMap(
+          {}
+        );
+
+        setSourceInvoice(
+          null
+        );
+
+        setExportDate(
+          today()
+        );
+
+        setExportedBy(
+          ""
+        );
+
+        setChannelNote(
+          ""
+        );
+
+        setSearch(
+          ""
+        );
+
+        setScanCode(
+          ""
+        );
+
+        setScanStatus({
+          type:
+            "idle",
+
+          message:
+            "Chưa quét.",
+        });
+      },
+      []
+    );
+
+  const refreshAfterHistoryChange =
+    useCallback(
+      async () => {
+        setHistoryRefresh(
+          (old) =>
+            old + 1
+        );
+
+        await loadData();
+      },
+      [
+        loadData,
+      ]
+    );
+
+  /* =========================================================
      SELECTED ITEMS
   ========================================================= */
 
@@ -635,7 +840,9 @@ export default function Export({
         return;
       }
 
-      if (!exportedBy.trim()) {
+      if (
+        !exportedBy.trim()
+      ) {
         alert(
           "Vui lòng nhập người xuất kho"
         );
@@ -654,82 +861,134 @@ export default function Export({
         return;
       }
 
+      const actionLabel =
+        editingExportCode
+          ? `cập nhật phiếu ${editingExportCode}`
+          : "xuất kho";
+
       const confirmMessage =
-  isAdmin
-    ? `Xác nhận xuất ${totalQuantity} sản phẩm?\n\nTổng giá vốn: ${new Intl.NumberFormat(
-        "vi-VN"
-      ).format(totalCost)} đ`
-    : `Xác nhận xuất ${totalQuantity} sản phẩm?`;
+        isAdmin
+          ? `Xác nhận ${actionLabel} với ${totalQuantity} sản phẩm?\n\nTổng giá vốn: ${new Intl.NumberFormat(
+              "vi-VN"
+            ).format(
+              totalCost
+            )} đ`
+          : `Xác nhận ${actionLabel} với ${totalQuantity} sản phẩm?`;
 
-const ok =
-  window.confirm(
-    confirmMessage
-  );
+      const ok =
+        window.confirm(
+          confirmMessage
+        );
 
-      if (!ok) return;
+      if (!ok) {
+        return;
+      }
 
       try {
-        setSaving(true);
+        setSaving(
+          true
+        );
+
+        const payload = {
+          export_date:
+            exportDate,
+
+          exported_by:
+            exportedBy.trim(),
+
+          channel_note:
+            channelNote.trim(),
+
+          source_invoice_id:
+            sourceInvoice?.id ||
+            null,
+
+          items:
+            selectedItems.map(
+              (item) => ({
+                variant_id:
+                  Number(
+                    item.id
+                  ),
+
+                quantity:
+                  Number(
+                    item.quantity
+                  ),
+              })
+            ),
+        };
 
         const result =
-          await api(
-            "/commit",
-            {
-              method: "POST",
+          editingExportCode
+            ? await api(
+                `/receipts/${encodeURIComponent(
+                  editingExportCode
+                )}`,
+                {
+                  method:
+                    "PUT",
 
-              body:
-                JSON.stringify({
-                  export_date:
-                    exportDate,
-
-                  exported_by:
-                    exportedBy.trim(),
-
-                  channel_note:
-                    channelNote.trim(),
-
-                  source_invoice_id:
-                    sourceInvoice?.id ||
-                    null,
-
-                  items:
-                    selectedItems.map(
-                      (item) => ({
-                        variant_id:
-                          Number(
-                            item.id
-                          ),
-
-                        quantity:
-                          Number(
-                            item.quantity
-                          ),
-                      })
+                  body:
+                    JSON.stringify(
+                      payload
                     ),
-                }),
-            }
-          );
+                }
+              )
+            : await api(
+                "/commit",
+                {
+                  method:
+                    "POST",
+
+                  body:
+                    JSON.stringify(
+                      payload
+                    ),
+                }
+              );
 
         alert(
           result?.message ||
-            "Xuất kho thành công"
+            (
+              editingExportCode
+                ? "Cập nhật phiếu xuất thành công"
+                : "Xuất kho thành công"
+            )
         );
 
-        setQuantityMap({});
+        const savedCode =
+          result?.data
+            ?.export_code ||
+          editingExportCode;
 
-        setSearch("");
+        setQuantityMap(
+          {}
+        );
 
-        setSourceInvoice(null);
+        setSearch(
+          ""
+        );
+
+        setSourceInvoice(
+          null
+        );
+
+        setEditingExportCode(
+          ""
+        );
 
         setHistoryRefresh(
-          (old) => old + 1
+          (old) =>
+            old + 1
         );
 
         setScanStatus({
-          type: "success",
+          type:
+            "success",
 
           message:
-            `Đã lưu phiếu ${result?.data?.export_code || ""}`,
+            `Đã lưu phiếu ${savedCode || ""}`,
         });
 
         await loadData();
@@ -740,19 +999,44 @@ const ok =
           }
         );
       } catch (error) {
-        console.error(error);
+        console.error(
+          error
+        );
 
         alert(
           error?.message ||
-            "Không thể lưu xuất kho"
+            (
+              editingExportCode
+                ? "Không thể cập nhật phiếu xuất"
+                : "Không thể lưu xuất kho"
+            )
         );
       } finally {
-        setSaving(false);
+        setSaving(
+          false
+        );
       }
     };
 
   const resetExport =
     () => {
+      if (
+        editingExportCode
+      ) {
+        const ok =
+          window.confirm(
+            `Hủy chỉnh sửa phiếu ${editingExportCode}?`
+          );
+
+        if (!ok) {
+          return;
+        }
+
+        cancelEditReceipt();
+
+        return;
+      }
+
       if (
         selectedItems.length >
           0 &&
@@ -763,17 +1047,25 @@ const ok =
         return;
       }
 
-      setQuantityMap({});
+      setQuantityMap(
+        {}
+      );
 
-      setSourceInvoice(null);
+      setSourceInvoice(
+        null
+      );
 
       setScanStatus({
-        type: "idle",
+        type:
+          "idle",
+
         message:
           "Chưa quét.",
       });
 
-      setScanCode("");
+      setScanCode(
+        ""
+      );
     };
 
   return (
@@ -874,11 +1166,21 @@ const ok =
         }
 
         onSelect={
-          selectInvoiceQuote
+          editingExportCode
+            ? () =>
+                alert(
+                  "Đang sửa phiếu xuất. Hãy hủy sửa trước khi chọn báo giá khác."
+                )
+            : selectInvoiceQuote
         }
 
         onClear={
-          clearInvoiceQuote
+          editingExportCode
+            ? () =>
+                alert(
+                  "Không thể bỏ liên kết báo giá khi đang sửa phiếu xuất."
+                )
+            : clearInvoiceQuote
         }
 
         refreshKey={
@@ -891,9 +1193,22 @@ const ok =
         refreshKey={
           historyRefresh
         }
+
         isAdmin={
-    isAdmin
-  }
+          isAdmin
+        }
+
+        onEdit={
+          editExportReceipt
+        }
+
+        onChanged={
+          refreshAfterHistoryChange
+        }
+
+        editingExportCode={
+          editingExportCode
+        }
       />
 
       <ExportSummary

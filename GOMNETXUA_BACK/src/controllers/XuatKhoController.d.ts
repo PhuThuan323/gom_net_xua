@@ -5,6 +5,9 @@ declare class ExportStockController {
     search(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     scan(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     commit(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    getReceipt(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    updateReceipt(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
+    deleteReceipt(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
     history(req: Request, res: Response): Promise<Response<any, Record<string, any>>>;
 }
 declare const _default: ExportStockController;

@@ -2,73 +2,79 @@ import {
   Router,
 } from "express";
 
-import exportStockController from "../controllers/XuatKhoController";
+import exportStockController
+  from "../controllers/XuatKhoController";
 
 const router =
   Router();
 
-/* =========================================================
-   DATA LOAD
-========================================================= */
+/*
+ * Route cố định đặt trước route động.
+ */
 
 router.get(
   "/bootstrap",
-
   exportStockController.bootstrap.bind(
     exportStockController
   )
 );
 
-/* =========================================================
-   SEARCH PRODUCT / SKU / BARCODE
-========================================================= */
+router.get(
+  "/invoice-quotes",
+  exportStockController.invoiceQuotes.bind(
+    exportStockController
+  )
+);
 
 router.get(
   "/search",
-
   exportStockController.search.bind(
     exportStockController
   )
 );
 
-/* =========================================================
-   BARCODE / SKU SCAN
-========================================================= */
-
 router.get(
   "/scan",
-
   exportStockController.scan.bind(
     exportStockController
   )
 );
 
-/* =========================================================
-   SAVE EXPORT
-========================================================= */
-
 router.post(
   "/commit",
-
   exportStockController.commit.bind(
     exportStockController
   )
 );
 
-/* =========================================================
-   HISTORY / COST REPORT
-========================================================= */
-
 router.get(
   "/history",
-
   exportStockController.history.bind(
     exportStockController
   )
 );
+
+/* =========================================================
+   PHIẾU XUẤT - IN / SỬA / XÓA
+========================================================= */
+
 router.get(
-  "/invoice-quotes",
-  exportStockController.invoiceQuotes.bind(
+  "/receipts/:exportCode",
+  exportStockController.getReceipt.bind(
+    exportStockController
+  )
+);
+
+router.put(
+  "/receipts/:exportCode",
+  exportStockController.updateReceipt.bind(
+    exportStockController
+  )
+);
+
+router.delete(
+  "/receipts/:exportCode",
+  exportStockController.deleteReceipt.bind(
     exportStockController
   )
 );

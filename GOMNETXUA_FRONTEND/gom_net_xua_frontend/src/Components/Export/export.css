@@ -1198,3 +1198,215 @@
     right: 8px;
   }
 }
+
+/* =========================================================
+   EXPORT RECEIPT - EDIT / DELETE / PRINT
+========================================================= */
+
+.export-editing-banner {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin:
+    0 0 18px;
+
+  padding:
+    15px 18px;
+
+  border:
+    1px solid #d8b08b;
+
+  border-left:
+    5px solid #8b4018;
+
+  border-radius:
+    14px;
+
+  background:
+    #fff5ea;
+}
+
+.export-editing-banner strong {
+  display: block;
+
+  margin-bottom:
+    5px;
+
+  color:
+    #6c2b0b;
+
+  font-size:
+    17px;
+}
+
+.export-editing-banner span {
+  color:
+    #7e6858;
+
+  font-size:
+    14px;
+}
+
+.export-cancel-edit-btn {
+  flex:
+    0 0 auto;
+
+  min-height:
+    42px;
+
+  padding:
+    0 16px;
+
+  border:
+    1px solid #cda98c;
+
+  border-radius:
+    10px;
+
+  background:
+    #fff;
+
+  color:
+    #71300e;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+}
+
+.export-cancel-edit-btn:hover:not(:disabled) {
+  background:
+    #f3e5d9;
+}
+
+.export-history-actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  gap:
+    7px;
+
+  min-width:
+    235px;
+}
+
+.export-history-action {
+  min-height:
+    38px;
+
+  padding:
+    0 12px;
+
+  border:
+    0;
+
+  border-radius:
+    9px;
+
+  font-size:
+    13px;
+
+  font-weight:
+    800;
+
+  cursor:
+    pointer;
+
+  white-space:
+    nowrap;
+}
+
+.export-history-action:disabled {
+  opacity:
+    0.5;
+
+  cursor:
+    not-allowed;
+}
+
+.export-history-action.print {
+  background:
+    #eadfce;
+
+  color:
+    #71300e;
+}
+
+.export-history-action.edit {
+  background:
+    #e2edf7;
+
+  color:
+    #1e5478;
+}
+
+.export-history-action.delete {
+  background:
+    #f7ddda;
+
+  color:
+    #a42c24;
+}
+
+.export-receipt-row-editing {
+  background:
+    #fff4e6 !important;
+
+  outline:
+    2px solid
+    rgba(
+      139,
+      64,
+      24,
+      0.18
+    );
+}
+
+.export-receipt-table th:last-child,
+.export-receipt-table td:last-child {
+  min-width:
+    245px;
+}
+
+@media (
+  max-width:
+    760px
+) {
+  .export-editing-banner {
+    align-items:
+      stretch;
+
+    flex-direction:
+      column;
+  }
+
+  .export-cancel-edit-btn {
+    width:
+      100%;
+  }
+
+  .export-history-actions {
+    min-width:
+      210px;
+
+    flex-direction:
+      column;
+
+    align-items:
+      stretch;
+  }
+
+  .export-history-action {
+    width:
+      100%;
+  }
+}

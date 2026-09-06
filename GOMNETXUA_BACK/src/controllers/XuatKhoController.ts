@@ -211,6 +211,77 @@ const buildExportNote = (
   return parts.join(" | ");
 };
 
+
+/* =========================================================
+   PARSE NOTE CỦA PHIẾU XUẤT
+
+   Lịch sử hiện đang lưu mã phiếu / người xuất / báo giá
+   trong cột note của InventoryTransaction.
+========================================================= */
+
+const parseExportNote = (
+  note: unknown
+) => {
+  const raw =
+    String(note ?? "");
+
+  const parts =
+    raw
+      .split(" | ")
+      .map(
+        (item) =>
+          item.trim()
+      );
+
+  const getValue =
+    (prefix: string) => {
+      const found =
+        parts.find(
+          (item) =>
+            item.startsWith(
+              prefix
+            )
+        );
+
+      if (!found) {
+        return null;
+      }
+
+      const value =
+        found
+          .slice(
+            prefix.length
+          )
+          .trim();
+
+      return value ||
+        null;
+    };
+
+  return {
+    exportCode:
+      getValue(
+        "Phiếu xuất:"
+      ),
+
+    exportedBy:
+      getValue(
+        "Người xuất:"
+      ),
+
+    invoiceCode:
+      getValue(
+        "Báo giá:"
+      ),
+
+    channelNote:
+      getValue(
+        "Kênh/Ghi chú:"
+      ),
+  };
+};
+
+
 /* =========================================================
    NORMALIZE ITEMS
 ========================================================= */
@@ -1624,6 +1695,1075 @@ class ExportStockController {
           data:
             result,
         });
+    } catch (error) {
+      return sendError(
+        res,
+        error
+      );
+    }
+  }
+
+  /* =======================================================
+     GET 1 PHIẾU XUẤT
+
+     GET /export-stock/receipts/:exportCode
+
+     Trả dữ liệu theo "phiếu", thay vì từng dòng giao dịch.
+  ======================================================= */
+
+  async getReceipt(
+    req: Request,
+    res: Response
+  ) {
+    try {
+      const exportCode =
+        String(
+          req.params.exportCode ||
+            ""
+        ).trim();
+
+      if (!exportCode) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Mã phiếu xuất không hợp lệ",
+        });
+      }
+
+      const candidates =
+        await prisma.inventoryTransaction.findMany({
+          where: {
+            transaction_type:
+              EXPORT_TRANSACTION_TYPE,
+
+            note: {
+              contains:
+                `Phiếu xuất: ${exportCode}`,
+            },
+          },
+
+          include: {
+            variant: {
+              include: {
+                product: {
+                  include: {
+                    group:
+                      true,
+                  },
+                },
+              },
+            },
+          },
+
+          orderBy: {
+            id:
+              "asc",
+          },
+        });
+
+      const rows =
+        candidates.filter(
+          (row) =>
+            parseExportNote(
+              row.note
+            ).exportCode ===
+            exportCode
+        );
+
+      if (
+        rows.length ===
+        0
+      ) {
+        return res.status(404).json({
+          success: false,
+          message:
+            `Không tìm thấy phiếu xuất ${exportCode}`,
+        });
+      }
+
+      const firstRow =
+  rows[0];
+
+if (!firstRow) {
+  throw new Error(
+    `Không tìm thấy dữ liệu phiếu xuất ${exportCode}`
+  );
+}
+
+const info =
+  parseExportNote(
+    firstRow.note
+  );
+
+      const sourceInvoice =
+        info.invoiceCode
+          ? await prisma.invoice.findFirst({
+              where: {
+                invoice_code:
+                  info.invoiceCode,
+              },
+
+              include: {
+                customer:
+                  true,
+
+                brand:
+                  true,
+
+                items: {
+                  include: {
+                    variant: {
+                      include: {
+                        product: {
+                          include: {
+                            group:
+                              true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            })
+          : null;
+
+      let totalQuantity =
+        0;
+
+      let totalCost =
+        new Prisma.Decimal(
+          0
+        );
+
+      const items =
+        rows.map(
+          (row) => {
+            totalQuantity +=
+              row.quantity;
+
+            if (
+              row.total_value
+            ) {
+              totalCost =
+                totalCost.plus(
+                  row.total_value
+                );
+            }
+
+            return {
+              id:
+                row.id,
+
+              variant_id:
+                row.variant_id,
+
+              quantity:
+                row.quantity,
+
+              quantity_before:
+                row.quantity_before,
+
+              quantity_after:
+                row.quantity_after,
+
+              unit_cost:
+                row.unit_price?.toString() ||
+                "0",
+
+              total_cost:
+                row.total_value?.toString() ||
+                "0",
+
+              variant: {
+                id:
+                  row.variant.id,
+
+                variant_code:
+                  row.variant.variant_code,
+
+                barcode:
+                  row.variant.barcode,
+
+                size:
+                  row.variant.size,
+
+                current_quantity:
+                  row.variant.current_quantity,
+
+                product_name:
+                  row.variant.product.product_name,
+
+                group_name:
+                  row.variant.product.group.group_name,
+              },
+            };
+          }
+        );
+
+      return res.json({
+        success: true,
+
+        data: {
+          export_code:
+            exportCode,
+
+          export_date:
+            firstRow.created_at,
+
+          exported_by:
+            info.exportedBy ||
+            "",
+
+          channel_note:
+            info.channelNote ||
+            "",
+
+          source_invoice_code:
+            info.invoiceCode,
+
+          source_invoice:
+            sourceInvoice,
+
+          total_items:
+            items.length,
+
+          total_quantity:
+            totalQuantity,
+
+          total_cost:
+            totalCost.toString(),
+
+          items,
+        },
+      });
+    } catch (error) {
+      return sendError(
+        res,
+        error,
+        500
+      );
+    }
+  }
+
+  /* =======================================================
+     UPDATE PHIẾU XUẤT
+
+     PUT /export-stock/receipts/:exportCode
+
+     CÁCH LÀM AN TOÀN:
+     1. Đọc phiếu cũ.
+     2. Hoàn tồn toàn bộ phiếu cũ.
+     3. Kiểm tra lại phiếu mới.
+     4. Trừ tồn theo số lượng mới.
+     5. Xóa transaction cũ + tạo transaction mới.
+     6. Tất cả nằm trong 1 SERIALIZABLE TRANSACTION.
+
+     Nếu phiếu xuất từ báo giá:
+     - vẫn giữ liên kết báo giá.
+     - danh sách + số lượng phải KHỚP báo giá.
+     - báo giá vẫn ở trạng thái processed.
+  ======================================================= */
+
+  async updateReceipt(
+    req: Request,
+    res: Response
+  ) {
+    try {
+      const exportCode =
+        String(
+          req.params.exportCode ||
+            ""
+        ).trim();
+
+      if (!exportCode) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Mã phiếu xuất không hợp lệ",
+        });
+      }
+
+      const {
+        export_date,
+        exported_by,
+        channel_note,
+        items,
+      } = req.body ?? {};
+
+      if (
+        typeof exported_by !==
+          "string" ||
+        !exported_by.trim()
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Vui lòng nhập người xuất kho",
+        });
+      }
+
+      const normalizedItems =
+        normalizeItems(
+          items
+        );
+
+      const exportDate =
+        parseExportDate(
+          export_date
+        );
+
+      const exporter =
+        exported_by.trim();
+
+      const channelNote =
+        typeof channel_note ===
+          "string" &&
+        channel_note.trim()
+          ? channel_note.trim()
+          : null;
+
+      const result =
+        await runStockTransaction(
+          async (tx) => {
+            const candidates =
+              await tx.inventoryTransaction.findMany({
+                where: {
+                  transaction_type:
+                    EXPORT_TRANSACTION_TYPE,
+
+                  note: {
+                    contains:
+                      `Phiếu xuất: ${exportCode}`,
+                  },
+                },
+
+                include: {
+                  variant: {
+                    include: {
+                      product: {
+                        include: {
+                          group:
+                            true,
+                        },
+                      },
+                    },
+                  },
+                },
+
+                orderBy: {
+                  id:
+                    "asc",
+                },
+              });
+
+            const oldRows =
+              candidates.filter(
+                (row) =>
+                  parseExportNote(
+                    row.note
+                  ).exportCode ===
+                  exportCode
+              );
+
+            if (
+              oldRows.length ===
+              0
+            ) {
+              throw new Error(
+                `Không tìm thấy phiếu xuất ${exportCode}`
+              );
+            }
+
+            const firstOldRow =
+  oldRows[0];
+
+if (!firstOldRow) {
+  throw new Error(
+    `Không tìm thấy phiếu xuất ${exportCode}`
+  );
+}
+
+const oldInfo =
+  parseExportNote(
+    firstOldRow.note
+  );
+            /*
+             * Nếu phiếu này xuất từ báo giá,
+             * giữ nguyên liên kết báo giá.
+             */
+            const sourceInvoice =
+              oldInfo.invoiceCode
+                ? await tx.invoice.findFirst({
+                    where: {
+                      invoice_code:
+                        oldInfo.invoiceCode,
+                    },
+
+                    select: {
+                      id:
+                        true,
+
+                      invoice_code:
+                        true,
+
+                      warehouse_status:
+                        true,
+
+                      items: {
+                        select: {
+                          variant_id:
+                            true,
+
+                          quantity:
+                            true,
+                        },
+                      },
+                    },
+                  })
+                : null;
+
+            /*
+             * Nếu có báo giá nguồn:
+             * dữ liệu mới bắt buộc khớp báo giá.
+             */
+            if (
+              sourceInvoice
+            ) {
+              const invoiceMap =
+                new Map<
+                  number,
+                  number
+                >();
+
+              for (
+                const item of
+                  sourceInvoice.items
+              ) {
+                invoiceMap.set(
+                  item.variant_id,
+                  (
+                    invoiceMap.get(
+                      item.variant_id
+                    ) || 0
+                  ) +
+                    item.quantity
+                );
+              }
+
+              const newMap =
+                new Map<
+                  number,
+                  number
+                >();
+
+              for (
+                const item of
+                  normalizedItems
+              ) {
+                newMap.set(
+                  item.variant_id,
+                  (
+                    newMap.get(
+                      item.variant_id
+                    ) || 0
+                  ) +
+                    item.quantity
+                );
+              }
+
+              if (
+                invoiceMap.size !==
+                newMap.size
+              ) {
+                throw new Error(
+                  "Phiếu này xuất từ báo giá nên không thể thay đổi danh sách sản phẩm khác báo giá."
+                );
+              }
+
+              for (
+                const [
+                  variantId,
+                  invoiceQuantity,
+                ] of
+                  invoiceMap.entries()
+              ) {
+                if (
+                  newMap.get(
+                    variantId
+                  ) !==
+                  invoiceQuantity
+                ) {
+                  throw new Error(
+                    `Số lượng sản phẩm ID ${variantId} phải khớp báo giá: ${invoiceQuantity}`
+                  );
+                }
+              }
+            }
+
+            /*
+             * Gom số lượng phiếu cũ theo variant
+             * rồi hoàn lại tồn.
+             */
+            const oldQtyMap =
+              new Map<
+                number,
+                number
+              >();
+
+            const oldCostMap =
+              new Map<
+                number,
+                Prisma.Decimal
+              >();
+
+            for (
+              const row of
+                oldRows
+            ) {
+              oldQtyMap.set(
+                row.variant_id,
+                (
+                  oldQtyMap.get(
+                    row.variant_id
+                  ) || 0
+                ) +
+                  row.quantity
+              );
+
+              if (
+                row.unit_price
+              ) {
+                oldCostMap.set(
+                  row.variant_id,
+                  row.unit_price
+                );
+              }
+            }
+
+            for (
+              const [
+                variantId,
+                quantity,
+              ] of
+                oldQtyMap.entries()
+            ) {
+              await tx.productVariant.update({
+                where: {
+                  id:
+                    variantId,
+                },
+
+                data: {
+                  current_quantity: {
+                    increment:
+                      quantity,
+                  },
+                },
+              });
+            }
+
+            /*
+             * Đọc tồn sau khi đã hoàn phiếu cũ.
+             */
+            const variants =
+              await tx.productVariant.findMany({
+                where: {
+                  id: {
+                    in:
+                      normalizedItems.map(
+                        (item) =>
+                          item.variant_id
+                      ),
+                  },
+                },
+
+                include: {
+                  product: {
+                    include: {
+                      group:
+                        true,
+                    },
+                  },
+                },
+              });
+
+            if (
+              variants.length !==
+              normalizedItems.length
+            ) {
+              throw new Error(
+                "Có sản phẩm không tồn tại trong hệ thống"
+              );
+            }
+
+            const variantMap =
+              new Map(
+                variants.map(
+                  (variant) => [
+                    variant.id,
+                    variant,
+                  ]
+                )
+              );
+
+            const note =
+              buildExportNote(
+                exportCode,
+                exporter,
+                channelNote,
+                sourceInvoice?.invoice_code ??
+                  oldInfo.invoiceCode ??
+                  null
+              );
+
+            /*
+             * Xóa các dòng cũ.
+             */
+            await tx.inventoryTransaction.deleteMany({
+              where: {
+                id: {
+                  in:
+                    oldRows.map(
+                      (row) =>
+                        row.id
+                    ),
+                },
+              },
+            });
+
+            let totalQuantity =
+              0;
+
+            let totalCost =
+              new Prisma.Decimal(
+                0
+              );
+
+            const newRows:
+              {
+                variant_id: number;
+                quantity: number;
+                quantity_before: number;
+                quantity_after: number;
+                unit_cost: string;
+                total_cost: string;
+              }[] = [];
+
+            for (
+              const item of
+                normalizedItems
+            ) {
+              const variant =
+                variantMap.get(
+                  item.variant_id
+                );
+
+              if (!variant) {
+                throw new Error(
+                  `Không tìm thấy sản phẩm ID ${item.variant_id}`
+                );
+              }
+
+              if (
+                variant.status !==
+                  "active" ||
+                variant.product.status !==
+                  "active"
+              ) {
+                throw new Error(
+                  `${variant.product.product_name} đã ngừng hoạt động`
+                );
+              }
+
+              if (
+                item.quantity >
+                variant.current_quantity
+              ) {
+                throw new Error(
+                  `${variant.product.product_name} ${variant.size || ""}: yêu cầu xuất ${item.quantity}, nhưng tồn sau khi hoàn phiếu cũ chỉ có ${variant.current_quantity}`
+                );
+              }
+
+              const before =
+                variant.current_quantity;
+
+              const after =
+                before -
+                item.quantity;
+
+              /*
+               * Nếu sản phẩm đã có trong phiếu cũ:
+               * giữ nguyên giá vốn snapshot cũ.
+               *
+               * Nếu là sản phẩm mới:
+               * lấy giá vốn hiện tại.
+               */
+              const unitCost =
+                oldCostMap.get(
+                  variant.id
+                ) ||
+                variant.purchase_price;
+
+              const itemCost =
+                unitCost.mul(
+                  item.quantity
+                );
+
+              const updated =
+                await tx.productVariant.updateMany({
+                  where: {
+                    id:
+                      variant.id,
+
+                    current_quantity: {
+                      gte:
+                        item.quantity,
+                    },
+                  },
+
+                  data: {
+                    current_quantity: {
+                      decrement:
+                        item.quantity,
+                    },
+                  },
+                });
+
+              if (
+                updated.count !==
+                1
+              ) {
+                throw new Error(
+                  `${variant.product.product_name} vừa thay đổi tồn kho. Vui lòng tải lại và thử lại.`
+                );
+              }
+
+              await tx.inventoryTransaction.create({
+                data: {
+                  variant_id:
+                    variant.id,
+
+                  transaction_type:
+                    EXPORT_TRANSACTION_TYPE,
+
+                  quantity:
+                    item.quantity,
+
+                  quantity_before:
+                    before,
+
+                  quantity_after:
+                    after,
+
+                  unit_price:
+                    unitCost,
+
+                  total_value:
+                    itemCost,
+
+                  note,
+
+                  created_at:
+                    exportDate,
+                },
+              });
+
+              totalQuantity +=
+                item.quantity;
+
+              totalCost =
+                totalCost.plus(
+                  itemCost
+                );
+
+              newRows.push({
+                variant_id:
+                  variant.id,
+
+                quantity:
+                  item.quantity,
+
+                quantity_before:
+                  before,
+
+                quantity_after:
+                  after,
+
+                unit_cost:
+                  unitCost.toString(),
+
+                total_cost:
+                  itemCost.toString(),
+              });
+            }
+
+            /*
+             * Phiếu có báo giá nguồn vẫn phải ở processed.
+             */
+            if (
+              sourceInvoice
+            ) {
+              await tx.invoice.update({
+                where: {
+                  id:
+                    sourceInvoice.id,
+                },
+
+                data: {
+                  warehouse_status:
+                    "processed",
+                },
+              });
+            }
+
+            return {
+              export_code:
+                exportCode,
+
+              export_date:
+                exportDate,
+
+              exported_by:
+                exporter,
+
+              channel_note:
+                channelNote,
+
+              source_invoice_code:
+                sourceInvoice?.invoice_code ??
+                oldInfo.invoiceCode ??
+                null,
+
+              total_items:
+                newRows.length,
+
+              total_quantity:
+                totalQuantity,
+
+              total_cost:
+                totalCost.toString(),
+
+              items:
+                newRows,
+            };
+          }
+        );
+
+      return res.json({
+        success: true,
+
+        message:
+          `Đã cập nhật phiếu xuất ${exportCode}`,
+
+        data:
+          result,
+      });
+    } catch (error) {
+      return sendError(
+        res,
+        error
+      );
+    }
+  }
+
+  /* =======================================================
+     DELETE PHIẾU XUẤT
+
+     DELETE /export-stock/receipts/:exportCode
+
+     - Hoàn lại toàn bộ tồn kho.
+     - Xóa các transaction của phiếu.
+     - Nếu phiếu xuất từ báo giá:
+       chuyển báo giá processed -> not_processed
+       để có thể xuất lại.
+  ======================================================= */
+
+  async deleteReceipt(
+    req: Request,
+    res: Response
+  ) {
+    try {
+      const exportCode =
+        String(
+          req.params.exportCode ||
+            ""
+        ).trim();
+
+      if (!exportCode) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "Mã phiếu xuất không hợp lệ",
+        });
+      }
+
+      const result =
+        await runStockTransaction(
+          async (tx) => {
+            const candidates =
+              await tx.inventoryTransaction.findMany({
+                where: {
+                  transaction_type:
+                    EXPORT_TRANSACTION_TYPE,
+
+                  note: {
+                    contains:
+                      `Phiếu xuất: ${exportCode}`,
+                  },
+                },
+
+                orderBy: {
+                  id:
+                    "asc",
+                },
+              });
+
+            const rows =
+              candidates.filter(
+                (row) =>
+                  parseExportNote(
+                    row.note
+                  ).exportCode ===
+                  exportCode
+              );
+
+            if (
+              rows.length ===
+              0
+            ) {
+              throw new Error(
+                `Không tìm thấy phiếu xuất ${exportCode}`
+              );
+            }
+
+            const firstRow =
+  rows[0];
+
+if (!firstRow) {
+  throw new Error(
+    `Không tìm thấy dữ liệu phiếu xuất ${exportCode}`
+  );
+}
+
+const info =
+  parseExportNote(
+    firstRow.note
+  );
+
+            const qtyMap =
+              new Map<
+                number,
+                number
+              >();
+
+            for (
+              const row of
+                rows
+            ) {
+              qtyMap.set(
+                row.variant_id,
+                (
+                  qtyMap.get(
+                    row.variant_id
+                  ) || 0
+                ) +
+                  row.quantity
+              );
+            }
+
+            /*
+             * HOÀN TỒN.
+             */
+            for (
+              const [
+                variantId,
+                quantity,
+              ] of
+                qtyMap.entries()
+            ) {
+              await tx.productVariant.update({
+                where: {
+                  id:
+                    variantId,
+                },
+
+                data: {
+                  current_quantity: {
+                    increment:
+                      quantity,
+                  },
+                },
+              });
+            }
+
+            await tx.inventoryTransaction.deleteMany({
+              where: {
+                id: {
+                  in:
+                    rows.map(
+                      (row) =>
+                        row.id
+                    ),
+                },
+              },
+            });
+
+            /*
+             * Nếu phiếu gắn báo giá,
+             * mở lại trạng thái để được xuất kho lại.
+             */
+            if (
+              info.invoiceCode
+            ) {
+              await tx.invoice.updateMany({
+                where: {
+                  invoice_code:
+                    info.invoiceCode,
+
+                  warehouse_status:
+                    "processed",
+                },
+
+                data: {
+                  warehouse_status:
+                    "not_processed",
+                },
+              });
+            }
+
+            return {
+              export_code:
+                exportCode,
+
+              restored_quantity:
+                Array.from(
+                  qtyMap.values()
+                ).reduce(
+                  (
+                    sum,
+                    quantity
+                  ) =>
+                    sum +
+                    quantity,
+                  0
+                ),
+
+              source_invoice_code:
+                info.invoiceCode,
+            };
+          }
+        );
+
+      return res.json({
+        success: true,
+
+        message:
+          `Đã xóa phiếu xuất ${exportCode} và hoàn lại tồn kho`,
+
+        data:
+          result,
+      });
     } catch (error) {
       return sendError(
         res,
