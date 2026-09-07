@@ -5,6 +5,8 @@ import {
   useState,
 } from "react";
 
+import JsBarcode from "jsbarcode";
+
 const money = (
   value
 ) =>
@@ -131,105 +133,20 @@ const escapeHtml = (
 
 
 /* =========================================================
-   BARCODE SVG - CODE 39
-   - Tạo mã vạch trực tiếp thành SVG.
-   - Không cần tải JsBarcode/CDN.
-   - Giá trị quét lấy từ variant.barcode.
+   BARCODE SVG - CODE128
+   - Dùng CHÍNH JsBarcode giống phần Tem & Mã vạch.
+   - Không tự vẽ Code39 nữa.
+   - displayValue = true để mã chữ nằm dưới barcode.
+   - Kích thước lớn hơn để máy quét đọc ổn định trên A4.
 ========================================================= */
 
-const CODE39 = {
-  "0": "nnnwwnwnn",
-  "1": "wnnwnnnnw",
-  "2": "nnwwnnnnw",
-  "3": "wnwwnnnnn",
-  "4": "nnnwwnnnw",
-  "5": "wnnwwnnnn",
-  "6": "nnwwwnnnn",
-  "7": "nnnwnnwnw",
-  "8": "wnnwnnwnn",
-  "9": "nnwwnnwnn",
-
-  A: "wnnnnwnnw",
-  B: "nnwnnwnnw",
-  C: "wnwnnwnnn",
-  D: "nnnnwwnnw",
-  E: "wnnnwwnnn",
-  F: "nnwnwwnnn",
-  G: "nnnnnwwnw",
-  H: "wnnnnwwnn",
-  I: "nnwnnwwnn",
-  J: "nnnnwwwnn",
-
-  K: "wnnnnnnww",
-  L: "nnwnnnnww",
-  M: "wnwnnnnwn",
-  N: "nnnnwnnww",
-  O: "wnnnwnnwn",
-  P: "nnwnwnnwn",
-  Q: "nnnnnnwww",
-  R: "wnnnnnwwn",
-  S: "nnwnnnwwn",
-  T: "nnnnwnwwn",
-
-  U: "wwnnnnnnw",
-  V: "nwwnnnnnw",
-  W: "wwwnnnnnn",
-  X: "nwnnwnnnw",
-  Y: "wwnnwnnnn",
-  Z: "nwwnwnnnn",
-
-  "-": "nwnnnnwnw",
-  ".": "wwnnnnwnn",
-  " ": "nwwnnnwnn",
-  "*": "nwnnwnwnn",
-  "$": "nwnwnwnnn",
-  "/": "nwnwnnnwn",
-  "+": "nwnnnwnwn",
-  "%": "nnnwnwnwn",
-};
-
-const normalizeBarcodeValue = (
+const buildBarcodeSvg = (
   value
 ) => {
-  const raw =
+  const clean =
     String(
       value ?? ""
-    )
-      .trim()
-      .toUpperCase();
-
-  if (!raw) {
-    return "";
-  }
-
-  /*
-   * Chỉ giữ ký tự Code39 hỗ trợ.
-   * Barcode hiện tại của hệ thống dạng:
-   * THQDV-18CM-1000ML
-   * => hỗ trợ đầy đủ.
-   */
-  return raw
-    .split("")
-    .filter(
-      (char) =>
-        Boolean(
-          CODE39[
-            char
-          ]
-        ) &&
-        char !== "*"
-    )
-    .join("");
-};
-
-const buildBarcodeSvg = (
-  value,
-  height = 44
-) => {
-  const clean =
-    normalizeBarcodeValue(
-      value
-    );
+    ).trim();
 
   if (!clean) {
     return `
@@ -240,111 +157,87 @@ const buildBarcodeSvg = (
   }
 
   /*
-   * Code39 cần ký tự * ở đầu và cuối.
+   * Hàm này chạy khi người dùng bấm "In phiếu"
+   * trên trình duyệt, vì vậy có thể tạo SVG tạm
+   * rồi để JsBarcode render giống hệt trang Tem.
    */
-  const encoded =
-    `*${clean}*`;
+  const svg =
+    document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "svg"
+    );
 
-  /*
-   * Kích thước module trong viewBox.
-   * Khi in CSS sẽ scale SVG lên khoảng 56mm,
-   * đủ lớn để máy quét đọc ổn định hơn.
-   */
-  const narrow =
-    2;
+  try {
+    JsBarcode(
+      svg,
+      clean,
+      {
+        format:
+          "CODE128",
 
-  const wide =
-    5;
+        displayValue:
+          true,
 
-  const gap =
-    2;
+        /*
+         * Giữ thông số gần giống BarcodeDisplay:
+         * width 2 / height 60 / margin 10.
+         */
+        width:
+          2,
 
-  const quietZone =
-    12;
+        height:
+          60,
 
-  let x =
-    quietZone;
+        margin:
+          10,
 
-  const rects =
-    [];
+        fontSize:
+          14,
 
-  for (
-    const char of
-      encoded
-  ) {
-    const pattern =
-      CODE39[
-        char
-      ];
+        textMargin:
+          3,
 
-    if (!pattern) {
-      continue;
-    }
+        background:
+          "#ffffff",
 
-    for (
-      let index = 0;
-      index <
-      pattern.length;
-      index += 1
-    ) {
-      const moduleWidth =
-        pattern[
-          index
-        ] === "w"
-          ? wide
-          : narrow;
-
-      /*
-       * Code39 xen kẽ bar / khoảng trắng.
-       * index chẵn = thanh đen.
-       */
-      if (
-        index %
-          2 ===
-        0
-      ) {
-        rects.push(
-          `<rect x="${x}" y="2" width="${moduleWidth}" height="${height}" fill="#000" />`
-        );
+        lineColor:
+          "#000000",
       }
+    );
 
-      x +=
-        moduleWidth;
-    }
+    svg.setAttribute(
+      "class",
+      "receipt-barcode"
+    );
 
-    /*
-     * Khoảng cách giữa 2 ký tự.
-     */
-    x +=
-      gap;
+    svg.setAttribute(
+      "role",
+      "img"
+    );
+
+    svg.setAttribute(
+      "aria-label",
+      `Mã vạch ${clean}`
+    );
+
+    return svg.outerHTML;
+  } catch (error) {
+    console.error(
+      "Lỗi tạo barcode phiếu xuất:",
+      error
+    );
+
+    return `
+      <div class="barcode-error">
+        Không tạo được barcode
+        <small>${escapeHtml(
+          clean
+        )}</small>
+      </div>
+    `;
   }
-
-  const totalWidth =
-    x +
-    quietZone;
-
-  const totalHeight =
-    height +
-    4;
-
-  return `
-    <svg
-      class="receipt-barcode"
-      viewBox="0 0 ${totalWidth} ${totalHeight}"
-      xmlns="http://www.w3.org/2000/svg"
-      role="img"
-      aria-label="Mã vạch ${escapeHtml(
-        clean
-      )}"
-      preserveAspectRatio="xMidYMid meet"
-      shape-rendering="crispEdges"
-    >
-      ${rects.join(
-        ""
-      )}
-    </svg>
-  `;
 };
+
 
 function buildReceiptPrintHtml(
   receipt,
@@ -457,22 +350,27 @@ function buildReceiptPrintHtml(
   box-sizing: border-box;
 }
 .barcode-cell {
-  width: 58mm;
-  min-width: 52mm;
+  width: 70mm;
+  min-width: 64mm;
 
   text-align: center;
   vertical-align: middle;
 
-  padding: 2mm 1.5mm;
+  padding: 2.5mm 2mm;
+
+  background: #fff;
 }
 
 .receipt-barcode {
   display: block;
 
-  width: 56mm;
+  /*
+   * SVG được JsBarcode tạo theo CODE128.
+   * Chỉ scale theo chiều ngang, không ép méo chiều cao.
+   */
+  width: 68mm;
   max-width: 100%;
-
-  height: 13mm;
+  height: auto;
 
   margin: 0 auto;
 
@@ -488,6 +386,19 @@ function buildReceiptPrintHtml(
 
   font-size: 8px;
   font-style: italic;
+}
+
+
+.barcode-error {
+  color: #a22;
+  font-size: 8px;
+  text-align: center;
+}
+
+.barcode-error small {
+  display: block;
+  margin-top: 2px;
+  color: #555;
 }
 body {
   margin: 0;
@@ -646,6 +557,14 @@ td.money {
   .barcode-cell {
     break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  /*
+   * Máy quét barcode cần nét đen rõ.
+   */
+  .receipt-barcode {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
 </style>
