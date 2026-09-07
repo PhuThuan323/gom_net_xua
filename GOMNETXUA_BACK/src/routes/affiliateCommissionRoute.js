@@ -26,7 +26,7 @@ router.get("/affiliates", authMiddleware_1.requireAuth, affiliateCommissionContr
    Nếu sau này dùng trang quản trị thanh toán
    thì chỉ ADMIN xem
 ========================================================= */
-router.get("/payments", authMiddleware_1.requireAuth, authMiddleware_1.requireAdmin, affiliateCommissionController_1.default
+router.get("/payments", authMiddleware_1.requireAuth, affiliateCommissionController_1.default
     .payments
     .bind(affiliateCommissionController_1.default));
 exports.default = router;

@@ -1,7 +1,15 @@
 import {
-  Request,
   Response,
 } from "express";
+
+import {
+  AuthRequest,
+} from "../middleware/authMiddleware";
+
+import {
+  filterAffiliateListForUser,
+  resolveAffiliateScope,
+} from "../utils/AffiliateAccess";
 
 const SCRIPT_URL =
   process.env.AFFILIATE_SCRIPT_URL ||
@@ -10,6 +18,153 @@ const SCRIPT_URL =
 const SCRIPT_TOKEN =
   process.env.AFFILIATE_SCRIPT_TOKEN ||
   "";
+
+/* =========================================================
+   TYPES
+========================================================= */
+
+type AffiliateRow = {
+  ma_affiliate?: string;
+  ten_affiliate?: string;
+  [key: string]: unknown;
+};
+
+type PaymentRow = {
+  ngay_lap_phieu?: string;
+  ma_affiliate?: string;
+  so_tien?: number | string;
+  phuong_thuc?: string;
+  ma_giao_dich?: string;
+  nguoi_thuc_hien?: string;
+  trang_thai?: string;
+  thoi_gian_thanh_toan?: string;
+  ghi_chu?: string;
+  [key: string]: unknown;
+};
+
+type ErrorWithStatus =
+  Error & {
+    status?: number;
+  };
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const text =
+  (
+    value: unknown
+  ) =>
+    String(
+      value ?? ""
+    ).trim();
+
+const normalize =
+  (
+    value: unknown
+  ) =>
+    text(
+      value
+    ).toUpperCase();
+
+const getErrorStatus =
+  (
+    error: unknown,
+    fallback = 500
+  ) => {
+    if (
+      error &&
+      typeof error ===
+        "object" &&
+      "status" in error
+    ) {
+      const status =
+        Number(
+          (
+            error as {
+              status?: unknown;
+            }
+          ).status
+        );
+
+      if (
+        Number.isInteger(
+          status
+        ) &&
+        status >= 400 &&
+        status <= 599
+      ) {
+        return status;
+      }
+    }
+
+    return fallback;
+  };
+
+const getErrorMessage =
+  (
+    error: unknown,
+    fallback: string
+  ) =>
+    error instanceof Error
+      ? error.message
+      : fallback;
+
+/*
+ * Lấy YYYY-MM từ ngày Apps Script.
+ *
+ * Apps Script hiện trả:
+ * yyyy-MM-dd HH:mm:ss
+ */
+const getMonthKey =
+  (
+    value: unknown
+  ) => {
+    const raw =
+      text(
+        value
+      );
+
+    if (!raw) {
+      return "";
+    }
+
+    const date =
+      new Date(
+        raw.replace(
+          " ",
+          "T"
+        )
+      );
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      /*
+       * Fallback nếu dữ liệu
+       * đã ở dạng YYYY-MM...
+       */
+      const match =
+        raw.match(
+          /^(\d{4})-(\d{2})/
+        );
+
+      if (match) {
+        return `${match[1]}-${match[2]}`;
+      }
+
+      return "";
+    }
+
+    return `${date.getFullYear()}-${String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
 /* =========================================================
    AFFILIATE COMMISSION CONTROLLER
@@ -29,7 +184,6 @@ class AffiliateCommissionController {
         string
       > = {}
   ) {
-
     if (!SCRIPT_URL) {
       throw new Error(
         "Thiếu AFFILIATE_SCRIPT_URL trong .env"
@@ -58,8 +212,8 @@ class AffiliateCommissionController {
     );
 
     /*
-      Chống cache
-    */
+     * Chống cache.
+     */
     url.searchParams.set(
       "_ts",
       Date.now()
@@ -69,16 +223,25 @@ class AffiliateCommissionController {
     Object.entries(
       params
     ).forEach(
-      ([key, value]) => {
-
+      (
+        [
+          key,
+          value,
+        ]
+      ) => {
         if (
-          value !== undefined &&
-          value !== null &&
-          value !== ""
+          value !==
+            undefined &&
+          value !==
+            null &&
+          value !==
+            ""
         ) {
           url.searchParams.set(
             key,
-            String(value)
+            String(
+              value
+            )
           );
         }
       }
@@ -90,7 +253,7 @@ class AffiliateCommissionController {
 
     console.log(
       "CONTROLLER VERSION:",
-      "AFFILIATE-DASHBOARD-V5"
+      "AFFILIATE-DASHBOARD-V6"
     );
 
     console.log(
@@ -98,6 +261,9 @@ class AffiliateCommissionController {
       action
     );
 
+    /*
+     * Không log token.
+     */
     console.log(
       "AFFILIATE PARAMS:",
       params
@@ -116,7 +282,8 @@ class AffiliateCommissionController {
       await fetch(
         url.toString(),
         {
-          method: "GET",
+          method:
+            "GET",
 
           headers: {
             Accept:
@@ -147,17 +314,17 @@ class AffiliateCommissionController {
       )
     );
 
-    let result: any;
+    let result:
+      any;
 
     try {
-
       result =
-        JSON.parse(
-          raw
-        );
-
+        raw
+          ? JSON.parse(
+              raw
+            )
+          : {};
     } catch {
-
       throw new Error(
         "Google Apps Script không trả JSON"
       );
@@ -172,11 +339,12 @@ class AffiliateCommissionController {
     }
 
     if (
-      result.success === false
+      result.success ===
+      false
     ) {
       throw new Error(
         result.message ||
-        "Google Apps Script báo lỗi"
+          "Google Apps Script báo lỗi"
       );
     }
 
@@ -185,32 +353,43 @@ class AffiliateCommissionController {
 
   /* =======================================================
      DASHBOARD
+
+     ADMIN:
+     - được chọn Affiliate bất kỳ.
+
+     LIVESTREAMER:
+     - backend KHÔNG tin query affiliate.
+     - luôn đọc affiliate_code từ database.
   ======================================================= */
 
   async dashboard(
-    req: Request,
+    req: AuthRequest,
     res: Response
   ) {
-
     try {
-
       const month =
         typeof req.query.month ===
         "string"
           ? req.query.month
+              .trim()
           : "";
-
-      const affiliate =
-        typeof req.query.affiliate ===
-        "string"
-          ? req.query.affiliate
-          : "ALL";
 
       const status =
         typeof req.query.status ===
         "string"
           ? req.query.status
+              .trim()
           : "ALL";
+
+      /*
+       * QUAN TRỌNG:
+       * ADMIN -> query affiliate.
+       * LIVESTREAMER -> affiliate_code trong DB.
+       */
+      const affiliate =
+        await resolveAffiliateScope(
+          req
+        );
 
       console.log(
         "REPORT FILTER:",
@@ -220,12 +399,6 @@ class AffiliateCommissionController {
           status,
         }
       );
-
-      /*
-        QUAN TRỌNG:
-        PHẢI LÀ dashboard
-        KHÔNG PHẢI report
-      */
 
       const data =
         await this.request(
@@ -238,108 +411,346 @@ class AffiliateCommissionController {
         );
 
       return res.json({
-        success: true,
+        success:
+          true,
+
         data,
       });
-
-    } catch (error) {
-
+    } catch (
+      error
+    ) {
       console.error(
         "AFFILIATE REPORT:",
         error
       );
 
       return res
-        .status(500)
+        .status(
+          getErrorStatus(
+            error
+          )
+        )
         .json({
-          success: false,
+          success:
+            false,
 
           message:
-            error instanceof Error
-              ? error.message
-              : "Không tải được báo cáo hoa hồng",
+            getErrorMessage(
+              error,
+              "Không tải được báo cáo hoa hồng"
+            ),
         });
     }
   }
 
   /* =======================================================
      AFFILIATES
+
+     ADMIN:
+     - thấy toàn bộ Affiliate từ Sheet.
+
+     LIVESTREAMER:
+     - chỉ nhận đúng Affiliate đã được gắn.
   ======================================================= */
 
   async affiliates(
-    req: Request,
+    req: AuthRequest,
     res: Response
   ) {
-
     try {
-
       const data =
         await this.request(
           "affiliates"
         );
 
+      const rows:
+        AffiliateRow[] =
+          Array.isArray(
+            data
+          )
+            ? data
+            : [];
+
+      const visibleRows =
+        await filterAffiliateListForUser(
+          req,
+          rows
+        );
+
       return res.json({
-        success: true,
-        data,
+        success:
+          true,
+
+        data:
+          visibleRows,
       });
-
-    } catch (error) {
-
+    } catch (
+      error
+    ) {
       console.error(
         "AFFILIATE LIST:",
         error
       );
 
       return res
-        .status(500)
+        .status(
+          getErrorStatus(
+            error
+          )
+        )
         .json({
-          success: false,
+          success:
+            false,
 
           message:
-            error instanceof Error
-              ? error.message
-              : "Không tải được danh sách Affiliate",
+            getErrorMessage(
+              error,
+              "Không tải được danh sách Affiliate"
+            ),
         });
     }
   }
 
   /* =======================================================
      PAYMENTS
+
+     GET:
+     /affiliate-commissions/payments
+       ?month=2026-09
+       &affiliate=AILOAN
+
+     ADMIN:
+     - được xem ALL hoặc từng Affiliate.
+     - lọc theo tháng.
+
+     LIVESTREAMER:
+     - frontend gửi affiliate gì cũng không quan trọng.
+     - backend ép về users.affiliate_code.
+     - chỉ xem lịch sử của chính mình.
   ======================================================= */
 
   async payments(
-    req: Request,
+    req: AuthRequest,
     res: Response
   ) {
-
     try {
+      const month =
+        typeof req.query.month ===
+        "string"
+          ? req.query.month
+              .trim()
+          : "";
 
+      /*
+       * Đây là lớp phân quyền chính.
+       *
+       * Với LIVESTREAMER:
+       * resolveAffiliateScope()
+       * đọc affiliate_code trực tiếp từ database.
+       */
+      const affiliate =
+        await resolveAffiliateScope(
+          req
+        );
+
+      /*
+       * Apps Script hiện đã có:
+       * action=payments
+       * -> nxGetPayments()
+       *
+       * Vì nxGetPayments chưa cần filter,
+       * backend lấy toàn bộ rồi lọc an toàn ở đây.
+       */
       const data =
         await this.request(
           "payments"
         );
 
+      const rows:
+        PaymentRow[] =
+          Array.isArray(
+            data
+          )
+            ? data
+            : [];
+
+      const targetAffiliate =
+        normalize(
+          affiliate
+        );
+
+      const filtered =
+        rows
+          .filter(
+            (
+              item
+            ) => {
+              /*
+               * FILTER AFFILIATE.
+               */
+              if (
+                targetAffiliate &&
+                targetAffiliate !==
+                  "ALL" &&
+                normalize(
+                  item.ma_affiliate
+                ) !==
+                  targetAffiliate
+              ) {
+                return false;
+              }
+
+              /*
+               * FILTER THÁNG.
+               *
+               * Ưu tiên thời gian thanh toán.
+               * Nếu trống dùng ngày lập phiếu.
+               */
+              if (month) {
+                const rowMonth =
+                  getMonthKey(
+                    item
+                      .thoi_gian_thanh_toan ||
+                      item
+                        .ngay_lap_phieu
+                  );
+
+                if (
+                  rowMonth !==
+                  month
+                ) {
+                  return false;
+                }
+              }
+
+              return true;
+            }
+          )
+          .sort(
+            (
+              a,
+              b
+            ) => {
+              const aRaw =
+                text(
+                  a
+                    .thoi_gian_thanh_toan ||
+                    a
+                      .ngay_lap_phieu
+                );
+
+              const bRaw =
+                text(
+                  b
+                    .thoi_gian_thanh_toan ||
+                    b
+                      .ngay_lap_phieu
+                );
+
+              const aTime =
+                new Date(
+                  aRaw.replace(
+                    " ",
+                    "T"
+                  )
+                ).getTime();
+
+              const bTime =
+                new Date(
+                  bRaw.replace(
+                    " ",
+                    "T"
+                  )
+                ).getTime();
+
+              return (
+                (
+                  Number.isFinite(
+                    bTime
+                  )
+                    ? bTime
+                    : 0
+                ) -
+                (
+                  Number.isFinite(
+                    aTime
+                  )
+                    ? aTime
+                    : 0
+                )
+              );
+            }
+          );
+
+      const totalAmount =
+        filtered.reduce(
+          (
+            sum,
+            item
+          ) =>
+            sum +
+            Number(
+              item.so_tien ||
+                0
+            ),
+          0
+        );
+
+      console.log(
+        "PAYMENT FILTER:",
+        {
+          month,
+          affiliate,
+          count:
+            filtered.length,
+          totalAmount,
+        }
+      );
+
       return res.json({
-        success: true,
-        data,
+        success:
+          true,
+
+        data:
+          filtered,
+
+        summary: {
+          total_transactions:
+            filtered.length,
+
+          total_amount:
+            totalAmount,
+        },
+
+        filter: {
+          month,
+
+          affiliate,
+        },
       });
-
-    } catch (error) {
-
+    } catch (
+      error
+    ) {
       console.error(
         "AFFILIATE PAYMENT:",
         error
       );
 
       return res
-        .status(500)
+        .status(
+          getErrorStatus(
+            error
+          )
+        )
         .json({
-          success: false,
+          success:
+            false,
 
           message:
-            error instanceof Error
-              ? error.message
-              : "Không tải được thanh toán",
+            getErrorMessage(
+              error,
+              "Không tải được lịch sử thanh toán"
+            ),
         });
     }
   }

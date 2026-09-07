@@ -57,7 +57,6 @@ router.get(
   "/payments",
 
   requireAuth,
-  requireAdmin,
 
   affiliateController
     .payments

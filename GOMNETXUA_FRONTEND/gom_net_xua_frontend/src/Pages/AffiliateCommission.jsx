@@ -6,6 +6,9 @@ import {
 
 import "./AffiliateCommission.css";
 
+import AffiliatePaymentHistory
+  from "./AffiliatePaymentHistory";
+
 const API_URL = (
   import.meta.env.VITE_API_URL ||
   "http://localhost:3000"
@@ -919,6 +922,17 @@ export default function AffiliateCommission({
         />
 
       </div>
+
+      {/* PAYMENT HISTORY */}
+
+      <AffiliatePaymentHistory
+        currentUser={
+          currentUser
+        }
+        affiliateOptions={
+          affiliateOptions
+        }
+      />
 
       {/* DETAIL */}
 
