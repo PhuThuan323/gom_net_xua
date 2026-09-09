@@ -316,24 +316,41 @@ localStorage.setItem(
             "ADMIN" && (
             <Overall />
           )}
+        {activePage === "xuatkho" && (
+          <Export
+          currentUser={currentUser}
+          />
+)}
+  {activePage ===
+          "nhapkho" &&
+          currentUser.role ===
+            "ADMIN" && (
+            <NhapKho />
+          )}
+          {activePage ===
+          "baogia" &&
+          currentUser.role ===
+            "ADMIN" && (
+            <BaoGia />
+          )}
+          {activePage ===
+          "cashflow" &&
+          currentUser.role ===
+            "ADMIN" && (
+            <CashFlow />
+          )}
+          {activePage ===
+          "loss" &&
+          currentUser.role ===
+            "ADMIN" && (
+            <Loss />
+          )}
 
         {activePage === "products" && (
           <ProductManagement
           currentUser={currentUser}
           />
         )}
-
-        {activePage ===
-          "barcode" && (
-          <Tem />
-        )}
-
-        {activePage ===
-          "nhapkho" &&
-          currentUser.role ===
-            "ADMIN" && (
-            <NhapKho />
-          )}
         {activePage ===
           "nhacungcap" &&
           currentUser.role ===
@@ -346,34 +363,8 @@ localStorage.setItem(
             "ADMIN" && (
             <NoNhaCungCap />
           )}
-
-      
-        {activePage ===
-          "baogia" &&
-          currentUser.role ===
-            "ADMIN" && (
-            <BaoGia />
-          )}
-
-        {activePage === "xuatkho" && (
-          <Export
-          currentUser={currentUser}
-          />
-)}
-
-        {activePage ===
-          "loss" &&
-          currentUser.role ===
-            "ADMIN" && (
-            <Loss />
-          )}
-
-        {activePage ===
-          "cashflow" &&
-          currentUser.role ===
-            "ADMIN" && (
-            <CashFlow />
-          )}
+        
+        
           {activePage ===
           "report" &&
           currentUser.role ===
@@ -393,6 +384,10 @@ localStorage.setItem(
             "ADMIN" && (
             <UserManagement />
           )}
+          {activePage ===
+          "barcode" && (
+          <Tem />
+        )}
 
       </main>
 

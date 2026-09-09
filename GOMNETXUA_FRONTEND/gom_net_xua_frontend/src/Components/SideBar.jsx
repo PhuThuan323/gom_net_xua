@@ -167,7 +167,62 @@ function Sidebar({
         "ADMIN",
       ],
     },
+    {
+      key:
+        "xuatkho",
 
+      label:
+        "Xuất kho",
+
+      roles: [
+        "ADMIN",
+        "EMPLOYEE",
+      ],
+    },
+    {
+      key:
+        "nhapkho",
+
+      label:
+        "Nhập kho",
+
+      roles: [
+        "ADMIN",
+      ],
+    },
+    {
+      key:
+        "baogia",
+
+      label:
+        "Báo Giá",
+
+      roles: [
+        "ADMIN",
+      ],
+    },
+    {
+      key:
+        "cashflow",
+
+      label:
+        "Thu - Chi",
+
+      roles: [
+        "ADMIN",
+      ],
+    },
+    {
+      key:
+        "loss",
+
+      label:
+        "Thất Thoát",
+
+      roles: [
+        "ADMIN",
+      ],
+    },
     {
       key:
         "products",
@@ -178,6 +233,31 @@ function Sidebar({
       roles: [
         "ADMIN",
         "EMPLOYEE",
+      ],
+    },
+    {
+      key:
+        "nhacungcap",
+
+      label:
+        "Nhà cung cấp",
+
+      roles: [
+        "ADMIN",
+      ],
+    },
+
+    
+
+    {
+      key:
+        "no",
+
+      label:
+        "Công nợ nhà cung cấp",
+
+      roles: [
+        "ADMIN",
       ],
     },
 
@@ -194,90 +274,7 @@ function Sidebar({
       ],
     },
 
-    {
-      key:
-        "nhacungcap",
-
-      label:
-        "Nhà cung cấp",
-
-      roles: [
-        "ADMIN",
-      ],
-    },
-
-    {
-      key:
-        "nhapkho",
-
-      label:
-        "Nhập kho",
-
-      roles: [
-        "ADMIN",
-      ],
-    },
-
-    {
-      key:
-        "no",
-
-      label:
-        "Công nợ nhà cung cấp",
-
-      roles: [
-        "ADMIN",
-      ],
-    },
-
-    {
-      key:
-        "baogia",
-
-      label:
-        "Báo Giá",
-
-      roles: [
-        "ADMIN",
-      ],
-    },
-
-    {
-      key:
-        "xuatkho",
-
-      label:
-        "Xuất kho",
-
-      roles: [
-        "ADMIN",
-        "EMPLOYEE",
-      ],
-    },
-
-    {
-      key:
-        "loss",
-
-      label:
-        "Thất Thoát",
-
-      roles: [
-        "ADMIN",
-      ],
-    },
-
-    {
-      key:
-        "cashflow",
-
-      label:
-        "Thu - Chi",
-
-      roles: [
-        "ADMIN",
-      ],
-    },
+  
 
     {
       key:
