@@ -747,3 +747,332 @@ select {
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* =========================================================
+   RESPONSIVE FIX - PRODUCT GROUPS + PRODUCT VARIANTS
+   ========================================================= */
+
+/* Cho flex/grid children co đúng trong layout */
+.main-product-layout,
+.product-group-card,
+.variants-card {
+  min-width: 0;
+}
+
+/* Danh sách nhóm trên desktop */
+.group-list {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+/* Bảng variant */
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+@media (max-width: 1024px) {
+  .main-product-layout {
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .product-group-card {
+    min-height: auto;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+@media (max-width: 768px) {
+
+  html,
+  body,
+  #root {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Quan trọng:
+     Không giữ sidebar 320px bên trái trên điện thoại */
+  .main-product-layout {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    gap: 12px;
+    padding: 10px;
+
+    overflow: visible;
+  }
+
+  /* =========================================
+     KHỐI NHÓM SẢN PHẨM
+     ========================================= */
+
+  .product-group-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: auto;
+
+    position: static;
+
+    overflow: visible;
+  }
+
+  /*
+     Cho toàn bộ danh sách nhóm vuốt ngang.
+     "Tất cả sản phẩm" cũng nên nằm trong .group-list
+     để nó cùng nằm trên một hàng.
+  */
+  .group-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+
+    width: 100%;
+    max-width: 100%;
+    max-height: none;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    gap: 8px;
+
+    padding: 4px 2px 12px;
+
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+
+    scrollbar-width: none;
+
+    /* Tránh browser cố gắng chọn text khi vuốt */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .group-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mỗi nhóm giữ kích thước riêng, không bị ép co */
+  .group-list .group-item {
+    flex: 0 0 auto;
+
+    width: auto;
+    min-width: 145px;
+    max-width: 220px;
+
+    box-sizing: border-box;
+  }
+
+  .group-list .group-info {
+    min-width: 0;
+  }
+
+  .group-list .group-info strong,
+  .group-list .group-info span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /*
+     Nút sửa vẫn bấm được trên điện thoại.
+     Không để nó làm item bị tràn.
+  */
+  .group-list .edit-group-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
+
+  /* =========================================
+     KHỐI VARIANTS
+     ========================================= */
+
+  .variants-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    overflow: visible;
+  }
+
+  /*
+     Nếu bên trong có filter/select thì không cho
+     chúng tạo chiều rộng lớn hơn viewport.
+  */
+  .variants-card .filter-section,
+  .variants-card .filter-row,
+  .variants-card .selected-info {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .variants-card .filter-row {
+    grid-template-columns: 1fr;
+  }
+
+  /*
+     Bảng variant vẫn giữ min-width 1200px để không
+     làm chữ/cột méo, nhưng người dùng có thể vuốt
+     ngang trong .table-container.
+  */
+  .variants-card .table-container {
+    display: block;
+
+    width: 100%;
+    max-width: 100%;
+
+    overflow-x: auto;
+    overflow-y: visible;
+
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+  }
+
+  .variants-card .table-container table {
+    min-width: 1200px;
+    width: max-content;
+  }
+
+  /* =========================================
+     MODAL TRÊN MOBILE
+     ========================================= */
+
+  .modal-overlay {
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  .group-edit-modal,
+  .group-modal,
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100vh - 24px);
+    overflow-y: auto;
+  }
+
+  .form-grid,
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: span 1;
+  }
+
+  .modal-actions {
+    flex-wrap: wrap;
+  }
+
+  .modal-actions button {
+    min-height: 42px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+@media (max-width: 480px) {
+
+  .main-product-layout {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .group-list {
+    gap: 7px;
+  }
+
+  .group-list .group-item {
+    min-width: 135px;
+    max-width: 190px;
+  }
+
+  .product-group-card h2 {
+    font-size: 20px;
+  }
+
+  .table-container table {
+    min-width: 1100px;
+  }
+
+  .action-buttons {
+    flex-wrap: wrap;
+  }
+
+  .edit-btn,
+  .delete-btn,
+  .edit-group-button {
+    min-height: 36px;
+  }
+}
+
+/* =========================================================
+   TOUCH DEVICE IMPROVEMENTS
+   ========================================================= */
+@media (hover: none) and (pointer: coarse) {
+
+  .group-list {
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .group-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .table-container {
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  .table-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .group-item,
+  .edit-group-button,
+  button,
+  select,
+  input {
+    touch-action: manipulation;
+  }
+
+  /*
+     Riêng vùng cần vuốt ngang phải ưu tiên pan ngang.
+  */
+  .group-list {
+    touch-action: pan-x;
+  }
+
+  .table-container {
+    touch-action: pan-x;
+  }
+}
